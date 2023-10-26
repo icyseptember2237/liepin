@@ -1,0 +1,123 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+    accept-count: 1000
+    max-connections: 8192
+    connection-timeout: 30s
+    max-keep-alive-requests: 100
+    keep-alive-timeout: 30s
+    threads:
+      max: 800
+      min-spare: 50
+
+spring:
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    # Druid
+    druid:
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 30000
+      # 配置连接超时时间
+      connectTimeout: 30000
+      # 配置网络超时时间
+      socketTimeout: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      pool-prepared-statements: false
+      use-global-data-source-stat: true
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+
+      # Druid stat view
+      stat-view-servlet:
+        enabled: true
+        reset-enable: false
+        allow: 0.0.0.0
+        login-username: admin
+        login-password: admin
+        url-pattern: /druid/*
+
+      # Druid Filter
+      filter:
+        stat:
+          enabled: true
+          slow-sql-millis: 500
+          log-slow-sql: true
+          merge-sql: true
+        wall:
+          enabled: true
+          config:
+            update-allow: true #允许更新
+            drop-table-allow: false #禁止删表
+            insert-allow: true #允许插入
+            delete-allow: false #禁止删除
+            multi-statement-allow: true
+
+  servlet:
+    multipart:
+      max-request-size: 100MB
+      max-file-size: 100MB
+  redis:
+    timeout: 5000
+    jedis:
+      pool:
+        enabled: true
+        max-active: 50
+        max-idle: 15
+        min-idle: 10
+        max-wait: 50
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  global-config:
+    db-config:
+      id-type: auto
+      table-underline: false
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+logging:
+  level:
+    root: info
+    com.example.template: debug
+
+#sa-token
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  active-timeout: 1800
+  is-concurrent: false #是否允许同一账号并发登录 （为 true 时允许一起登录，为 false 时新登录挤掉旧登录）
+  is-share: false #多人同时登录时不共用token
+  max-login-count: 5 #最大同时登录数
+  token-style: simple-uuid
+  is-read-cookie: false #是否尝试从 cookie 里读取 Token，此值为 false 后，StpUtil.login(id) 登录时也不会再往前端注入Cookie
+  is-read-header: true #是否尝试从 header 里读取 Token
+  is-read-body: false #是否尝试从 请求体 里读取 Token
+  isWriteHeader: false #是否在登录后将 Token 写入到响应头
+  is-log: false
+
+
+
+
+
+
