@@ -31,13 +31,11 @@ public interface ExceptionsEnums extends Exceptions{
     @Getter
     @AllArgsConstructor
     enum Login implements ExceptionsEnums{
-        CAPTCHA_EXPIRE(500, "验证码已失效"),
-        CAPTCHA_ERROR(500, "验证码错误或已失效"),
+        INFO_EMPTY(500,"账号密码不能为空"),
         USER_ERROR(500, "账号或密码错误"),
-        USER_STATUS_ERROR(500, "用户被禁用"),
         GET_USER_ERROR(500, "获取登录用户信息异常"),
         NO_ROLE_DSIABLE(500, "当前用户已被禁用"),
-        ACCOUNT_NOT_EXT(500, "登录账号不存在,请重新登录"),
+        ACCOUNT_NOT_EXT(500, "登录账号不存在"),
         USER_CLOSE(500, "当前账号已被禁用,请联系管理员");
         private int code;
         private String msg;

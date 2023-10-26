@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.auth.mapper.LoginMapper">
+
+    <select id="getUserByUsername" resultType="com.liepin.auth.entity.base.User">
+        select * from liepin.user
+        where user.username = #{username}
+    </select>
+
+    <select id="getUserRole" resultType="com.liepin.auth.entity.base.Role">
+        select * from liepin.role
+        where id = #{userId}
+    </select>
+</mapper>
