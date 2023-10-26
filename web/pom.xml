@@ -34,6 +34,12 @@
             <artifactId>auth</artifactId>
             <version>1.0.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.liepin</groupId>
+            <artifactId>worklog_agency</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
