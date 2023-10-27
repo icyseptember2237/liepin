@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
             }
         } else if (ex instanceof MyBatisSystemException) {
             errorCode = 500;
-            errorMsg = ex.getCause().getCause().getMessage();
+            errorMsg = ex.getMessage();
             if (log.isDebugEnabled()){
                 log.debug(ERROR, ex);
             }

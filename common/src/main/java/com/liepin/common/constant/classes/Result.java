@@ -5,7 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class Result extends HashMap<String,Object> {
+public class Result <T> extends HashMap<String,Object> {
     private static final long serialVersionUID = 1L;
     public static final String CODE_TAG = "code";
     public static final String MSG_TAG = "msg";
@@ -34,7 +34,7 @@ public class Result extends HashMap<String,Object> {
         super.put(MSG_TAG, msg);
     }
 
-    public Result(Type type, String msg, Object data)
+    public Result(Type type, String msg, T data)
     {
         super.put(CODE_TAG, type.value);
         super.put(MSG_TAG, msg);
@@ -51,7 +51,7 @@ public class Result extends HashMap<String,Object> {
         return Result.success("操作成功");
     }
 
-    public static Result success(Object data)
+    public static <T> Result<T> success(T data)
     {
         return Result.success("操作成功", data);
     }
@@ -61,7 +61,7 @@ public class Result extends HashMap<String,Object> {
         return Result.success(msg, null);
     }
 
-    public static Result success(String msg, Object data)
+    public static <T> Result<T> success(String msg, T data)
     {
         return new Result(Type.SUCCESS, msg, data);
     }
@@ -78,7 +78,7 @@ public class Result extends HashMap<String,Object> {
         return Result.error(msg, null);
     }
 
-    public static Result error(String msg, Object data)
+    public static <T> Result<T> error(String msg, T data)
     {
         return new Result(Type.ERROR, msg, data);
     }

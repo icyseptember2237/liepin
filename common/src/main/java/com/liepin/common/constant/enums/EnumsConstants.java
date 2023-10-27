@@ -12,4 +12,12 @@ public interface EnumsConstants {
         OTHER(-1);
         private int value;
     }
+
+    @Getter
+    @AllArgsConstructor
+    enum YESNO implements EnumsConstants{
+        YES("YES"),
+        NO("NO");
+        private String value;
+    }
 }

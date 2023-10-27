@@ -3,9 +3,12 @@ package com.liepin.auth.entity.base;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @TableName(value = "user")
 public class User {
     @TableId
@@ -16,7 +19,7 @@ public class User {
     private Long roleId;
     private String name;
     private Integer age;
-    private Integer sex;
+    private String sex;
     private String remark;
     private String status;
     private String createTime;

@@ -1,4 +1,4 @@
-package com.liepin.auth.entity.vo;
+package com.liepin.auth.entity.vo.req;
 
 import lombok.Data;
 

@@ -14,6 +14,5 @@ public class LiepinApplication {
         SpringApplication.run(LiepinApplication.class, args);
         Environment environment = SpringUtil.getBean(Environment.class);
         log.info("启动成功，位于端口" + environment.getProperty("server.port"));
-        log.info(FileConfig.getAllowType());
     }
 }

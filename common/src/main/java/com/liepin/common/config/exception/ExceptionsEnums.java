@@ -33,10 +33,10 @@ public interface ExceptionsEnums extends Exceptions{
     enum Login implements ExceptionsEnums{
         INFO_EMPTY(500,"账号密码不能为空"),
         USER_ERROR(500, "账号或密码错误"),
-        GET_USER_ERROR(500, "获取登录用户信息异常"),
-        NO_ROLE_DSIABLE(500, "当前用户已被禁用"),
         ACCOUNT_NOT_EXT(500, "登录账号不存在"),
-        USER_CLOSE(500, "当前账号已被禁用,请联系管理员");
+        USER_CLOSE(500, "当前账号已被禁用,请联系管理员"),
+        LOGOUT_FAIL(500,"登出失败"),
+        NO_ROLE(500,"用户未分配角色");
         private int code;
         private String msg;
     }
