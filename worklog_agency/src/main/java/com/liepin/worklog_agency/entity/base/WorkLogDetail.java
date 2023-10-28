@@ -9,7 +9,6 @@ import lombok.Data;
 public class WorkLogDetail {
     @TableId
     private Long id;
-    private Long logId;
     private Integer wechatNum;
     private Integer phoneNum;
     private Integer intentionalCustomer;

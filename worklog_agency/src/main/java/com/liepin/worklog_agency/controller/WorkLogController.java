@@ -1,7 +1,11 @@
 package com.liepin.worklog_agency.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
+import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
+import com.liepin.worklog_agency.entity.response.WorkLogProblemRes;
+import com.liepin.worklog_agency.entity.response.WorkLogRes;
 import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
 import com.liepin.worklog_agency.service.LogDetailService;
 import com.liepin.worklog_agency.service.LogProblemService;
@@ -19,20 +23,22 @@ public class WorkLogController {
     private LogProblemService logProblemService;
     @Autowired
     private LogDetailService logDetailService;
-
+    @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/getWorkLog")
-        public Result getLog(){
-        StpUtil.login(101);
+        public Result<WorkLogRes> getLog(){
         String loginId = StpUtil.getLoginId().toString();
         return logService.getWorkLog(loginId);
     }
+    @SaCheckRole(value = RoleType.MANAGER.code)
     @PostMapping("/postWorkLog")
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
-        StpUtil.login(102);
-        workLogRespVo.setLogId(Long.valueOf(StpUtil.getLoginId().toString()));
-        logProblemService.insertWorkLogProblem(workLogRespVo);
+        long loginIdAsLong = StpUtil.getLoginIdAsLong();
+
+        workLogRespVo.setId(Long.valueOf(StpUtil.getLoginId().toString()));
+        logService.insertWorkLog(workLogRespVo);
         logDetailService.insertWorkLogDetail(workLogRespVo);
-        return logService.insertWorkLog(workLogRespVo);
+        logProblemService.insertWorkLogProblem(workLogRespVo);
+        return Result.success();
     }
 
 }
