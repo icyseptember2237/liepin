@@ -1,16 +1,16 @@
 package com.liepin.common.util.system;
 
-import com.liepin.common.constant.enums.EnumsConstants;
+import com.liepin.common.constant.enums.ConstantsEnums;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GetSystem {
-    public static EnumsConstants.SystemType getType(){
+    public static ConstantsEnums.SystemType getType(){
         if (System.getProperty("os.name").contains("Win"))
-            return EnumsConstants.SystemType.WINDOWS;
+            return ConstantsEnums.SystemType.WINDOWS;
         else if (System.getProperty("os.name").contains("Linux"))
-            return EnumsConstants.SystemType.LINUX;
+            return ConstantsEnums.SystemType.LINUX;
         else
-            return EnumsConstants.SystemType.OTHER;
+            return ConstantsEnums.SystemType.OTHER;
     }
 }

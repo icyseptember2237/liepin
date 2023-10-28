@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth/login")
-@Api(value = "权限控制-登录")
+@RequestMapping("/api/auth/login")
+@Api(tags = "权限控制-登录")
 public class LoginController {
 
 

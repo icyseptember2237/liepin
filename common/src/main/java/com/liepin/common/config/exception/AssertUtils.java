@@ -27,6 +27,11 @@ public class AssertUtils {
             throw new BusinessException(exception);
         }
     }
+    public static void isFalse(boolean expression,String msg) throws BusinessException{
+        if (!expression){
+            throw new BusinessException(msg);
+        }
+    }
 
     public static void isBlank(String string, ExceptionsEnums exception) throws BusinessException {
         if (StrUtil.isBlank(string)) {

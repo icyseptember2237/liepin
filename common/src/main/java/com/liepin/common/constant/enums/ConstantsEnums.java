@@ -3,10 +3,10 @@ package com.liepin.common.constant.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-public interface EnumsConstants {
+public interface ConstantsEnums {
     @Getter
     @AllArgsConstructor
-    enum SystemType implements EnumsConstants{
+    enum SystemType implements ConstantsEnums {
         WINDOWS(1),
         LINUX(2),
         OTHER(-1);
@@ -15,7 +15,7 @@ public interface EnumsConstants {
 
     @Getter
     @AllArgsConstructor
-    enum YESNO implements EnumsConstants{
+    enum YESNO implements ConstantsEnums {
         YES("YES"),
         NO("NO");
         private String value;

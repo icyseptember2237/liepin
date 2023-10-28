@@ -10,7 +10,7 @@ import com.liepin.auth.util.Crypto;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.HashResult;
-import com.liepin.common.constant.enums.EnumsConstants;
+import com.liepin.common.constant.enums.ConstantsEnums;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +41,7 @@ public class LoginServiceImpl implements LoginService {
         AssertUtils.isFalse(user.getPassword().equals(Crypto.md5(reqVO.getPassword())),ExceptionsEnums.Login.USER_ERROR);
 
         // 检查账号状态
-        AssertUtils.isFalse(EnumsConstants.YESNO.YES.getValue().equals(user.getStatus()),ExceptionsEnums.Login.USER_CLOSE);
+        AssertUtils.isFalse(ConstantsEnums.YESNO.YES.getValue().equals(user.getStatus()),ExceptionsEnums.Login.USER_CLOSE);
 
         StpUtil.login(user.getId());
         StpUtil.getRoleList();
@@ -52,7 +52,6 @@ public class LoginServiceImpl implements LoginService {
         data.put("id",StpUtil.getLoginId());
         data.put("role",user.getRoleName());
         data.put("name",user.getName());
-        data.put("roleList",StpUtil.getLoginType());
         result.put("data",data);
         return result;
 
