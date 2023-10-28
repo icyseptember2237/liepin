@@ -2,7 +2,7 @@ package com.liepin.common.controller;
 
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
-import com.liepin.common.constant.classes.Result;
+import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.config.FileConfig;
 import com.liepin.common.util.system.GetSystem;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +19,7 @@ import java.util.UUID;
 public class CommonController {
 
     @PostMapping("/upload")
-    public Result uploadFile(MultipartFile file) {
+    public HashResult uploadFile(MultipartFile file) {
         try
         {
             //类型检查
@@ -58,7 +58,7 @@ public class CommonController {
                 AssertUtils.throwException(ExceptionsEnums.File.UPLOAD_FAIL);
             }
             String url = FileConfig.getUrl() + randomFileName;
-            Result result = Result.success();
+            HashResult result = HashResult.success();
             result.put("url", url);
             result.put("fileName", randomFileName);
             result.put("originalFilename", file.getOriginalFilename());
@@ -68,7 +68,7 @@ public class CommonController {
         {
             e.printStackTrace();
             AssertUtils.throwException(ExceptionsEnums.File.UPLOAD_FAIL);
-            return Result.error();
+            return HashResult.error();
         }
     }
 }

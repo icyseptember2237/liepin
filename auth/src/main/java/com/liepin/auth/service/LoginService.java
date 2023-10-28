@@ -1,11 +1,11 @@
 package com.liepin.auth.service;
 
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
-import com.liepin.common.constant.classes.Result;
+import com.liepin.common.constant.classes.HashResult;
 
 public interface LoginService {
 
-    Result userLogin(UserLoginReqVO reqVO);
+    HashResult userLogin(UserLoginReqVO reqVO);
 
-    Result userLogout();
+    HashResult userLogout();
 }

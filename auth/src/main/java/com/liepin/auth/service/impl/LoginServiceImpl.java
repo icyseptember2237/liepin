@@ -9,7 +9,7 @@ import com.liepin.auth.service.LoginService;
 import com.liepin.auth.util.Crypto;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
-import com.liepin.common.constant.classes.Result;
+import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.enums.EnumsConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -27,7 +27,7 @@ public class LoginServiceImpl implements LoginService {
     private LoginMapper loginMapper;
 
     @Override
-    public Result userLogin(UserLoginReqVO reqVO){
+    public HashResult userLogin(UserLoginReqVO reqVO){
         // 数据检查
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getUsername()) && StringUtils.isNotEmpty(reqVO.getPassword())
                 ,ExceptionsEnums.Login.INFO_EMPTY);
@@ -46,7 +46,7 @@ public class LoginServiceImpl implements LoginService {
         StpUtil.login(user.getId());
         StpUtil.getRoleList();
 
-        Result result = Result.success();
+        HashResult result = HashResult.success();
         HashMap<String,Object> data = new HashMap<>();
         data.put("Authorization",StpUtil.getTokenValue());
         data.put("id",StpUtil.getLoginId());
@@ -60,7 +60,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     @SaCheckLogin
-    public Result userLogout(){
+    public HashResult userLogout(){
         log.info(StpUtil.getTokenValue());
         try {
             log.info(StpUtil.getLoginId().toString());
@@ -69,6 +69,6 @@ public class LoginServiceImpl implements LoginService {
             e.printStackTrace();
             AssertUtils.throwException(ExceptionsEnums.Login.LOGOUT_FAIL);
         }
-        return Result.success();
+        return HashResult.success();
     }
 }

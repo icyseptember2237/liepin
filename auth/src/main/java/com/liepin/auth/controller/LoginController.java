@@ -2,7 +2,7 @@ package com.liepin.auth.controller;
 
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
 import com.liepin.auth.service.LoginService;
-import com.liepin.common.constant.classes.Result;
+import com.liepin.common.constant.classes.HashResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +26,13 @@ public class LoginController {
 
     @PostMapping("/userLogin")
     @ApiOperation(value = "用户登录")
-    public Result login(@RequestBody UserLoginReqVO reqVO){
+    public HashResult login(@RequestBody UserLoginReqVO reqVO){
         return loginService.userLogin(reqVO);
     }
 
     @PostMapping("/userLogout")
     @ApiOperation(value = "用户登出")
-    public Result logout(){
+    public HashResult logout(){
         return loginService.userLogout();
     }
 }

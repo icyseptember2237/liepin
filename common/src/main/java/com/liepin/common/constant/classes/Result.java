@@ -1,103 +1,76 @@
 package com.liepin.common.constant.classes;
 
-import cn.hutool.core.util.ObjectUtil;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-import java.util.HashMap;
-import java.util.Objects;
+import java.io.Serializable;
 
-public class Result <T> extends HashMap<String,Object> {
+@Data
+@ApiModel(description = "通用消息返回类")
+public class Result<T> implements Serializable {
     private static final long serialVersionUID = 1L;
-    public static final String CODE_TAG = "code";
-    public static final String MSG_TAG = "msg";
-    public static final String DATA_TAG = "data";
 
-    public enum Type
+    private static final int SUCCESS = 200;
+    private static final int FAIL = 500;
+
+
+    @ApiModelProperty(value = "200",notes = "响应码")
+    private int code;
+
+    @ApiModelProperty(value = "操作成功",notes = "响应消息")
+    private String msg;
+
+    @ApiModelProperty(value = "[]",notes = "数据")
+    private T data;
+
+    public static <T> Result<T> ok()
     {
-        SUCCESS(200),
-        ERROR(500);
-        private final int value;
-
-        Type(int value)
-        {
-            this.value = value;
-        }
-
+        return restResult(null, SUCCESS, "操作成功");
     }
 
-    public Result()
+    public static <T> Result<T> ok(T data)
     {
+        return restResult(data, SUCCESS, "操作成功");
     }
 
-    public Result(Type type, String msg)
+    public static <T> Result<T> ok(T data, String msg)
     {
-        super.put(CODE_TAG, type.value);
-        super.put(MSG_TAG, msg);
+        return restResult(data, SUCCESS, msg);
     }
 
-    public Result(Type type, String msg, T data)
+    public static <T> Result<T> fail()
     {
-        super.put(CODE_TAG, type.value);
-        super.put(MSG_TAG, msg);
-        if (ObjectUtil.isNotNull(data))
-        {
-            super.put(DATA_TAG, data);
-        }
+        return restResult(null, FAIL, "操作失败");
     }
 
-
-
-    public static Result success()
+    public static <T> Result<T> fail(String msg)
     {
-        return Result.success("操作成功");
+        return restResult(null, FAIL, msg);
     }
 
-    public static <T> Result<T> success(T data)
+    public static <T> Result<T> fail(T data)
     {
-        return Result.success("操作成功", data);
+        return restResult(data, FAIL, "操作失败");
     }
 
-    public static Result success(String msg)
+    public static <T> Result<T> fail(T data, String msg)
     {
-        return Result.success(msg, null);
+        return restResult(data, FAIL, msg);
     }
 
-    public static <T> Result<T> success(String msg, T data)
+    public static <T> Result<T> fail(int code, String msg)
     {
-        return new Result(Type.SUCCESS, msg, data);
+        return restResult(null, code, msg);
     }
 
-
-
-    public static Result error()
+    private static <T> Result<T> restResult(T data, int code, String msg)
     {
-        return Result.error("操作失败");
+        Result<T> apiResult = new Result<>();
+        apiResult.setCode(code);
+        apiResult.setData(data);
+        apiResult.setMsg(msg);
+        return apiResult;
     }
 
-    public static Result error(String msg)
-    {
-        return Result.error(msg, null);
-    }
-
-    public static <T> Result<T> error(String msg, T data)
-    {
-        return new Result(Type.ERROR, msg, data);
-    }
-
-    public boolean isSuccess()
-    {
-        return Objects.equals(Type.SUCCESS.value, this.get(CODE_TAG));
-    }
-
-
-    public boolean isError()
-    {
-        return Objects.equals(Type.ERROR.value, this.get(CODE_TAG));
-    }
-
-    @Override
-    public Result put(String key, Object value)
-    {
-        super.put(key, value);
-        return this;
-    }
 }
