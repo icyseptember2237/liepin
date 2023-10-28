@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.auth.mapper.AuthMapper">
+    <select id="getUsers" resultType="com.liepin.auth.entity.vo.resp.GetUsersListVO">
+        select user.*,role.role_code as roleCode,role.role_name as roleName,user.create_id as creator,user.update_id as updator,
+               (select name from user where user.id = creator) as createUser,
+               (select name from user where user.id = creator) as updateUser from liepin.user
+        left join liepin.role on user.role_id = role.id
+        where role.dlt = 'NO'
+        <if test="req.id != null and req.id != ''">
+            and user.id = #{req.id}
+        </if>
+        <if test="req.username != null and req.username != ''">
+            and user.username like concat('%',#{req.username},'%')
+        </if>
+        <if test="req.role != null and req.role != ''">
+            and role.role_code = #{req.role}
+        </if>
+        <if test="req.name != null and req.name != ''">
+            and user.name like concat('%',#{req.name},'%')
+        </if>
+        <if test="req.status != null and req.status != ''">
+            and user.status = #{req.status}
+        </if>
+
+        order by user.update_time desc
+        <if test="req.page != null and req.pageSize != null and req.page != '' and req.pageSize != ''">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+
+    <select id="getUsersNum" resultType="java.lang.Long">
+        select count(user.id) from liepin.user
+        left join liepin.role on user.role_id = role.id
+        where role.dlt = 'NO'
+        <if test="req.id != null and req.id != ''">
+            and user.id = #{req.id}
+        </if>
+        <if test="req.username != null and req.username != ''">
+            and user.username like concat('%',#{req.username},'%')
+        </if>
+        <if test="req.role != null and req.role != ''">
+            and role.role_code = #{req.role}
+        </if>
+        <if test="req.name != null and req.name != ''">
+            and user.name like concat('%',#{req.name},'%')
+        </if>
+        <if test="req.status != null and req.status != ''">
+            and user.status = #{req.status}
+        </if>
+
+        order by user.update_time desc
+        <if test="req.page != null and req.pageSize != null and req.page != '' and req.pageSize != ''">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+</mapper>

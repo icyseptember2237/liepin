@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.worklog_agency.mapper.LogMapper">
+
+
+<!--    <insert id="insertWorkLogDetail" parameterType="com.liepin.worklog_agency.entity.base.WorkLogDetail">-->
+<!--            insert into liepin.work_log_detail-->
+<!--            values (#{id},#{logId},#{wechatNum},#{phoneNum},#{intentionalCustomer},#{workSituation},#{workSummary},#{workPlan})-->
+<!--    </insert>-->
+    <insert id="insertWorkLog" parameterType="com.liepin.worklog_agency.entity.base.WorkLog">
+            insert into liepin.work_log
+            values (#{id},#{userId},#{createTime},#{updateTime},default)
+    </insert>
+
+    <select id="getWorkLog" resultType="com.liepin.worklog_agency.entity.response.WorkLogRespVo">
+            select *
+            from liepin.work_log,liepin.work_log_detail
+            where liepin.work_log.user_id = #{loginId}
+            and liepin.work_log_detail.log_id = liepin.work_log.id
+    </select>
+    <select id="getWorkLogProblem" resultType="com.liepin.worklog_agency.entity.base.WorkLogProblem">
+            select *
+            from liepin.work_log,liepin.work_log_problem,liepin.work_log_detail
+            where liepin.work_log.user_id = #{loginId} and liepin.work_log_problem.id = liepin.work_log.id
+            and liepin.work_log_detail.log_id = liepin.work_log.id
+    </select>
+
+</mapper>
