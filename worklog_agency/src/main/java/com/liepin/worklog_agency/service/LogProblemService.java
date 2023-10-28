@@ -1,4 +1,10 @@
 package com.liepin.worklog_agency.service;
 
-public interface LogProblemService {
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.liepin.common.constant.classes.Result;
+import com.liepin.worklog_agency.entity.base.WorkLogProblem;
+import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
+
+public interface LogProblemService extends IService<WorkLogProblem> {
+    Result insertWorkLogProblem(WorkLogRespVo workLogRespVo);
 }

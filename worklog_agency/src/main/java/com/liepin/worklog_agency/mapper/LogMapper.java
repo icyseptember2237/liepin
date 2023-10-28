@@ -1,5 +1,6 @@
 package com.liepin.worklog_agency.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.liepin.worklog_agency.entity.base.WorkLog;
 import com.liepin.worklog_agency.entity.base.WorkLogDetail;
 import com.liepin.worklog_agency.entity.base.WorkLogProblem;
@@ -9,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 @Mapper
-public interface LogMapper {
+public interface LogMapper extends BaseMapper<WorkLog> {
 
     WorkLogRespVo getWorkLog(String loginId);
 
@@ -17,5 +18,4 @@ public interface LogMapper {
 
     void insertWorkLog(WorkLog workLog);
     void insertWorkLogDetail(WorkLogDetail workLogDetail);
-    void insertWorkLogProblem();
 }
