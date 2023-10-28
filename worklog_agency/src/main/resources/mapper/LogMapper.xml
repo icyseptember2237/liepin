@@ -3,10 +3,7 @@
 <mapper namespace="com.liepin.worklog_agency.mapper.LogMapper">
 
 
-<!--    <insert id="insertWorkLogDetail" parameterType="com.liepin.worklog_agency.entity.base.WorkLogDetail">-->
-<!--            insert into liepin.work_log_detail-->
-<!--            values (#{id},#{logId},#{wechatNum},#{phoneNum},#{intentionalCustomer},#{workSituation},#{workSummary},#{workPlan})-->
-<!--    </insert>-->
+
     <insert id="insertWorkLog" parameterType="com.liepin.worklog_agency.entity.base.WorkLog">
             insert into liepin.work_log
             values (#{id},#{userId},#{createTime},#{updateTime},default)

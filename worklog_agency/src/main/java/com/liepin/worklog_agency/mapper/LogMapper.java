@@ -17,5 +17,4 @@ public interface LogMapper extends BaseMapper<WorkLog> {
     List<WorkLogProblem> getWorkLogProblem(String loginId);
 
     void insertWorkLog(WorkLog workLog);
-    void insertWorkLogDetail(WorkLogDetail workLogDetail);
 }
