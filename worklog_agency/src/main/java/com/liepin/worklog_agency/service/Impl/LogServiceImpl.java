@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class LogServiceImpl implements LogService {
+public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements LogService {
     @Autowired
     private LogMapper logMapper;
 
@@ -37,17 +37,7 @@ public class LogServiceImpl implements LogService {
         workLog.setUserId(StpUtil.getLoginIdAsLong());
         workLog.setCreateTime(String.valueOf(LocalDateTime.now()));
         workLog.setUpdateTime(String.valueOf(LocalDateTime.now()));
-
-        WorkLogDetail workLogDetail = new WorkLogDetail();
-        WorkLogProblem workLogProblem;
-        logMapper.insertWorkLog(workLog);
-
-        BeanUtils.copyProperties(workLogRespVo,workLogDetail);
-        logMapper.insertWorkLogDetail(workLogDetail);
-
-
-        logMapper.insertWorkLogProblem();
-
+        saveOrUpdate(workLog);
         return Result.success();
     }
 }

@@ -2,13 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liepin.worklog_agency.mapper.LogMapper">
 
-    <insert id="insertWorkLogProblem">
 
-    </insert>
-    <insert id="insertWorkLogDetail" parameterType="com.liepin.worklog_agency.entity.base.WorkLogDetail">
-            insert into liepin.work_log_detail
-            values (#{id},#{logId},#{wechatNum},#{phoneNum},#{intentionalCustomer},#{workSituation},#{workSummary},#{workPlan})
-    </insert>
+
     <insert id="insertWorkLog" parameterType="com.liepin.worklog_agency.entity.base.WorkLog">
             insert into liepin.work_log
             values (#{id},#{userId},#{createTime},#{updateTime},default)

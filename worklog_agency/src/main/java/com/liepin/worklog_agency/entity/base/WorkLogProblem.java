@@ -9,7 +9,7 @@ import lombok.Data;
 public class WorkLogProblem {
     @TableId
     private Long id;
-    private Long detaiId;
+    private Long detailId;
     private String problemInfo;
     private String solved;
     private String solution;
