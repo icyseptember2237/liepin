@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 @ApiModel(description = "通用消息返回类")
-public class Result<T> implements Serializable {
+public final class Result <T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final int SUCCESS = 200;

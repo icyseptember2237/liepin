@@ -3,6 +3,7 @@ package com.liepin.auth.controller;
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
 import com.liepin.auth.service.LoginService;
 import com.liepin.common.constant.classes.HashResult;
+import com.liepin.common.constant.classes.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class LoginController {
 
     @PostMapping("/userLogout")
     @ApiOperation(value = "用户登出")
-    public HashResult logout(){
+    public Result logout(){
         return loginService.userLogout();
     }
 }

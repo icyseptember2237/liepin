@@ -10,6 +10,7 @@ import com.liepin.auth.util.Crypto;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.HashResult;
+import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -34,7 +35,6 @@ public class LoginServiceImpl implements LoginService {
 
         // 获取账号信息
         LoginUser user = loginMapper.getUserByUsername(reqVO.getUsername());
-        log.info(user.getUsername());
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(user), ExceptionsEnums.Login.ACCOUNT_NOT_EXT);
 
         // 检查密码
@@ -59,15 +59,8 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     @SaCheckLogin
-    public HashResult userLogout(){
-        log.info(StpUtil.getTokenValue());
-        try {
-            log.info(StpUtil.getLoginId().toString());
-            StpUtil.logout(StpUtil.getLoginId());
-        }catch (Exception e){
-            e.printStackTrace();
-            AssertUtils.throwException(ExceptionsEnums.Login.LOGOUT_FAIL);
-        }
-        return HashResult.success();
+    public Result userLogout(){
+        StpUtil.logout(StpUtil.getLoginId());
+        return Result.success();
     }
 }

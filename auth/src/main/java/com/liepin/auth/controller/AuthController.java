@@ -38,7 +38,7 @@ public class AuthController {
     @PostMapping("/getUserList")
     @ApiOperation(value = "管理员获取用户信息(条件或全部)")
     @SaCheckRole(value = RoleType.MANAGER.code)
-    public Result<GetUsersRespVO> getUsers(GetUsersReqVO reqVO){
+    public Result<GetUsersRespVO> getUsers(@RequestBody GetUsersReqVO reqVO){
         return authService.getUsers(reqVO);
     }
 
@@ -50,7 +50,7 @@ public class AuthController {
     }
 
     @GetMapping("/getAllRoles")
-    @ApiModelProperty(value = "管理员-获取所有角色信息")
+    @ApiOperation(value = "管理员-获取所有角色信息")
     @SaCheckRole(value = RoleType.MANAGER.code)
     public Result<List<Role>> getAllRoles(){
         return authService.getAllRoles();
@@ -59,14 +59,14 @@ public class AuthController {
     @PostMapping("/createUser")
     @ApiOperation(value = "管理员-新建用户")
     @SaCheckRole(value = RoleType.MANAGER.code)
-    public Result createUser(CreateUserReqVO user){
+    public Result createUser(@RequestBody CreateUserReqVO user){
         return authService.createUser(user);
     }
 
     @PostMapping("/updateUserInfo")
     @ApiOperation(value = "管理员-更新用户信息")
     @SaCheckRole(value = RoleType.MANAGER.code)
-    public Result updateUserInfo(UpdateUserInfoReqVO reqVO){
+    public Result updateUserInfo(@RequestBody UpdateUserInfoReqVO reqVO){
         return authService.updateUserInfo(reqVO);
     }
 
