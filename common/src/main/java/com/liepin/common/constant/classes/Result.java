@@ -24,17 +24,17 @@ public class Result<T> implements Serializable {
     @ApiModelProperty(value = "[]",notes = "数据")
     private T data;
 
-    public static <T> Result<T> ok()
+    public static <T> Result<T> success()
     {
         return restResult(null, SUCCESS, "操作成功");
     }
 
-    public static <T> Result<T> ok(T data)
+    public static <T> Result<T> success(T data)
     {
         return restResult(data, SUCCESS, "操作成功");
     }
 
-    public static <T> Result<T> ok(T data, String msg)
+    public static <T> Result<T> success(T data, String msg)
     {
         return restResult(data, SUCCESS, msg);
     }
