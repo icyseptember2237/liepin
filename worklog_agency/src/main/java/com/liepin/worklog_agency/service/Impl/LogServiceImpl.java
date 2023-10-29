@@ -1,7 +1,10 @@
 package com.liepin.worklog_agency.service.Impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.liepin.common.config.exception.AssertUtils;
+import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.util.time.TimeUtil;
 import com.liepin.worklog_agency.entity.base.WorkLog;
@@ -13,6 +16,7 @@ import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
 import com.liepin.worklog_agency.mapper.LogMapper;
 import com.liepin.worklog_agency.mapper.LogProblemMapper;
 import com.liepin.worklog_agency.service.LogService;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,21 +29,36 @@ import java.util.List;
 public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements LogService {
     @Autowired
     private LogMapper logMapper;
-    @Autowired
-    private LogProblemMapper logProblemMapper;
 
     @Override
     public Result<WorkLogRes> getWorkLog(String loginId) {
         WorkLogRespVo workLogRespVo = logMapper.getWorkLog(loginId);
         List<WorkLogProblem> workLogProblemList  = logMapper.getWorkLogProblem(loginId);
         System.out.println(workLogProblemList);
+
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo), ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
+
         workLogRespVo.setWorkLogProbList(workLogProblemList);
 
         List<WorkLogProblemRes> workLogProblemResList = new ArrayList<>();
 
         WorkLogRes workLogRes = new WorkLogRes();
         BeanUtils.copyProperties(workLogRespVo,workLogRes);
+
+        workLogProblemList.forEach((a)->{
+            WorkLogProblemRes workLogProblemRes = new WorkLogProblemRes();
+            BeanUtils.copyProperties(a,workLogProblemRes);
+            workLogProblemResList.add(workLogProblemRes);
+        });
         workLogRes.setWorkLogProblemResList(workLogProblemResList);
+        workLogRes.setLogId(Integer.valueOf(loginId));
+
+        LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong());
+        WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
+        Long id = workLog.getId();
+        workLogRes.setId(id.intValue());
+
         return Result.success(workLogRes);
     }
 

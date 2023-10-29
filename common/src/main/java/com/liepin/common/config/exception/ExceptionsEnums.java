@@ -61,4 +61,11 @@ public interface ExceptionsEnums extends Exceptions{
         private int code;
         private String msg;
     }
+    @Getter
+    @AllArgsConstructor
+    enum WorkLog implements ExceptionsEnums{
+        WORK_LOG_EMPTY(500,"未上传日志");
+        private int code;
+        private String msg;
+    }
 }
