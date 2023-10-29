@@ -1,6 +1,8 @@
 package com.liepin.auth.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.liepin.auth.entity.base.Role;
 import com.liepin.auth.entity.base.User;
 import com.liepin.auth.entity.vo.req.CreateUserReqVO;
@@ -60,12 +62,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result createUser(CreateUserReqVO reqVO){
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getUsername()),"请填写用户名");
-        AssertUtils.isFalse(reqVO.getRoleId() != null,"尚未分配角色");
+        AssertUtils.isFalse(reqVO.getRole() != null,"尚未分配角色");
         User user = User.builder()
                 .username(reqVO.getUsername())
                 .phone(reqVO.getPhone())
                 .password(Crypto.md5("123456"))
-                .roleId(reqVO.getRoleId())
+                .roleId(roleService.getOne(new LambdaQueryWrapper<Role>()
+                        .eq(Role::getRoleCode,reqVO.getRole()))
+                        .getId())
                 .name(reqVO.getName())
                 .age(reqVO.getAge())
                 .sex(reqVO.getSex())
@@ -82,12 +86,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result updateUserInfo(UpdateUserInfoReqVO reqVO){
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getUsername()),"用户名不能为空");
-        AssertUtils.isFalse(reqVO.getRoleId() != null,"角色不能为空");
+        AssertUtils.isFalse(reqVO.getRole() != null,"角色不能为空");
         User user = User.builder()
                 .id(reqVO.getId())
                 .username(reqVO.getUsername())
                 .phone(reqVO.getPhone())
-                .roleId(reqVO.getRoleId())
+                .roleId(roleService.getOne(new LambdaQueryWrapper<Role>()
+                                .eq(Role::getRoleCode,reqVO.getRole()))
+                        .getId())
                 .name(reqVO.getName())
                 .age(reqVO.getAge())
                 .sex(reqVO.getSex())

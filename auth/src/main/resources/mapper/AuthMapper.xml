@@ -22,7 +22,7 @@
         <if test="req.status != null and req.status != ''">
             and user.status = #{req.status}
         </if>
-        order by user.update_time desc
+        order by user.id asc
         <if test="req.page != null and req.pageSize != null and req.page != '' and req.pageSize != ''">
             <bind name="offset" value="(req.page-1)*req.pageSize"/>
             limit #{offset},#{req.pageSize}

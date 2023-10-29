@@ -1,6 +1,7 @@
 package com.liepin.auth.controller;
 
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
+import com.liepin.auth.entity.vo.resp.UserLoginRespVO;
 import com.liepin.auth.service.LoginService;
 import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
@@ -27,7 +28,7 @@ public class LoginController {
 
     @PostMapping("/userLogin")
     @ApiOperation(value = "用户登录")
-    public HashResult login(@RequestBody UserLoginReqVO reqVO){
+    public Result<UserLoginRespVO> login(@RequestBody UserLoginReqVO reqVO){
         return loginService.userLogin(reqVO);
     }
 

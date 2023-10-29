@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import com.liepin.auth.entity.dto.LoginUser;
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
+import com.liepin.auth.entity.vo.resp.UserLoginRespVO;
 import com.liepin.auth.mapper.LoginMapper;
 import com.liepin.auth.service.LoginService;
 import com.liepin.auth.util.Crypto;
@@ -28,7 +29,7 @@ public class LoginServiceImpl implements LoginService {
     private LoginMapper loginMapper;
 
     @Override
-    public HashResult userLogin(UserLoginReqVO reqVO){
+    public Result<UserLoginRespVO> userLogin(UserLoginReqVO reqVO){
         // 数据检查
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getUsername()) && StringUtils.isNotEmpty(reqVO.getPassword())
                 ,ExceptionsEnums.Login.INFO_EMPTY);
@@ -46,15 +47,14 @@ public class LoginServiceImpl implements LoginService {
         StpUtil.login(user.getId());
         StpUtil.getRoleList();
 
-        HashResult result = HashResult.success();
-        HashMap<String,Object> data = new HashMap<>();
-        data.put("Authorization",StpUtil.getTokenValue());
-        data.put("id",StpUtil.getLoginId());
-        data.put("role",user.getRoleName());
-        data.put("name",user.getName());
-        result.put("data",data);
-        return result;
+        UserLoginRespVO respVO = new UserLoginRespVO();
+        respVO.setAuthorization(StpUtil.getTokenValue());
+        respVO.setId(StpUtil.getLoginIdAsLong());
+        respVO.setName(user.getName());
+        respVO.setUsername(user.getUsername());
+        respVO.setRole(user.getRoleCode());
 
+        return Result.success(respVO);
     }
 
     @Override

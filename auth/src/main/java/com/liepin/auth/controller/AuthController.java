@@ -51,7 +51,6 @@ public class AuthController {
 
     @GetMapping("/getAllRoles")
     @ApiOperation(value = "管理员-获取所有角色信息")
-    @SaCheckRole(value = RoleType.MANAGER.code)
     public Result<List<Role>> getAllRoles(){
         return authService.getAllRoles();
     }
