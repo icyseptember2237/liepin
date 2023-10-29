@@ -35,11 +35,9 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
 
         WorkLogRespVo workLogRespVo = logMapper.getWorkLog(loginId,dayTime);
         List<WorkLogProblem> workLogProblemList  = logMapper.getWorkLogProblem(loginId);
-        System.out.println(workLogProblemList);
+//        System.out.println(workLogProblemList);
 
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo), ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
-
-        workLogRespVo.setWorkLogProbList(workLogProblemList);
 
         List<WorkLogProblemRes> workLogProblemResList = new ArrayList<>();
 
@@ -51,12 +49,14 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
             BeanUtils.copyProperties(a,workLogProblemRes);
             workLogProblemResList.add(workLogProblemRes);
         });
-        workLogRes.setWorkLogProblemResList(workLogProblemResList);
+
+        workLogRes.setWorkLogProbList(workLogProblemResList);
         workLogRes.setLogId(Integer.valueOf(loginId));
 
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong());
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
+
         Long id = workLog.getId();
         workLogRes.setId(id.intValue());
 

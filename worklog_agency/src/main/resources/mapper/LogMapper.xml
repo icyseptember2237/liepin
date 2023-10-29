@@ -21,6 +21,7 @@
             from liepin.work_log,liepin.work_log_problem,liepin.work_log_detail
             where liepin.work_log.user_id = #{loginId} and liepin.work_log_problem.id = liepin.work_log.id
             and liepin.work_log_detail.id = liepin.work_log.id
+            and liepin.work_log_problem.dlt = 'NO'
     </select>
 
 </mapper>

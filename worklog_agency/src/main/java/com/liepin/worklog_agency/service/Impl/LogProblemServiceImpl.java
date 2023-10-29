@@ -24,11 +24,20 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
     @Override
     public Result insertWorkLogProblem(WorkLogRespVo workLogRespVo) {
 
-        List<WorkLogProblem> workLogProblemList = workLogRespVo.getWorkLogProbList();
+
+
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong());
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
+
+        List<WorkLogProblem> workLogProblemList = workLogRespVo.getWorkLogProbList();
+        LambdaQueryWrapper<WorkLogProblem> lambdaQueryWrapperForProblem = new LambdaQueryWrapper<>();
+        lambdaQueryWrapperForProblem.eq(WorkLogProblem::getId,id);
+        WorkLogProblem workLogProblemDlt = new WorkLogProblem();
+        workLogProblemDlt.setDlt("YES");
+        logProblemMapper.update(workLogProblemDlt,lambdaQueryWrapperForProblem);
+
         for(WorkLogProblem workLogProblem:workLogProblemList){
             workLogProblem.setId(id);
         }

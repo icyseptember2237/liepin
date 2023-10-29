@@ -11,7 +11,7 @@ public class WorkLogRes {
     private Integer logId;
     private Integer phoneNum;
     private Integer wechatNum;
-    private List<WorkLogProblemRes> workLogProblemResList;
+    private List<WorkLogProblemRes> workLogProbList;
     private String workPlan;
     private String workSituation;
     private String workSummary;

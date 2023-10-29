@@ -5,14 +5,18 @@ import cn.dev33.satoken.annotation.SaMode;
 import cn.dev33.satoken.stp.StpUtil;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
+import com.liepin.worklog_agency.entity.response.WorkLogBriefRes;
 import com.liepin.worklog_agency.entity.response.WorkLogProblemRes;
 import com.liepin.worklog_agency.entity.response.WorkLogRes;
 import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
+import com.liepin.worklog_agency.service.LogBriefService;
 import com.liepin.worklog_agency.service.LogDetailService;
 import com.liepin.worklog_agency.service.LogProblemService;
 import com.liepin.worklog_agency.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/worklog")
@@ -24,6 +28,8 @@ public class WorkLogController {
     private LogProblemService logProblemService;
     @Autowired
     private LogDetailService logDetailService;
+    @Autowired
+    private LogBriefService logBriefService;
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @GetMapping("/getWorkLog")
         public Result<WorkLogRes> getLog(@RequestParam String dayTime){
@@ -43,7 +49,8 @@ public class WorkLogController {
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/getAllWorkLog")
-        public Result getAllLog(){
-        return Result.success();
+        public Result<List<WorkLogBriefRes>> getAllLog(){
+        return logBriefService.getAllWork();
     }
+
 }
