@@ -31,8 +31,9 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     private LogMapper logMapper;
 
     @Override
-    public Result<WorkLogRes> getWorkLog(String loginId) {
-        WorkLogRespVo workLogRespVo = logMapper.getWorkLog(loginId);
+    public Result<WorkLogRes> getWorkLog(String loginId,String dayTime) {
+
+        WorkLogRespVo workLogRespVo = logMapper.getWorkLog(loginId,dayTime);
         List<WorkLogProblem> workLogProblemList  = logMapper.getWorkLogProblem(loginId);
         System.out.println(workLogProblemList);
 
@@ -66,7 +67,8 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     public Result insertWorkLog(WorkLogRespVo workLogRespVo) {
         WorkLog workLog = new WorkLog();
         String loginIdAsString = StpUtil.getLoginIdAsString();
-        WorkLogRespVo workLog1 = logMapper.getWorkLog(loginIdAsString);
+        String today = TimeUtil.getToday();
+        WorkLogRespVo workLog1 = logMapper.getWorkLog(loginIdAsString,today);
 
         if (workLog1!=null){
             Long id = workLog1.getId();

@@ -1,6 +1,7 @@
 package com.liepin.worklog_agency.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaMode;
 import cn.dev33.satoken.stp.StpUtil;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
@@ -23,13 +24,13 @@ public class WorkLogController {
     private LogProblemService logProblemService;
     @Autowired
     private LogDetailService logDetailService;
-    @SaCheckRole(value = RoleType.MANAGER.code)
+    @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @GetMapping("/getWorkLog")
-        public Result<WorkLogRes> getLog(){
+        public Result<WorkLogRes> getLog(@RequestParam String dayTime){
         String loginId = StpUtil.getLoginId().toString();
-        return logService.getWorkLog(loginId);
+        return logService.getWorkLog(loginId,dayTime);
     }
-    @SaCheckRole(value = RoleType.MANAGER.code)
+    @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @PostMapping("/postWorkLog")
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
         long loginIdAsLong = StpUtil.getLoginIdAsLong();
@@ -40,5 +41,9 @@ public class WorkLogController {
         logProblemService.insertWorkLogProblem(workLogRespVo);
         return Result.success();
     }
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @GetMapping("/getAllWorkLog")
+        public Result getAllLog(){
 
+    }
 }

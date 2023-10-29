@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper
 public interface LogMapper extends BaseMapper<WorkLog> {
 
-    WorkLogRespVo getWorkLog(String loginId);
+    WorkLogRespVo getWorkLog(String loginId,String createTime);
 
     List<WorkLogProblem> getWorkLogProblem(String loginId);
 

@@ -9,7 +9,7 @@ import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
 
 public interface LogService extends IService<WorkLog> {
 
-    Result<WorkLogRes> getWorkLog(String loginId);
+    Result<WorkLogRes> getWorkLog(String loginId,String dayTime);
 
     Result insertWorkLog(WorkLogRespVo workLogRespVo);
 }
