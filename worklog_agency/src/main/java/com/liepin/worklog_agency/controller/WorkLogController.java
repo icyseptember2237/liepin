@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/worklog")
+@RequestMapping("/api/worklog")
 public class WorkLogController {
 //    获取日志
     @Autowired
@@ -44,6 +44,6 @@ public class WorkLogController {
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/getAllWorkLog")
         public Result getAllLog(){
-
+        return Result.success();
     }
 }

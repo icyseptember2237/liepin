@@ -4,5 +4,8 @@ import lombok.Data;
 
 @Data
 public class WorkLogBriefRes {
-    private
+    private String userName;
+    private Long roleId;
+    private Integer unfinishedProblemNum;
+    private String updateTime;
 }
