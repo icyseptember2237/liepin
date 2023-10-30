@@ -1,0 +1,39 @@
+package com.liepin.worklog_agency.controller;
+
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckRole;
+import com.liepin.common.constant.classes.Result;
+import com.liepin.worklog_agency.entity.base.Agency;
+import com.liepin.worklog_agency.service.AgencyService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/agency")
+@Api(tags = "中介")
+public class AgencyController {
+    @Autowired
+    private AgencyService agencyService;
+
+    @SaCheckLogin
+    @GetMapping("get")
+    @ApiOperation(value = "获取代理List")
+        public Result<List<Agency>> getAgency(
+                @RequestParam String province,
+                @RequestParam String city,
+                @RequestParam String enterpriseName){
+            return agencyService.getAgency(province,city,enterpriseName);
+    }
+
+    @SaCheckLogin
+    @PostMapping("post")
+    @ApiOperation(value = "添加中介")
+        public Result postAgency(@RequestBody Agency agency){
+                agencyService.insertAgency(agency);
+                return Result.success("插入成功");
+    }
+}
