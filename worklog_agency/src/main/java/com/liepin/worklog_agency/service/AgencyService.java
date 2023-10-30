@@ -10,4 +10,12 @@ public interface AgencyService extends IService<Agency> {
     Result<List<Agency>> getAgency(String province, String city, String enterpriseName);
 
     void insertAgency(Agency agency);
+
+    void deleteAgency(List<Agency> agency);
+
+    void updateAgency(Agency agency);
+
+    Result<List<Agency>> getUnpassedAgency();
+
+    void updateUnpassedAgency(List<Agency> agencyList);
 }

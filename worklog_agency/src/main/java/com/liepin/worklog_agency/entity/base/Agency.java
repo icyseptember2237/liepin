@@ -1,10 +1,14 @@
 package com.liepin.worklog_agency.entity.base;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 public class Agency {
+    @TableId
+    @ApiModelProperty(notes = "id")
+    private String id;
     @ApiModelProperty(notes = "企业名称")
     private String enterpriseName;
     @ApiModelProperty(notes = "企业法人")
@@ -21,5 +25,7 @@ public class Agency {
     private String tel;
     @ApiModelProperty(notes = "是否删除")
     private String dlt;
+    @ApiModelProperty(notes = "是否通过")
+    private String pass;
 
 }

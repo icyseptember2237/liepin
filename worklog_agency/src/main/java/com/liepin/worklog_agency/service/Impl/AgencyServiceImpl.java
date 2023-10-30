@@ -33,6 +33,7 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
             lambdaQueryWrapper.eq(Agency::getEnterpriseName,enterpriseName);
         }
         lambdaQueryWrapper.eq(Agency::getDlt,"NO");
+        lambdaQueryWrapper.eq(Agency::getPass,"YES");
         List<Agency> agencyList = agencyMapper.selectList(lambdaQueryWrapper);
         String username = agencyMapper.getUsername(StpUtil.getLoginIdAsString());
         for (Agency agency:agencyList){
@@ -45,5 +46,37 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
     public void insertAgency(Agency agency) {
         agency.setCreateId((StpUtil.getLoginIdAsString()));
         save(agency);
+    }
+
+    @Override
+    public void deleteAgency(List<Agency> agencyList) {
+        for (Agency agency:agencyList){
+            agency.setDlt("YES");
+        }
+        updateBatchById(agencyList);
+    }
+
+    @Override
+    public void updateAgency(Agency agency) {
+//        String id = agency.getId();
+        updateById(agency);
+    }
+
+    @Override
+    public Result<List<Agency>> getUnpassedAgency() {
+        LambdaQueryWrapper<Agency> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Agency::getPass,"NO");
+        lambdaQueryWrapper.eq(Agency::getDlt,"YES");
+        List<Agency> agencyList = agencyMapper.selectList(lambdaQueryWrapper);
+        return Result.success(agencyList);
+    }
+
+    @Override
+    public void updateUnpassedAgency(List<Agency> agencyList) {
+//        LambdaQueryWrapper<Agency> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        for (Agency agency:agencyList){
+            agency.setPass("YES");
+        }
+        updateBatchById(agencyList);
     }
 }
