@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.worklog_agency.mapper.LogBriefMapper">
+
+    <select id="getAllBriefLog" resultType="com.liepin.worklog_agency.entity.response.WorkLogBriefRes">
+        select username,liepin.user.id,liepin.work_log.update_time,
+               (select count(*) from liepin.work_log_problem,liepin.work_log
+                                where liepin.work_log_problem.dlt = 'NO'
+                                and liepin.work_log.update_time like CONCAT(#{createTime},'%')
+                                and liepin.work_log.id = liepin.work_log_problem.id
+                                ) as unfinishedProblemNum
+        from liepin.user,liepin.work_log
+        where liepin.user.id = liepin.work_log.user_id
+    </select>
+
+</mapper>

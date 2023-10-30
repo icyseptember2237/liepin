@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface LogBriefService extends IService<WorkLogBriefRes> {
 
-    Result<List<WorkLogBriefRes>> getAllWork();
+    Result<List<WorkLogBriefRes>> getAllWork(String dayTime);
 }

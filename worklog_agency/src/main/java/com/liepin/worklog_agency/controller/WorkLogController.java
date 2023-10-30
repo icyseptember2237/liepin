@@ -13,6 +13,8 @@ import com.liepin.worklog_agency.service.LogBriefService;
 import com.liepin.worklog_agency.service.LogDetailService;
 import com.liepin.worklog_agency.service.LogProblemService;
 import com.liepin.worklog_agency.service.LogService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/worklog")
+@Api(tags = "日志")
 public class WorkLogController {
 //    获取日志
     @Autowired
@@ -32,15 +35,15 @@ public class WorkLogController {
     private LogBriefService logBriefService;
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @GetMapping("/getWorkLog")
+    @ApiOperation(value = "获取日志")
         public Result<WorkLogRes> getLog(@RequestParam String dayTime){
         String loginId = StpUtil.getLoginId().toString();
         return logService.getWorkLog(loginId,dayTime);
     }
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @PostMapping("/postWorkLog")
+    @ApiOperation(value = "更新or上传日志")
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
-        long loginIdAsLong = StpUtil.getLoginIdAsLong();
-
         workLogRespVo.setId(Long.valueOf(StpUtil.getLoginId().toString()));
         logService.insertWorkLog(workLogRespVo);
         logDetailService.insertWorkLogDetail(workLogRespVo);
@@ -49,8 +52,9 @@ public class WorkLogController {
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/getAllWorkLog")
-        public Result<List<WorkLogBriefRes>> getAllLog(){
-        return logBriefService.getAllWork();
+    @ApiOperation(value = "管理员获取简要日志")
+        public Result<List<WorkLogBriefRes>> getAllLog(@RequestParam String dayTime){
+        return logBriefService.getAllWork(dayTime);
     }
 
 }

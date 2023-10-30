@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class WorkLogBriefRes {
     private String userName;
-    private Long roleId;
+    private Long id;
     private Integer unfinishedProblemNum;
     private String updateTime;
 }
