@@ -3,10 +3,12 @@ package com.liepin.common.constant.classes;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.Getter;
 
 import java.io.Serializable;
 
 @Data
+@Getter
 @ApiModel(description = "通用消息返回类")
 public final class Result <T> implements Serializable {
     private static final long serialVersionUID = 1L;

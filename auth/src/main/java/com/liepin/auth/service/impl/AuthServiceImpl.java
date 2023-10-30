@@ -63,6 +63,7 @@ public class AuthServiceImpl implements AuthService {
     public Result createUser(CreateUserReqVO reqVO){
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getUsername()),"请填写用户名");
         AssertUtils.isFalse(reqVO.getRole() != null,"尚未分配角色");
+        AssertUtils.isFalse(ObjectUtils.isEmpty(userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getUsername()))),"用户名重复");
         User user = User.builder()
                 .username(reqVO.getUsername())
                 .phone(reqVO.getPhone())
@@ -87,6 +88,7 @@ public class AuthServiceImpl implements AuthService {
     public Result updateUserInfo(UpdateUserInfoReqVO reqVO){
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getUsername()),"用户名不能为空");
         AssertUtils.isFalse(reqVO.getRole() != null,"角色不能为空");
+        AssertUtils.isFalse(ObjectUtils.isEmpty(userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getUsername()).ne(User::getId,reqVO.getId()))),"用户名重复");
         User user = User.builder()
                 .id(reqVO.getId())
                 .username(reqVO.getUsername())
@@ -112,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Result updateUserPassWord(UpdateUserPasswordReqVO reqVO){
-        User user = userService.getById(StpUtil.getLoginIdAsLong());
+        User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getUsername()));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(user),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
         if (!user.getPassword().equals(Crypto.md5(reqVO.getOldPassword())))
             return Result.fail("原密码错误,请联系管理员重置密码");

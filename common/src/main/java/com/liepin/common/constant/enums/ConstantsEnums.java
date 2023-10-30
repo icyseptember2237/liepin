@@ -20,4 +20,13 @@ public interface ConstantsEnums {
         NO("NO");
         private String value;
     }
+
+    @Getter
+    @AllArgsConstructor
+    enum AuditStatus implements ConstantsEnums {
+        PASS("PASS"),
+        WAIT("WAIT"),
+        FAIL("FAIL");
+        private String status;
+    }
 }

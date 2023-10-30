@@ -6,7 +6,7 @@
                (select name from user where user.id = creator) as createUser,
                (select name from user where user.id = creator) as updateUser from liepin.user
         left join liepin.role on user.role_id = role.id
-        where role.dlt = 'NO'
+        where user.dlt = 'NO'
         <if test="req.id != null and req.id != ''">
             and user.id = #{req.id}
         </if>
@@ -32,7 +32,7 @@
     <select id="getUsersNum" resultType="java.lang.Long">
         select count(user.id) from liepin.user
         left join liepin.role on user.role_id = role.id
-        where role.dlt = 'NO'
+        where user.dlt = 'NO'
         <if test="req.id != null and req.id != ''">
             and user.id = #{req.id}
         </if>

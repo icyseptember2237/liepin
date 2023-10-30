@@ -10,7 +10,7 @@ public class CreateUserReqVO {
     @ApiModelProperty(notes = "电话")
     private String phone;
     @ApiModelProperty(notes = "角色id")
-    private Long role;
+    private String role;
     @ApiModelProperty(notes = "姓名")
     private String name;
     @ApiModelProperty(notes = "年龄")
