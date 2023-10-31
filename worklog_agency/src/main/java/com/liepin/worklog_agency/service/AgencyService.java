@@ -15,7 +15,7 @@ public interface AgencyService extends IService<Agency> {
 
     void updateAgency(Agency agency);
 
-    Result<List<Agency>> getUnpassedAgency();
+    Result<List<Agency>> getUncheckedAgency();
 
     void updateUnpassedAgency(List<Agency> agencyList);
 }
