@@ -11,30 +11,28 @@ import com.liepin.common.util.time.TimeUtil;
 
 public class AuditLog {
     public static void setAuditPass(final TableName tableName,final Long tableId){
+        // 组装参数
+        Audit newAudit = new Audit();
+        newAudit.setTableName(tableName.getTableName());
+        newAudit.setTableId(tableId);
+        newAudit.setAuditTime(TimeUtil.getNowWithSec());
+        newAudit.setAuditId(StpUtil.getLoginIdAsLong());
+        newAudit.setAuditStatus(ConstantsEnums.AuditStatus.PASS.getStatus());
         AsyncExecutor.getExecutor().execute(new Thread(() -> {
-            AuditMapper auditMapper = SpringUtil.getBean(AuditMapper.class);
-            // 组装参数
-            Audit newAudit = new Audit();
-            newAudit.setTableName(tableName.getTableName());
-            newAudit.setTableId(tableId);
-            newAudit.setAuditTime(TimeUtil.getNowWithMin());
-            newAudit.setAuditId(StpUtil.getLoginIdAsLong());
-            newAudit.setAuditStatus(ConstantsEnums.AuditStatus.PASS.getStatus());
-            auditMapper.insert(newAudit);
+            SpringUtil.getBean(AuditMapper.class).insert(newAudit);
         }));
     }
 
     public static void setAuditFail(final TableName tableName,final Long tableId){
+        // 组装参数
+        Audit newAudit = new Audit();
+        newAudit.setTableName(tableName.getTableName());
+        newAudit.setTableId(tableId);
+        newAudit.setAuditTime(TimeUtil.getNowWithSec());
+        newAudit.setAuditId(StpUtil.getLoginIdAsLong());
+        newAudit.setAuditStatus(ConstantsEnums.AuditStatus.FAIL.getStatus());
         AsyncExecutor.getExecutor().execute(new Thread(() -> {
-            AuditMapper auditMapper = SpringUtil.getBean(AuditMapper.class);
-            // 组装参数
-            Audit newAudit = new Audit();
-            newAudit.setTableName(tableName.getTableName());
-            newAudit.setTableId(tableId);
-            newAudit.setAuditTime(TimeUtil.getNowWithMin());
-            newAudit.setAuditId(StpUtil.getLoginIdAsLong());
-            newAudit.setAuditStatus(ConstantsEnums.AuditStatus.FAIL.getStatus());
-            auditMapper.insert(newAudit);
+            SpringUtil.getBean(AuditMapper.class).insert(newAudit);
         }));
     }
 }
