@@ -26,6 +26,8 @@ public class Agency {
     @ApiModelProperty(notes = "是否删除")
     private String dlt;
     @ApiModelProperty(notes = "是否通过")
-    private String pass;
+    private String auditStatus;
+    @ApiModelProperty(notes = "创建时间")
+    private String createTime;
 
 }

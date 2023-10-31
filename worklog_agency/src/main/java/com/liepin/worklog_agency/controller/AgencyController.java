@@ -53,14 +53,14 @@ public class AgencyController {
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/getUnpassedAgency")
-    @ApiOperation(value = "获取未通过审核中介")
-        public Result<List<Agency>> getUnpassedAgency(){
-                return agencyService.getUnpassedAgency();
+    @ApiOperation(value = "获取未审核中介")
+        public Result<List<Agency>> getUncheckedAgency(){
+                return agencyService.getUncheckedAgency();
 
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
     @PostMapping("/postPassedAgency")
-    @ApiOperation(value = "提交通过审核的中介")
+    @ApiOperation(value = "提交审核的中介(传入的list里面每个agency的audit值需要更改)")
         public Result postPassedAgency(@RequestBody List<Agency> agencyList){
                 agencyService.updateUnpassedAgency(agencyList);
                 return Result.success("提交成功");
