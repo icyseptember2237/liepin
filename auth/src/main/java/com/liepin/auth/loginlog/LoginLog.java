@@ -9,6 +9,7 @@ import com.liepin.auth.entity.vo.req.UserLoginReqVO;
 import com.liepin.auth.entity.vo.resp.UserLoginRespVO;
 import com.liepin.auth.loginlog.entity.SysLog;
 import com.liepin.auth.loginlog.service.impl.SysLogServiceImpl;
+import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.config.thread.AsyncExecutor;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
@@ -45,7 +46,14 @@ public class LoginLog {
         log.setUsername(req.getUsername());
         log.setRes(ConstantsEnums.YESNO.NO.getValue());
         log.setTime(TimeUtil.getNowWithSec());
-        log.setMsg(e.getMessage());
+        if (ExceptionsEnums.Login.USER_ERROR.getMsg().equals(e.getMessage()))
+            log.setMsg("密码错误");
+        else if (ExceptionsEnums.Login.USER_CLOSE.getMsg().equals(e.getMessage()))
+            log.setMsg("账号已禁用");
+        else if (ExceptionsEnums.Login.ACCOUNT_NOT_EXT.getMsg().equals(e.getMessage()))
+            log.setMsg("账号不存在");
+        else
+            log.setMsg("其他原因");
         // 异步存入
         AsyncExecutor.getExecutor().execute(new Thread(() ->{
             SpringUtil.getBean(SysLogServiceImpl.class).save(log);

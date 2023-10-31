@@ -10,7 +10,7 @@ import org.springframework.core.env.Environment;
 
 @SpringBootApplication
 @Slf4j
-@EnableServletRequestLog
+//@EnableServletRequestLog
 public class LiepinApplication {
     public static void main(String[] args) {
         SpringApplication.run(LiepinApplication.class, args);
