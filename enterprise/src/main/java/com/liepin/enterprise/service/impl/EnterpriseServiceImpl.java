@@ -1,6 +1,7 @@
 package com.liepin.enterprise.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.alibaba.excel.EasyExcel;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
@@ -17,11 +18,14 @@ import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListVO;
+import com.liepin.enterprise.entity.vo.resp.ImportEnterpriseRespVO;
+import com.liepin.enterprise.listener.EnterpriseImportListener;
 import com.liepin.enterprise.mapper.EnterpriseMapper;
 import com.liepin.enterprise.service.EnterpriseService;
 import com.liepin.enterprise.service.base.impl.EnterpriseInfoServiceImpl;
 import com.liepin.enterprise.service.base.impl.EnterpriseOceanServiceImpl;
 import com.liepin.enterprise.service.base.impl.EnterprisePrivateServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -29,11 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class EnterpriseServiceImpl implements EnterpriseService {
 
     private final EnterpriseInfoServiceImpl enterpriseInfoService;
@@ -71,6 +78,33 @@ public class EnterpriseServiceImpl implements EnterpriseService {
         respVO.setList(list);
         respVO.setTotal(dtos.get(0).getNum());
         return Result.success(respVO);
+    }
+
+    @Override
+    public Result<ImportEnterpriseRespVO> importEnterprise(MultipartFile file){
+        // 检查文件
+        checkFile(file);
+
+        EnterpriseImportListener listener = new EnterpriseImportListener(enterpriseInfoService,enterpriseOceanService);
+        try {
+            log.info("准备导入");
+            EasyExcel.read(file.getInputStream(),EnterpriseInfo.class,listener).sheet().doRead();
+
+        } catch (IOException ie){
+            ie.printStackTrace();
+            AssertUtils.throwException(ExceptionsEnums.File.IMPORT_FAIL);
+        }
+        ImportEnterpriseRespVO respVO = new ImportEnterpriseRespVO();
+        respVO.setTotal(listener.getDataNum());
+        respVO.setSeconds(listener.getTime()/1000);
+        return Result.success();
+    }
+
+    private void checkFile(MultipartFile file){
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(file),ExceptionsEnums.File.EMPTY_FILE);
+        String type = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);
+        AssertUtils.isFalse("xlsx".equals(type) || "xls".equals(type),ExceptionsEnums.File.TYPE_NOT_ALLOWED);
+
     }
 
     @Override

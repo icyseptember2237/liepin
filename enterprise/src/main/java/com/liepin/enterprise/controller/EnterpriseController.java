@@ -7,6 +7,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
+import com.liepin.enterprise.entity.vo.resp.ImportEnterpriseRespVO;
 import com.liepin.enterprise.service.EnterpriseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,11 +32,11 @@ public class EnterpriseController {
         return enterpriseService.getEnterpriseList(reqVO);
     }
 
-    @GetMapping("/import")
+    @PostMapping("/import")
     @ApiOperation(value = "导入单位公海")
-    @SaCheckRole(value = RoleType.MANAGER.code)
-    public Result importEnterprise(MultipartFile file){
-        return null;
+    //@SaCheckRole(value = RoleType.MANAGER.code)
+    public Result<ImportEnterpriseRespVO> importEnterprise(MultipartFile file){
+        return enterpriseService.importEnterprise(file);
     }
 
     @PostMapping("/addEnterprise")
@@ -46,7 +47,7 @@ public class EnterpriseController {
     }
 
     @GetMapping("/pullEnterprise")
-    @ApiOperation(value = "拉人私人单位库")
+    @ApiOperation(value = "拉入私人单位库")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
     public Result pullEnterprise(@Parameter(description = "公海id") @RequestParam Long id){
         return enterpriseService.pullEnterprise(id);

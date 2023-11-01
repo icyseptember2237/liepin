@@ -1,8 +1,10 @@
 package com.liepin.enterprise.entity.base;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
+@TableName("enterprise_private")
 public class EnterprisePrivate {
     private Long id;
     private Long userId;

@@ -54,10 +54,12 @@ public interface ExceptionsEnums extends Exceptions{
     @AllArgsConstructor
     enum File implements ExceptionsEnums{
         DOWNLOAD_FAIL(500,"文件下载失败"),
+        NO_PATH_FOUND(500,"路径不存在"),
         ILLEGAL_FILENAME(500,"文件名称错误"),
         UPLOAD_FAIL(500,"文件上传失败"),
-        NO_PATH_FOUND(500,"找不到服务器路径"),
-        TYPE_NOT_ALLOWED(500,"非法文件类型");
+        IMPORT_FAIL(500,"导入失败"),
+        TYPE_NOT_ALLOWED(500,"非法文件类型"),
+        EMPTY_FILE(500,"文件不能为空");
         private int code;
         private String msg;
     }
