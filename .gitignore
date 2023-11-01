@@ -16,3 +16,8 @@
 /web/src/test/
 
 
+/auth/auth.iml
+/liepin.iml
+/worklog_agency/worklog_agency.iml
+/enterprise/enterprise.iml
+/common/common.iml

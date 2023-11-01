@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liepin.common.constant.classes.Result;
+import com.liepin.common.util.time.TimeUtil;
 import com.liepin.worklog_agency.entity.base.WorkLog;
 import com.liepin.worklog_agency.entity.base.WorkLogDetail;
 import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
@@ -24,12 +25,13 @@ public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDe
     public Result insertWorkLogDetail(WorkLogRespVo workLogRespVo) {
         WorkLogDetail workLogDetail = new WorkLogDetail();
         BeanUtils.copyProperties(workLogRespVo,workLogDetail);
-//        saveOrUpdate(workLogDetail);
+
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong());
+        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong()).
+                like(WorkLog::getCreateTime, TimeUtil.getToday());
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
-//        Long id = logMapper.getWorkLog(StpUtil.getLoginIdAsString()).getId();
+
         workLogDetail.setId(id);
         saveOrUpdate(workLogDetail);
         return Result.success("插入or更新成功");

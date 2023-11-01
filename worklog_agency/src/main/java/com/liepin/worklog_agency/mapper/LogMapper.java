@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.liepin.worklog_agency.entity.base.WorkLog;
 import com.liepin.worklog_agency.entity.base.WorkLogDetail;
 import com.liepin.worklog_agency.entity.base.WorkLogProblem;
+import com.liepin.worklog_agency.entity.response.WorkLogProblemRes;
+import com.liepin.worklog_agency.entity.response.WorkLogRes;
 import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -17,4 +19,8 @@ public interface LogMapper extends BaseMapper<WorkLog> {
     List<WorkLogProblem> getWorkLogProblem(String loginId);
 
     void insertWorkLog(WorkLog workLog);
+
+    WorkLogRes getWorkLogRes(String loginId, String dayTime);
+
+    List<WorkLogProblemRes> getWorkLogProblemList(String loginId, String dayTime);
 }

@@ -23,5 +23,23 @@
             and liepin.work_log_detail.id = liepin.work_log.id
             and liepin.work_log_problem.dlt = 'NO'
     </select>
+    <select id="getWorkLogRes" resultType="com.liepin.worklog_agency.entity.response.WorkLogRes">
+            select work_log_detail.id,work_log_detail.intentional_customer,work_log.user_id,work_log_detail.phone_num,
+                   work_log_detail.wechat_num,work_log_detail.work_plan,work_log_detail.work_situation,work_log_detail.work_summary
+            from work_log_detail , work_log
+            where work_log_detail.id = work_log.id
+            and   liepin.work_log.user_id = #{loginId}
+            and work_log.create_time like CONCAT(#{dayTime},"%")
+    </select>
+    <select id="getWorkLogProblemList"
+            resultType="com.liepin.worklog_agency.entity.response.WorkLogProblemRes">
+            select work_log_problem.id,work_log_problem.problem_info,work_log_problem.solved,
+                   work_log_problem.solution,work_log_problem.contact,work_log_problem.dlt
+            from work_log_problem,work_log
+            where work_log_problem.id = work_log.id
+            and work_log.user_id = #{loginId}
+            and work_log.create_time like CONCAT(#{dayTime},"%")
+            and work_log_problem.dlt = 'NO'
+    </select>
 
 </mapper>
