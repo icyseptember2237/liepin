@@ -6,11 +6,13 @@
         select username,liepin.user.id,liepin.work_log.update_time,
                (select count(*) from liepin.work_log_problem,liepin.work_log
                                 where liepin.work_log_problem.dlt = 'NO'
-                                and liepin.work_log.update_time like CONCAT(#{createTime},'%')
+                                and liepin.work_log.update_time like CONCAT(#{dayTime},'%')
                                 and liepin.work_log.id = liepin.work_log_problem.id
+                                and liepin.work_log.user_id = liepin.user.id
                                 ) as unfinishedProblemNum
         from liepin.user,liepin.work_log
         where liepin.user.id = liepin.work_log.user_id
+        and liepin.work_log.update_time like  CONCAT(#{dayTime},'%')
     </select>
 
 </mapper>

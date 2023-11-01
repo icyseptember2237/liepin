@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liepin.common.constant.classes.Result;
+import com.liepin.common.util.time.TimeUtil;
 import com.liepin.worklog_agency.entity.base.WorkLog;
 import com.liepin.worklog_agency.entity.base.WorkLogProblem;
 import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
@@ -23,14 +24,12 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
     private LogMapper logMapper;
     @Override
     public Result insertWorkLogProblem(WorkLogRespVo workLogRespVo) {
-
-
-
+        // 得到日志id
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong());
+        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong()).like(WorkLog::getCreateTime, TimeUtil.getToday());
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
-
+        // 全覆盖更新
         List<WorkLogProblem> workLogProblemList = workLogRespVo.getWorkLogProbList();
         LambdaQueryWrapper<WorkLogProblem> lambdaQueryWrapperForProblem = new LambdaQueryWrapper<>();
         lambdaQueryWrapperForProblem.eq(WorkLogProblem::getId,id);
