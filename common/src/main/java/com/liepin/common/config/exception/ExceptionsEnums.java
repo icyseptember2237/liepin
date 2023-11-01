@@ -68,4 +68,13 @@ public interface ExceptionsEnums extends Exceptions{
         private int code;
         private String msg;
     }
+
+    @Getter
+    @AllArgsConstructor
+    enum Enterprise implements ExceptionsEnums{
+        NO_DATA(500,"单位不存在"),
+        INSERT_FAIL(500,"单位新增失败");
+        private int code;
+        private String msg;
+    }
 }

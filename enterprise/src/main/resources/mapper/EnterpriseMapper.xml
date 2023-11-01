@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.enterprise.mapper.EnterpriseMapper">
+    <select id="getEnterpriseOceanList" resultType="com.liepin.enterprise.entity.dto.GetEnterpriseListDTO">
+        select
+            temp.id as infoId,
+            count(temp.id) as num,
+            enterprise_ocean.id,
+            enterprise_info.name,
+            enterprise_info.province,
+            enterprise_info.city,
+            enterprise_info.legal_representative,
+            enterprise_ocean.create_time,
+            (select throwback_reason
+             from liepin.enterprise_throwback_history
+             where enterprise_throwback_history.info_id = infoId
+             order by throwback_time desc
+             limit 1)
+        from enterprise_info
+        inner join
+             (select enterprise_info.id from enterprise_info
+              inner join enterprise_ocean on enterprise_ocean.info_id = enterprise_info.id
+              where enterprise_ocean.dlt = 'NO'
+                    and enterprise_ocean.is_private = 'NO'
+                <if test="req.province != null and req.province != ''">
+                    and enterprise_info.province = #{req.province}
+                </if>
+                <if test="req.city != null and req.city != ''">
+                    and enterprise_info.city = #{req.city}
+                </if>
+                <if test="req.phone != null and req.phone != ''">
+                    and enterprise_info.phone like concat('%',#{req.phone},'%')
+                </if>
+                <if test="req.name != null and req.name != ''">
+                    and enterprise_info.name like concat('%',#{req.name},'%')
+                </if>
+              order by enterprise_info.id) as temp
+        on temp.id = enterprise_info.id
+        inner join enterprise_ocean
+        on enterprise_ocean.info_id = temp.id
+        <bind name="offset" value="(req.page-1)*req.pageSize"/>
+        limit #{offset},#{req.pageSize}
+    </select>
+
+    <select id="getEnterpriseOceanNum" resultType="java.lang.Long">
+        select count(enterprise_info.id) from liepin.enterprise_info
+        inner join liepin.enterprise_ocean on enterprise_ocean.info_id = enterprise_info.id
+        where enterprise_ocean.dlt = 'NO'
+        and enterprise_ocean.is_private = 'NO'
+        <if test="req.name != null and req.name != ''">
+            and enterprise_info.name like concat('%',#{req.name},'%')
+        </if>
+        <if test="req.province != null and req.province != ''">
+            and enterprise_info.province = #{req.province}
+        </if>
+        <if test="req.city != null and req.city != ''">
+            and enterprise_info.city = #{req.city}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and enterprise_info.phone like concat('%',#{req.phone},'%')
+        </if>
+    </select>
+</mapper>
