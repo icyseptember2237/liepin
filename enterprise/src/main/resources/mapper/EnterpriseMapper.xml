@@ -5,12 +5,12 @@
         select
             temp.id as infoId,
             count(temp.id) as num,
-            enterprise_ocean.id,
+            enterprise_info.id,
             enterprise_info.name,
             enterprise_info.province,
             enterprise_info.city,
             enterprise_info.legal_representative,
-            enterprise_ocean.create_time,
+            enterprise_info.create_time,
             (select throwback_reason
              from liepin.enterprise_throwback_history
              where enterprise_throwback_history.info_id = infoId
@@ -19,9 +19,8 @@
         from enterprise_info
         inner join
              (select enterprise_info.id from enterprise_info
-              inner join enterprise_ocean on enterprise_ocean.info_id = enterprise_info.id
-              where enterprise_ocean.dlt = 'NO'
-                    and enterprise_ocean.is_private = 'NO'
+              where enterprise_info.dlt = 'NO'
+                    and enterprise_info.is_private = 'NO'
                 <if test="req.county != null and req.county != ''">
                     and enterprise_info.county = #{req.county}
                 </if>
@@ -39,8 +38,6 @@
                 </if>
               order by enterprise_info.id) as temp
         on temp.id = enterprise_info.id
-        inner join enterprise_ocean
-        on enterprise_ocean.info_id = temp.id
         <bind name="offset" value="(req.page-1)*req.pageSize"/>
         limit #{offset},#{req.pageSize}
     </select>
@@ -69,7 +66,7 @@
         into table enterprise_info
         fields terminated by ','
         lines terminated by '\n'
-        (name,phone,address,legal_representative,province,city,county);
+        (name,phone,address,legal_representative,create_time,province,city,county);
     </insert>
 
     <insert id="importEnterpriseOcean">

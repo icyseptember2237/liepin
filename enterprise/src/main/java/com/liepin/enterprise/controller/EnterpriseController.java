@@ -54,8 +54,8 @@ public class EnterpriseController {
         return enterpriseService.alterEnterprise(reqVO);
     }
 
-    @PostMapping("/alterEnterprise")
-    @ApiOperation(value = "修改单位信息")
+    @PostMapping("/deleteEnterprise")
+    @ApiOperation(value = "删除单位信息")
     @SaCheckRole(value = RoleType.MANAGER.code)
     public Result deleteEnterprise(@RequestParam Long id){
         return enterpriseService.deleteEnterprise(id);

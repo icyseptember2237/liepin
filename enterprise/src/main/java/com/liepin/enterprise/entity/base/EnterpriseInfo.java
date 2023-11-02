@@ -25,4 +25,7 @@ public class EnterpriseInfo {
     @ExcelProperty(value = "地址",index = 2)
     private String address;
     private String remark;
+    private String createTime;
+    private String isPrivate;
+    private String dlt;
 }

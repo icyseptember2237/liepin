@@ -112,7 +112,6 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     }
 
     @Override
-    @Transactional
     public Result addEnterprise(AddEnterpriseReqVO reqVO){
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getName()),
                 "单位名称不能为空");
@@ -122,15 +121,9 @@ public class EnterpriseServiceImpl implements EnterpriseService {
         try {
             EnterpriseInfo info = new EnterpriseInfo();
             BeanUtils.copyProperties(reqVO,info);
+            info.setCreateTime(TimeUtil.getNowWithSec());
             enterpriseInfoService.save(info);
-
-            EnterpriseOcean ocean = new EnterpriseOcean();
-            ocean.setInfoId(info.getId());
-            ocean.setCreateTime(TimeUtil.getNowWithSec());
-            enterpriseOceanService.save(ocean);
         } catch (Exception e){
-            e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             AssertUtils.throwException(ExceptionsEnums.Enterprise.INSERT_FAIL);
         }
 
@@ -138,7 +131,6 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     }
 
     @Override
-    @Transactional
     public Result alterEnterprise(AlterEnterpriseReqVO reqVO){
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getName()),
                 "单位名称不能为空");
@@ -146,8 +138,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
                 "联系方式不能为空");
         try {
             EnterpriseInfo info = new EnterpriseInfo();
-            BeanUtils.copyProperties(reqVO,info,"id");
-            info.setId(enterpriseOceanService.getById(reqVO.getId()).getInfoId());
+            BeanUtils.copyProperties(reqVO,info);
             enterpriseInfoService.updateById(info);
         } catch (Exception e){
             e.printStackTrace();
@@ -160,26 +151,26 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
     @Override
     public Result deleteEnterprise(Long id){
-        EnterpriseOcean ocean = enterpriseOceanService.getById(id);
-        ocean.setDlt(ConstantsEnums.YESNO.YES.getValue());
-        enterpriseOceanService.updateById(ocean);
+        EnterpriseInfo info = enterpriseInfoService.getById(id);
+        info.setDlt(ConstantsEnums.YESNO.YES.getValue());
+        enterpriseInfoService.updateById(info);
         return Result.success();
     }
 
     @Override
     @Transactional
     public Result pullEnterprise(Long id){
-        EnterpriseOcean ocean = enterpriseOceanService.getById(id);
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(ocean),
+        EnterpriseInfo info = enterpriseInfoService.getById(id);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),
                 ExceptionsEnums.Enterprise.NO_DATA);
 
         try {
-            ocean.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
-            enterpriseOceanService.updateById(ocean);
+            info.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
+            enterpriseInfoService.updateById(info);
 
             EnterprisePrivate enterprisePrivate = new EnterprisePrivate();
             enterprisePrivate.setUserId(StpUtil.getLoginIdAsLong());
-            enterprisePrivate.setInfoId(ocean.getInfoId());
+            enterprisePrivate.setInfoId(info.getId());
             enterprisePrivate.setFollowUpId(StpUtil.getLoginIdAsLong());
             enterprisePrivate.setCreateTime(TimeUtil.getNowWithSec());
             enterprisePrivate.setStatus(PrivateStatus.NOT_CONTACT.getStatus());

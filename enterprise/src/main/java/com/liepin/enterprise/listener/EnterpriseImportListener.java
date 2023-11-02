@@ -102,7 +102,6 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
         EnterpriseMapper mapper = SpringUtil.getBean(EnterpriseMapper.class);
         log.info(importFile.getPath());
         mapper.importEnterprise(importFile.getPath());
-        mapper.importEnterpriseOcean();
         importFile.delete();
         time = System.currentTimeMillis()-TIME_THREADLOCAL.get();
         log.info("{}条数据上传成功",dataNum);
@@ -114,6 +113,7 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
         joiner.add(info.getPhone());
         joiner.add(info.getAddress());
         joiner.add(info.getLegalRepresentative());
+        joiner.add(TimeUtil.getNowWithSec());
         Map<String,String> addr = addressResolution(info.getAddress());
         if (!addr.isEmpty()){
             joiner.add(addr.get("province"));
