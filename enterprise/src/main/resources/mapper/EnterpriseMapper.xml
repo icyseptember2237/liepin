@@ -22,11 +22,14 @@
               inner join enterprise_ocean on enterprise_ocean.info_id = enterprise_info.id
               where enterprise_ocean.dlt = 'NO'
                     and enterprise_ocean.is_private = 'NO'
-                <if test="req.province != null and req.province != ''">
-                    and enterprise_info.province = #{req.province}
+                <if test="req.county != null and req.county != ''">
+                    and enterprise_info.county = #{req.county}
                 </if>
                 <if test="req.city != null and req.city != ''">
                     and enterprise_info.city = #{req.city}
+                </if>
+                <if test="req.province != null and req.province != ''">
+                    and enterprise_info.province = #{req.province}
                 </if>
                 <if test="req.phone != null and req.phone != ''">
                     and enterprise_info.phone like concat('%',#{req.phone},'%')
@@ -60,4 +63,17 @@
             and enterprise_info.phone like concat('%',#{req.phone},'%')
         </if>
     </select>
+
+    <insert id="importEnterprise" parameterType="java.lang.String">
+        load data local infile '${fileName}'
+        into table enterprise_info
+        fields terminated by ','
+        lines terminated by '\n'
+        (name,phone,address,legal_representative,province,city,county);
+    </insert>
+
+    <insert id="importEnterpriseOcean">
+        insert into liepin.enterprise_ocean (create_time, info_id)
+        select now(),id from enterprise_info;
+    </insert>
 </mapper>

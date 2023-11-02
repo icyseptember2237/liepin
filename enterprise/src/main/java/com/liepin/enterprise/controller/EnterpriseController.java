@@ -5,6 +5,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
+import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.ImportEnterpriseRespVO;
@@ -27,14 +28,14 @@ public class EnterpriseController {
 
     @PostMapping("/getEnterpriseList")
     @ApiOperation(value = "查询公海页面")
-    //@SaCheckLogin
+    @SaCheckLogin
     public Result<GetEnterpriseListRespVO> getEnterpriseList(@RequestBody GetEnterpriseListReqVO reqVO){
         return enterpriseService.getEnterpriseList(reqVO);
     }
 
     @PostMapping("/import")
     @ApiOperation(value = "导入单位公海")
-    //@SaCheckRole(value = RoleType.MANAGER.code)
+    @SaCheckRole(value = RoleType.MANAGER.code)
     public Result<ImportEnterpriseRespVO> importEnterprise(MultipartFile file){
         return enterpriseService.importEnterprise(file);
     }
@@ -44,6 +45,20 @@ public class EnterpriseController {
     @SaCheckRole(value = RoleType.MANAGER.code)
     public Result addEnterprise(@RequestBody AddEnterpriseReqVO reqVO){
         return enterpriseService.addEnterprise(reqVO);
+    }
+
+    @PostMapping("/alterEnterprise")
+    @ApiOperation(value = "修改单位信息")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    public Result alterEnterprise(@RequestBody AlterEnterpriseReqVO reqVO){
+        return enterpriseService.alterEnterprise(reqVO);
+    }
+
+    @PostMapping("/alterEnterprise")
+    @ApiOperation(value = "修改单位信息")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    public Result deleteEnterprise(@RequestParam Long id){
+        return enterpriseService.deleteEnterprise(id);
     }
 
     @GetMapping("/pullEnterprise")

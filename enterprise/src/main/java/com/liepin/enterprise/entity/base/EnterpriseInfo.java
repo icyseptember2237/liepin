@@ -14,6 +14,7 @@ public class EnterpriseInfo {
     private String registeredCapital;
     private String province;
     private String city;
+    private String county;
     private String email;
     private String qualification;
     @ExcelProperty(value = "法人姓名",index = 3)

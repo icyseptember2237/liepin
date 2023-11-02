@@ -72,6 +72,7 @@ spring:
             insert-allow: true #允许插入
             delete-allow: false #禁止删除
             multi-statement-allow: true
+            none-base-statement-allow: true
 
   servlet:
     multipart:

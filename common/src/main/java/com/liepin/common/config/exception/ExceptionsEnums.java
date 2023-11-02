@@ -75,7 +75,8 @@ public interface ExceptionsEnums extends Exceptions{
     @AllArgsConstructor
     enum Enterprise implements ExceptionsEnums{
         NO_DATA(500,"单位不存在"),
-        INSERT_FAIL(500,"单位新增失败");
+        INSERT_FAIL(500,"单位新增失败"),
+        ALTER_FAIL(500,"单位修改失败");
         private int code;
         private String msg;
     }

@@ -13,6 +13,8 @@ public class GetEnterpriseListReqVO {
     private String phone;
     @ApiModelProperty(notes = "省名")
     private String province;
-    @ApiModelProperty(notes = "城市名")
+    @ApiModelProperty(notes = "市")
     private String city;
+    @ApiModelProperty(notes = "区名")
+    private String county;
 }

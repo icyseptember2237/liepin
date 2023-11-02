@@ -17,6 +17,8 @@ public class AddEnterpriseReqVO {
     private String province;
     @ApiModelProperty(notes = "市")
     private String city;
+    @ApiModelProperty(notes = "区名")
+    private String county;
     @ApiModelProperty(notes = "企业邮箱")
     private String email;
     @ApiModelProperty(notes = "资质等级")

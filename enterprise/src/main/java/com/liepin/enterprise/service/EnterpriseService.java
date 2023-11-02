@@ -2,6 +2,7 @@ package com.liepin.enterprise.service;
 
 import com.liepin.common.constant.classes.Result;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
+import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.ImportEnterpriseRespVO;
@@ -17,6 +18,10 @@ public interface EnterpriseService {
     Result<ImportEnterpriseRespVO> importEnterprise(MultipartFile file);
 
     Result addEnterprise(AddEnterpriseReqVO reqVO);
+
+    Result alterEnterprise(AlterEnterpriseReqVO reqVO);
+
+    Result deleteEnterprise(Long id);
 
     Result pullEnterprise(Long id);
 

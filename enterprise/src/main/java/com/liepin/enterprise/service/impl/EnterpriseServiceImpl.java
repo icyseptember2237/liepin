@@ -5,6 +5,7 @@ import com.alibaba.excel.EasyExcel;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
+import com.liepin.common.constant.config.FileConfig;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.auditlog.AuditLog;
 import com.liepin.common.util.auditlog.constant.TableName;
@@ -15,6 +16,7 @@ import com.liepin.enterprise.entity.base.EnterpriseOcean;
 import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.entity.dto.GetEnterpriseListDTO;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
+import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListVO;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +88,8 @@ public class EnterpriseServiceImpl implements EnterpriseService {
         // 检查文件
         checkFile(file);
 
-        EnterpriseImportListener listener = new EnterpriseImportListener(enterpriseInfoService,enterpriseOceanService);
+
+        EnterpriseImportListener listener = new EnterpriseImportListener();
         try {
             log.info("准备导入");
             EasyExcel.read(file.getInputStream(),EnterpriseInfo.class,listener).sheet().doRead();
@@ -130,6 +134,35 @@ public class EnterpriseServiceImpl implements EnterpriseService {
             AssertUtils.throwException(ExceptionsEnums.Enterprise.INSERT_FAIL);
         }
 
+        return Result.success();
+    }
+
+    @Override
+    @Transactional
+    public Result alterEnterprise(AlterEnterpriseReqVO reqVO){
+        AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getName()),
+                "单位名称不能为空");
+        AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getEmail()) || StringUtils.isNotEmpty(reqVO.getPhone()),
+                "联系方式不能为空");
+        try {
+            EnterpriseInfo info = new EnterpriseInfo();
+            BeanUtils.copyProperties(reqVO,info,"id");
+            info.setId(enterpriseOceanService.getById(reqVO.getId()).getInfoId());
+            enterpriseInfoService.updateById(info);
+        } catch (Exception e){
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            AssertUtils.throwException(ExceptionsEnums.Enterprise.ALTER_FAIL);
+        }
+
+        return Result.success();
+    }
+
+    @Override
+    public Result deleteEnterprise(Long id){
+        EnterpriseOcean ocean = enterpriseOceanService.getById(id);
+        ocean.setDlt(ConstantsEnums.YESNO.YES.getValue());
+        enterpriseOceanService.updateById(ocean);
         return Result.success();
     }
 
