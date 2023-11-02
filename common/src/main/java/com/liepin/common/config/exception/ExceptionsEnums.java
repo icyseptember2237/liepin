@@ -79,4 +79,11 @@ public interface ExceptionsEnums extends Exceptions{
         private int code;
         private String msg;
     }
+    @Getter
+    @AllArgsConstructor
+    enum AgencyEX implements ExceptionsEnums{
+        AGENCY_NOT_FOUND(500,"未找到中介");
+        private int code;
+        private String msg;
+    }
 }

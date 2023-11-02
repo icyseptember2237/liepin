@@ -1,12 +1,9 @@
-package com.liepin.worklog_agency.entity.base;
+package com.liepin.worklog_agency.entity.request;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
 @Data
-public class Agency {
-    @TableId
+public class UpdateAgencyReqVO {
     @ApiModelProperty(notes = "id")
     private String id;
     @ApiModelProperty(notes = "企业名称")
@@ -19,13 +16,7 @@ public class Agency {
     private String city;
     @ApiModelProperty(notes = "详细地址")
     private String detailAddr;
-    @ApiModelProperty(notes = "创建员工")
-    private String createId;
     @ApiModelProperty(notes = "联系电话")
     private String tel;
-    @ApiModelProperty(notes = "是否通过(YES通过WAIT审核NO删除)")
-    private String auditStatus;
-    @ApiModelProperty(notes = "创建时间")
-    private String createTime;
-    private String dlt;
+
 }

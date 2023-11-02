@@ -8,4 +8,33 @@
         from liepin.user
         where id = #{id}
     </select>
+    <select id="getAgencyNum" resultType="java.lang.Long">
+        select count(*)
+        from liepin.agency
+        where liepin.agency.audit_status like concat('%',#{req.auditStatus},'%')
+        <if test="req.enterpriseName != null and req.enterpriseName != ''">
+            and liepin.agency.enterprise_name like concat('%',#{req.enterprise_name},'%')
+        </if>
+        <if test="req.province != null and req.province != ''">
+            and liepin.agency.username = #{req.province}
+        </if>
+        <if test="req.city != null and req.city != ''">
+            and liepin.agency.city = #{req.city}
+        </if>
+    </select>
+    <select id="getAgenctList" resultType="com.liepin.worklog_agency.entity.base.Agency">
+        select *
+        from liepin.agency
+        where liepin.agency.audit_status like concat('%',#{req.auditStatus},'%')
+        <if test="req.enterpriseName != null and req.enterpriseName != ''">
+            and liepin.agency.enterprise_name like concat('%',#{req.enterpriseName},'%')
+        </if>
+        <if test="req.province != null and req.province != ''">
+            and liepin.agency.username = #{req.province}
+        </if>
+        <if test="req.city != null and req.city != ''">
+            and liepin.agency.city = #{req.city}
+        </if>
+
+    </select>
 </mapper>

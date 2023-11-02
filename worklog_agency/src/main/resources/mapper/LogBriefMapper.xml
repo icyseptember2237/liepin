@@ -3,16 +3,65 @@
 <mapper namespace="com.liepin.worklog_agency.mapper.LogBriefMapper">
 
     <select id="getAllBriefLog" resultType="com.liepin.worklog_agency.entity.response.WorkLogBriefRes">
-        select username,liepin.user.id,liepin.work_log.update_time,
+        select distinct liepin.work_log.id as log_id,username,name,liepin.user.id,liepin.role.role_code as role,
+               liepin.work_log.update_time,liepin.work_log_detail.phone_num,liepin.work_log_detail.wechat_num,
+               liepin.work_log_detail.intentional_customer,
                (select count(*) from liepin.work_log_problem,liepin.work_log
                                 where liepin.work_log_problem.dlt = 'NO'
-                                and liepin.work_log.update_time like CONCAT(#{dayTime},'%')
                                 and liepin.work_log.id = liepin.work_log_problem.id
                                 and liepin.work_log.user_id = liepin.user.id
                                 ) as unfinishedProblemNum
-        from liepin.user,liepin.work_log
-        where liepin.user.id = liepin.work_log.user_id
-        and liepin.work_log.update_time like  CONCAT(#{dayTime},'%')
+        from liepin.work_log left join liepin.work_log_problem on liepin.work_log.id =liepin.work_log_problem.id
+        join liepin.user on work_log.user_id = liepin.user.id join liepin.work_log_detail on work_log.id = work_log_detail.id
+        join liepin.role on user.role_id = role.id
+
+        where liepin.user.dlt='NO'
+        <if test="req.id != null and req.id != ''">
+            and liepin.user.id = #{req.id}
+        </if>
+        <if test="req.name != null and req.name != ''">
+            and liepin.user.name = like concat('%',#{req.name},'%')
+        </if>
+        <if test="req.username != null and req.username != ''">
+            and liepin.user.username like concat('%',#{req.username},'%')
+        </if>
+        <if test="req.role != null and req.role != ''">
+            and liepin.user.role_id = #{req.role}
+        </if>
+        <if test="req.solved != null and req.solved != ''">
+            and liepin.work_log_problem.solved = #{req.solved}
+        </if>
+        order by liepin.user.id asc
+        <if test="req.page != null and req.pageSize != null and req.page != '' and req.pageSize != ''">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+
+    </select>
+    <select id="getAllBriefLogNum" resultType="java.lang.Long">
+        select COUNT(distinct liepin.work_log_problem.id)
+        from liepin.work_log left join liepin.work_log_problem on liepin.work_log.id =liepin.work_log_problem.id
+        join liepin.user on work_log.user_id = liepin.user.id
+        join liepin.role on user.role_id = role.id
+        where liepin.user.dlt='NO'
+          and liepin.work_log.dlt = 'NO'
+        <if test="req.id != null and req.id != ''">
+            and liepin.user.id = #{req.id}
+        </if>
+        <if test="req.username != null and req.username != ''">
+            and liepin.user.username like concat('%',#{req.username},'%')
+        </if>
+        <if test="req.role != null and req.role != ''">
+            and liepin.user.role_id = #{req.role}
+        </if>
+        <if test="req.solved != null and req.solved != ''">
+            and liepin.work_log_problem.solved = #{req.solved}
+        </if>
+        order by liepin.user.id asc
+        <if test="req.page != null and req.pageSize != null and req.page != '' and req.pageSize != ''">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
     </select>
 
 </mapper>

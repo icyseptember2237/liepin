@@ -4,7 +4,11 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
+import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
 import com.liepin.worklog_agency.entity.base.Agency;
+import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
+import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
+import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
 import com.liepin.worklog_agency.service.AgencyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,48 +25,53 @@ public class AgencyController {
     private AgencyService agencyService;
 
     @SaCheckLogin
-    @GetMapping("/get")
+    @PostMapping("/getAgencyList")
     @ApiOperation(value = "获取中介List")
-        public Result<List<Agency>> getAgency(
-                @RequestParam String province,
-                @RequestParam String city,
-                @RequestParam String enterpriseName){
-            return agencyService.getAgency(province,city,enterpriseName);
+        public Result<GetAgencyRespVO> getAgencyList(@RequestBody GetAgencyReqVO reqVO){
+            return agencyService.getAgencyList(reqVO);
     }
 
     @SaCheckLogin
     @PostMapping("/post")
     @ApiOperation(value = "添加中介")
-        public Result postAgency(@RequestBody Agency agency){
-                agencyService.insertAgency(agency);
+        public Result addAgency(@RequestBody AddAgencyReqVO reqVO){
+
+                agencyService.addAgency(reqVO);
                 return Result.success("插入成功");
     }
-    @SaCheckLogin
-    @PostMapping("/delete")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @GetMapping("/delete")
     @ApiOperation(value = "删除中介")
-        public Result deleteAgency(@RequestBody List<Agency> agencyList){
-                agencyService.deleteAgency(agencyList);
+        public Result deleteAgency(@RequestParam Long id){
+                agencyService.deleteAgency(id);
                 return Result.success("删除成功");
     }
     @SaCheckLogin
     @PostMapping("/update")
     @ApiOperation(value = "更改中介")
-        public Result updateAgency(@RequestBody Agency agency){
-                agencyService.updateAgency(agency);
+        public Result updateAgency(@RequestBody UpdateAgencyReqVO reqVO){
+                agencyService.updateAgency(reqVO);
                 return Result.success("更改成功");
     }
-    @SaCheckRole(value = RoleType.MANAGER.code)
-    @GetMapping("/getUnpassedAgency")
-    @ApiOperation(value = "获取未审核中介")
-        public Result<List<Agency>> getUncheckedAgency(){
-                return agencyService.getUncheckedAgency();
 
-    }
     @SaCheckRole(value = RoleType.MANAGER.code)
     @PostMapping("/postPassedAgency")
     @ApiOperation(value = "提交审核的中介(传入的list里面每个agency的audit值需要更改)")
         public Result postPassedAgency(@RequestBody List<Agency> agencyList){
                 agencyService.updateUnpassedAgency(agencyList);
                 return Result.success("提交成功");
+    }
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @GetMapping("/rejectAgency")
+    @ApiOperation(value = "拒绝待审核中介")
+        public Result rejectAgency(@RequestParam Long id){
+            return agencyService.rejectAgency(id);
+    }
+
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @GetMapping("/passAgency")
+    @ApiOperation(value = "通过待审核中介")
+    public Result passAgency(@RequestParam Long id){
+        return agencyService.passAgency(id);
     }
 }

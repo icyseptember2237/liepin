@@ -3,12 +3,13 @@ package com.liepin.worklog_agency.controller;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.annotation.SaMode;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.codec.Rot;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
-import com.liepin.worklog_agency.entity.response.WorkLogBriefRes;
-import com.liepin.worklog_agency.entity.response.WorkLogProblemRes;
-import com.liepin.worklog_agency.entity.response.WorkLogRes;
-import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
+import com.liepin.common.util.time.TimeUtil;
+import com.liepin.worklog_agency.entity.base.WorkLog;
+import com.liepin.worklog_agency.entity.request.GetWorkLogReqVO;
+import com.liepin.worklog_agency.entity.response.*;
 import com.liepin.worklog_agency.service.LogBriefService;
 import com.liepin.worklog_agency.service.LogDetailService;
 import com.liepin.worklog_agency.service.LogProblemService;
@@ -16,6 +17,7 @@ import com.liepin.worklog_agency.service.LogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,9 +38,9 @@ public class WorkLogController {
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @GetMapping("/getWorkLog")
     @ApiOperation(value = "获取日志")
-        public Result<WorkLogRes> getLog(@RequestParam String dayTime){
+        public Result<WorkLogRes> getLog(){
         String loginId = StpUtil.getLoginId().toString();
-        return logService.getWorkLog(loginId,dayTime);
+        return logService.getWorkLog(loginId);
     }
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @PostMapping("/postWorkLog")
@@ -51,10 +53,16 @@ public class WorkLogController {
         return Result.success();
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
-    @GetMapping("/getAllWorkLog")
+    @PostMapping("/getAllWorkLog")
     @ApiOperation(value = "管理员获取简要日志")
-        public Result<List<WorkLogBriefRes>> getAllLog(@RequestParam String dayTime){
-        return logBriefService.getAllWork(dayTime);
+        public Result<GetWorkLogRespVO> getAllLog(@RequestBody GetWorkLogReqVO reqVO){
+        return logBriefService.getAllWork(reqVO);
+    }
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @GetMapping("getSomeoneWorkLog")
+    @ApiOperation(value = "管理员获取某个人日志")
+        public Result<WorkLogRes> getSomeoneWorkLog(@RequestParam String logId){
+            return logService.getWorkLogByLogId(logId);
     }
 
 }
