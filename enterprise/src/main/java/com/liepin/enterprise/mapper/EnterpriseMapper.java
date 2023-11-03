@@ -10,9 +10,9 @@ import java.util.List;
 
 @Mapper
 public interface EnterpriseMapper {
-    List<GetEnterpriseListDTO> getEnterpriseOceanList(@Param("req") GetEnterpriseListReqVO reqVO);
+    List<GetEnterpriseListVO> getEnterpriseOceanList(@Param("req") GetEnterpriseListReqVO reqVO);
 
-    void getEnterpriseOceanNum(@Param("req") GetEnterpriseListReqVO reqVO);
+    Long getEnterpriseOceanNum(@Param("req") GetEnterpriseListReqVO reqVO);
 
     void importEnterprise(String fileName);
 

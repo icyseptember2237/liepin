@@ -63,23 +63,11 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     @Override
     public Result<GetEnterpriseListRespVO> getEnterpriseList(GetEnterpriseListReqVO reqVO){
         GetEnterpriseListRespVO respVO = new GetEnterpriseListRespVO();
-        List<GetEnterpriseListDTO> dtos = new ArrayList<>();
         List<GetEnterpriseListVO> list = new ArrayList<>();
-        dtos = enterpriseMapper.getEnterpriseOceanList(reqVO);
+        list = enterpriseMapper.getEnterpriseOceanList(reqVO);
 
-        if (dtos.get(0).getNum() == 0){
-            respVO.setList(new ArrayList<>());
-            respVO.setTotal(0l);
-            return Result.success(respVO);
-        }
-
-        dtos.forEach((dto) -> {
-            GetEnterpriseListVO vo = new GetEnterpriseListVO();
-            BeanUtils.copyProperties(dto,vo);
-            list.add(vo);
-        });
         respVO.setList(list);
-        respVO.setTotal(dtos.get(0).getNum());
+        respVO.setTotal(enterpriseMapper.getEnterpriseOceanNum(reqVO));
         return Result.success(respVO);
     }
 
