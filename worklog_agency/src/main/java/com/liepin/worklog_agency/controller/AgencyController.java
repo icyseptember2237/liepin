@@ -30,8 +30,13 @@ public class AgencyController {
         public Result<GetAgencyRespVO> getAgencyList(@RequestBody GetAgencyReqVO reqVO){
             return agencyService.getAgencyList(reqVO);
     }
-
-    @SaCheckLogin
+    @SaCheckRole
+    @GetMapping("/get")
+    @ApiOperation(value = "管理员获取未审核的中介List")
+        public Result<GetAgencyRespVO> getWaitedAgency(){
+            GetAgencyReqVO reqVO = new GetAgencyReqVO();
+            return agencyService.getWaitAgencyList(reqVO);
+    }
     @PostMapping("/post")
     @ApiOperation(value = "添加中介")
         public Result addAgency(@RequestBody AddAgencyReqVO reqVO){
@@ -71,7 +76,14 @@ public class AgencyController {
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/passAgency")
     @ApiOperation(value = "通过待审核中介")
-    public Result passAgency(@RequestParam Long id){
+        public Result passAgency(@RequestParam Long id){
         return agencyService.passAgency(id);
+    }
+
+    @SaCheckLogin
+    @GetMapping("/getSelfAgency")
+    @ApiOperation(value = "查看自己上传的中介")
+        public Result<GetAgencyRespVO> getSelfAgencyList(){
+        return agencyService.getSelfAgencyList();
     }
 }

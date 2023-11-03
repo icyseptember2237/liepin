@@ -3,6 +3,8 @@ package com.liepin.worklog_agency.service.Impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.liepin.auth.entity.base.User;
+import com.liepin.auth.mapper.base.UserMapper;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
@@ -12,10 +14,10 @@ import com.liepin.common.util.auditlog.constant.TableName;
 import com.liepin.common.util.time.TimeUtil;
 import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
 import com.liepin.worklog_agency.entity.base.Agency;
+import com.liepin.worklog_agency.entity.base.AgencyBrief;
 import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
 import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
 import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
-import com.liepin.worklog_agency.entity.response.GetWorkLogRespVO;
 import com.liepin.worklog_agency.mapper.AgencyMapper;
 import com.liepin.worklog_agency.service.AgencyService;
 import org.apache.commons.lang3.ObjectUtils;
@@ -23,12 +25,16 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implements AgencyService {
     @Autowired
     private AgencyMapper agencyMapper;
+    @Autowired
+    private UserMapper userMapper;
+
 
     @Override
     public Result<GetAgencyRespVO> getAgencyList(GetAgencyReqVO reqVO) {
@@ -36,8 +42,50 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
         if("ALL".equals(reqVO.getAuditStatus())){
             reqVO.setAuditStatus("");
         }
-        respVO.setList(agencyMapper.getAgenctList(reqVO));
+        List<Agency> agenctList = agencyMapper.getAgenctList(reqVO);
+        List<AgencyBrief> agencyBriefList = new ArrayList<>();
+        for(Agency agency:agenctList){
+            AgencyBrief agencyBrief = new AgencyBrief();
+            BeanUtils.copyProperties(agency,agencyBrief);
+            agencyBriefList.add(agencyBrief);
+        }
+        respVO.setList(agencyBriefList);
         respVO.setTotal(agencyMapper.getAgencyNum(reqVO));
+        return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetAgencyRespVO> getWaitAgencyList(GetAgencyReqVO reqVO) {
+        GetAgencyRespVO respVO = new GetAgencyRespVO();
+        reqVO.setAuditStatus(ConstantsEnums.AuditStatus.WAIT.getStatus());
+        List<Agency> agenctList = agencyMapper.getAgenctList(reqVO);
+        List<AgencyBrief> agencyBriefList = new ArrayList<>();
+        for(Agency agency:agenctList){
+            AgencyBrief agencyBrief = new AgencyBrief();
+            BeanUtils.copyProperties(agency,agencyBrief);
+            agencyBriefList.add(agencyBrief);
+        }
+        respVO.setList(agencyBriefList);
+        respVO.setTotal(agencyMapper.getAgencyNum(reqVO));
+        return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetAgencyRespVO> getSelfAgencyList() {
+
+
+        List<Agency> agencyList = agencyMapper.selectList(new LambdaQueryWrapper<Agency>().
+                eq(Agency::getCreateId, StpUtil.getLoginIdAsLong()));
+        GetAgencyRespVO respVO = new GetAgencyRespVO();
+        List<AgencyBrief> agencyBriefList = new ArrayList<>();
+        for(Agency agency:agencyList){
+            AgencyBrief agencyBrief = new AgencyBrief();
+            BeanUtils.copyProperties(agency,agencyBrief);
+            agencyBrief.setCreateId(userMapper.selectOne(new LambdaQueryWrapper<User>().
+                    eq(User::getId,StpUtil.getLoginIdAsLong())).getName());
+            agencyBriefList.add(agencyBrief);
+        }
+        respVO.setList(agencyBriefList);
         return Result.success(respVO);
     }
 
@@ -54,7 +102,7 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
 
         LambdaQueryWrapper<Agency> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.orderByDesc(Agency::getId).last("limit 1");
-        String id = agencyMapper.selectOne(lambdaQueryWrapper).getId();
+        Long id = agencyMapper.selectOne(lambdaQueryWrapper).getId();
         System.out.println(id);
         AuditLog.setAuditFail(TableName.AGENCY, Long.valueOf(id));
 

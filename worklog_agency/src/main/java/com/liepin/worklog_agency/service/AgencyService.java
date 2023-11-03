@@ -13,6 +13,11 @@ import java.util.List;
 public interface AgencyService extends IService<Agency> {
     Result<GetAgencyRespVO> getAgencyList(GetAgencyReqVO reqVO);
 
+    Result<GetAgencyRespVO> getWaitAgencyList(GetAgencyReqVO reqVO);
+
+    Result<GetAgencyRespVO> getSelfAgencyList();
+
+
     void addAgency(AddAgencyReqVO  reqVO);
 
     void deleteAgency(Long id);
@@ -25,4 +30,5 @@ public interface AgencyService extends IService<Agency> {
     Result rejectAgency(Long id);
 
     Result passAgency(Long id);
+
 }
