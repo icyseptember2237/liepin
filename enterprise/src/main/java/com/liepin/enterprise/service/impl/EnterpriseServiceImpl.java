@@ -76,7 +76,6 @@ public class EnterpriseServiceImpl implements EnterpriseService {
         // 检查文件
         checkFile(file);
 
-
         EnterpriseImportListener listener = new EnterpriseImportListener();
         try {
             log.info("准备导入");
@@ -88,8 +87,8 @@ public class EnterpriseServiceImpl implements EnterpriseService {
         }
         ImportEnterpriseRespVO respVO = new ImportEnterpriseRespVO();
         respVO.setTotal(listener.getDataNum());
-        respVO.setSeconds(listener.getTime()/1000);
-        return Result.success();
+        respVO.setMilSeconds(listener.getTime());
+        return Result.success(respVO);
     }
 
     private void checkFile(MultipartFile file){

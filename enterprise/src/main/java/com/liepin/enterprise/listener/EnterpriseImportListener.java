@@ -35,11 +35,11 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
 
     private File importFile;
 
-    private Long dataNum = new Long(0);
+    private Long dataNum = new Long(0l);
 
-    private Long time = new Long(0);
+    private Long time = new Long(0l);
 
-    private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<Long>("Cost Time");
+    private Long start;
 
     private FileWriter fileWriter;
 
@@ -48,7 +48,7 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
         // 开始计时
-        TIME_THREADLOCAL.set(System.currentTimeMillis());
+        start = System.currentTimeMillis();
 
         // 获取数据实体的字段列表
         Field[] fields = EnterpriseInfo.class.getDeclaredFields();
@@ -97,15 +97,18 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
         try {
             bufferedWriter.close();
             fileWriter.close();
+
+            EnterpriseMapper mapper = SpringUtil.getBean(EnterpriseMapper.class);
+            log.info(importFile.getPath());
+            mapper.importEnterprise(importFile.getPath());
+            time = System.currentTimeMillis()-start;
+            log.info("{}条数据上传成功",dataNum);
         }catch (Exception e){
             e.printStackTrace();
+        } finally {
+            importFile.delete();
         }
-        EnterpriseMapper mapper = SpringUtil.getBean(EnterpriseMapper.class);
-        log.info(importFile.getPath());
-        mapper.importEnterprise(importFile.getPath());
-        importFile.delete();
-        time = System.currentTimeMillis()-TIME_THREADLOCAL.get();
-        log.info("{}条数据上传成功",dataNum);
+
     }
 
     private void writeFile(EnterpriseInfo info){
