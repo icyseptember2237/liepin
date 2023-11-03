@@ -1,16 +1,12 @@
 package com.liepin.auth.service;
 
 import com.liepin.auth.entity.base.Role;
-import com.liepin.auth.entity.vo.req.CreateUserReqVO;
-import com.liepin.auth.entity.vo.req.GetUsersReqVO;
-import com.liepin.auth.entity.vo.req.UpdateUserInfoReqVO;
-import com.liepin.auth.entity.vo.req.UpdateUserPasswordReqVO;
+import com.liepin.auth.entity.vo.req.*;
+import com.liepin.auth.entity.vo.resp.GetLoginHistoryRespVO;
 import com.liepin.auth.entity.vo.resp.GetUserInfoRespVO;
 import com.liepin.auth.entity.vo.resp.GetUsersRespVO;
-import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 import java.util.List;
 
@@ -22,6 +18,8 @@ public interface AuthService {
     Result createUser(CreateUserReqVO reqVO);
 
     Result<List<Role>> getAllRoles();
+
+    Result<GetLoginHistoryRespVO> getLoginHistory(GetLoginHistoryReqVO reqVO);
 
     Result updateUserInfo(UpdateUserInfoReqVO reqVO);
 

@@ -5,12 +5,11 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.entity.base.Role;
 import com.liepin.auth.entity.base.User;
-import com.liepin.auth.entity.vo.req.CreateUserReqVO;
-import com.liepin.auth.entity.vo.req.GetUsersReqVO;
-import com.liepin.auth.entity.vo.req.UpdateUserInfoReqVO;
-import com.liepin.auth.entity.vo.req.UpdateUserPasswordReqVO;
+import com.liepin.auth.entity.vo.req.*;
+import com.liepin.auth.entity.vo.resp.GetLoginHistoryRespVO;
 import com.liepin.auth.entity.vo.resp.GetUserInfoRespVO;
 import com.liepin.auth.entity.vo.resp.GetUsersRespVO;
+import com.liepin.auth.loginlog.entity.SysLog;
 import com.liepin.auth.service.AuthService;
 import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
@@ -53,6 +52,13 @@ public class AuthController {
     @ApiOperation(value = "管理员-获取所有角色信息")
     public Result<List<Role>> getAllRoles(){
         return authService.getAllRoles();
+    }
+
+    @PostMapping("getLoginHistory")
+    @ApiOperation(value = "管理员-获取用户登录记录")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    public Result<GetLoginHistoryRespVO> getLoginHistory(@RequestBody GetLoginHistoryReqVO reqVO){
+        return authService.getLoginHistory(reqVO);
     }
 
     @PostMapping("/createUser")

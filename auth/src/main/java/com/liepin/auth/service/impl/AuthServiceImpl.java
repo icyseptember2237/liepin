@@ -2,15 +2,15 @@ package com.liepin.auth.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.liepin.auth.entity.base.Role;
 import com.liepin.auth.entity.base.User;
-import com.liepin.auth.entity.vo.req.CreateUserReqVO;
-import com.liepin.auth.entity.vo.req.GetUsersReqVO;
-import com.liepin.auth.entity.vo.req.UpdateUserInfoReqVO;
-import com.liepin.auth.entity.vo.req.UpdateUserPasswordReqVO;
+import com.liepin.auth.entity.vo.req.*;
+import com.liepin.auth.entity.vo.resp.GetLoginHistoryRespVO;
 import com.liepin.auth.entity.vo.resp.GetUserInfoRespVO;
 import com.liepin.auth.entity.vo.resp.GetUsersRespVO;
+import com.liepin.auth.loginlog.entity.SysLog;
+import com.liepin.auth.loginlog.service.impl.SysLogServiceImpl;
 import com.liepin.auth.mapper.AuthMapper;
 import com.liepin.auth.service.AuthService;
 import com.liepin.auth.service.base.RoleService;
@@ -18,7 +18,6 @@ import com.liepin.auth.service.base.UserService;
 import com.liepin.auth.util.Crypto;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
-import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
@@ -26,7 +25,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -35,9 +33,11 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final RoleService roleService;
     private final AuthMapper authMapper;
+    private final SysLogServiceImpl sysLogService;
 
     @Autowired
-    public AuthServiceImpl(UserService userService,RoleService roleService,AuthMapper authMapper){
+    public AuthServiceImpl(UserService userService,RoleService roleService,AuthMapper authMapper,SysLogServiceImpl sysLogService){
+        this.sysLogService = sysLogService;
         this.authMapper = authMapper;
         this.roleService = roleService;
         this.userService = userService;
@@ -110,6 +110,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result<List<Role>> getAllRoles(){
         return Result.success(roleService.list());
+    }
+
+    @Override
+    public Result<GetLoginHistoryRespVO> getLoginHistory(GetLoginHistoryReqVO reqVO){
+        LambdaQueryWrapper<SysLog> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StringUtils.isNotEmpty(reqVO.getUsername()), SysLog::getUsername,reqVO.getUsername())
+                .eq(ObjectUtils.isNotEmpty(reqVO.getSuccess()),SysLog::getRes,reqVO.getSuccess() ? ConstantsEnums.YESNO.YES : ConstantsEnums.YESNO.NO)
+                .ge(StringUtils.isNotEmpty(reqVO.getStartTime()),SysLog::getTime,reqVO.getStartTime())
+                .le(StringUtils.isNotEmpty(reqVO.getEndTime()),SysLog::getTime,reqVO.getEndTime());
+        Page<SysLog> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
+        sysLogService.page(page,queryWrapper);
+        return Result.success(new GetLoginHistoryRespVO(page.getRecords(),page.getTotal()));
     }
 
     @Override
