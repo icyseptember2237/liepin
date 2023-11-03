@@ -16,6 +16,7 @@ import com.liepin.enterprise.service.base.impl.EnterpriseOceanServiceImpl;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +80,7 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
             fileWriter = new FileWriter(importFile,true);
             bufferedWriter = new BufferedWriter(fileWriter);
         } catch (IOException e){
-            AssertUtils.throwException("创建文件失败");
+            AssertUtils.throwException("导入失败(创建文件失败)");
         }
 
     }
@@ -109,10 +110,12 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
 
     private void writeFile(EnterpriseInfo info){
         StringJoiner joiner = new StringJoiner(",");
-        joiner.add(info.getName());
-        joiner.add(info.getPhone());
-        joiner.add(info.getAddress());
-        joiner.add(info.getLegalRepresentative());
+        joiner.add(StringUtils.isNotEmpty(info.getName()) ? info.getName() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getContact()) ? info.getContact() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getPhone()) ? info.getPhone() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getEmail()) ? info.getEmail() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getAddress()) ? info.getAddress() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getLegalRepresentative()) ? info.getLegalRepresentative() : "");
         joiner.add(TimeUtil.getNowWithSec());
         Map<String,String> addr = addressResolution(info.getAddress());
         if (!addr.isEmpty()){
@@ -130,24 +133,24 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
             bufferedWriter.flush();
         } catch (Exception e){
             e.printStackTrace();
-            AssertUtils.throwException("写入文件失败");
+            AssertUtils.throwException("导入失败(写入文件失败)");
         }
 
     }
 
     // 正则匹配地址
     public static Map<String,String> addressResolution(String address){
-        String regex="((?<province>[^省]+省|.+自治区)|上海|北京|天津|重庆)(?<city>[^市]+市|.+自治州)(?<county>[^县]+县|.+区|.+镇|.+局)?(?<town>[^区]+区|.+镇)?(?<village>.*)";
-        Matcher m= Pattern.compile(regex).matcher(address);
-        String province=null,city=null,county=null,town=null,village=null;
-        Map<String,String> row=new LinkedHashMap<String,String>();
+        String regex = "((?<province>[^省]+省|.+自治区)|上海|北京|天津|重庆)(?<city>[^市]+市|.+自治州)(?<county>[^县]+县|.+区|.+镇|.+局)?(?<town>[^区]+区|.+镇)?(?<village>.*)";
+        Matcher m = Pattern.compile(regex).matcher(address);
+        String province = null,city = null,county = null;
+        Map<String,String> row = new LinkedHashMap<String,String>();
         while(m.find()){
-            province=m.group("province");
-            row.put("province", province==null?"":province.trim());
-            city=m.group("city");
-            row.put("city", city==null?"":city.trim());
-            county=m.group("county");
-            row.put("county", county==null?"":county.substring(0,county.indexOf("区")+1));
+            province = m.group("province");
+            row.put("province", province == null ? "" : province.trim());
+            city = m.group("city");
+            row.put("city", city == null ? "" : city.trim());
+            county = m.group("county");
+            row.put("county", county == null ? "": county.substring(0,county.indexOf("区")+1));
         }
         return row;
     }

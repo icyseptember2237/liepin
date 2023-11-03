@@ -72,7 +72,7 @@
         into table enterprise_info
         fields terminated by ','
         lines terminated by '\n'
-        (name,phone,address,legal_representative,create_time,province,city,county);
+        (name,contact,phone,email,address,legal_representative,create_time,province,city,county);
     </insert>
 
     <insert id="importEnterpriseOcean">
