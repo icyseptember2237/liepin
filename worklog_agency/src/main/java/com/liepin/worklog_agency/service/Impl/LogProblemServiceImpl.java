@@ -52,7 +52,7 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
             logProblemList.add(workLogProblem);
         }
 
-        saveBatch(logProblemList);
+        saveOrUpdateBatch(logProblemList);
 //        saveOrUpdateBatch(logProblemList);
         return Result.success("插入问题成功");
     }

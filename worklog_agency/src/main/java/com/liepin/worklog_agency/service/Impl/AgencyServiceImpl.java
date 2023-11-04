@@ -120,7 +120,9 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
 
         Agency agency = new Agency();
         BeanUtils.copyProperties(reqVO,agency);
+        agency.setId(reqVO.getId());
         agency.setCreateTime(TimeUtil.getNowWithMin());
+        agency.setAuditStatus(ConstantsEnums.AuditStatus.WAIT.getStatus());
         updateById(agency);
     }
 

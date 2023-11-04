@@ -39,32 +39,30 @@ public class AgencyController {
     }
     @PostMapping("/post")
     @ApiOperation(value = "添加中介")
-        public Result addAgency(@RequestBody AddAgencyReqVO reqVO){
-
-                agencyService.addAgency(reqVO);
-                return Result.success("插入成功");
+    public Result addAgency(@RequestBody AddAgencyReqVO reqVO){
+        agencyService.addAgency(reqVO);
+        return Result.success("插入成功");
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/delete")
     @ApiOperation(value = "删除中介")
-        public Result deleteAgency(@RequestParam Long id){
-                agencyService.deleteAgency(id);
-                return Result.success("删除成功");
+    public Result deleteAgency(@RequestParam Long id){
+        agencyService.deleteAgency(id);
+        return Result.success("删除成功");
     }
     @SaCheckLogin
     @PostMapping("/update")
     @ApiOperation(value = "更改中介")
-        public Result updateAgency(@RequestBody UpdateAgencyReqVO reqVO){
-                agencyService.updateAgency(reqVO);
-                return Result.success("更改成功");
+    public Result updateAgency(@RequestBody UpdateAgencyReqVO reqVO){
+        agencyService.updateAgency(reqVO);
+        return Result.success("更改成功");
     }
-
     @SaCheckRole(value = RoleType.MANAGER.code)
     @PostMapping("/postPassedAgency")
     @ApiOperation(value = "提交审核的中介(传入的list里面每个agency的audit值需要更改)")
-        public Result postPassedAgency(@RequestBody List<Agency> agencyList){
-                agencyService.updateUnpassedAgency(agencyList);
-                return Result.success("提交成功");
+    public Result postPassedAgency(@RequestBody List<Agency> agencyList){
+        agencyService.updateUnpassedAgency(agencyList);
+        return Result.success("提交成功");
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/rejectAgency")
@@ -86,4 +84,6 @@ public class AgencyController {
         public Result<GetAgencyRespVO> getSelfAgencyList(){
         return agencyService.getSelfAgencyList();
     }
+
+
 }

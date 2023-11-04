@@ -14,4 +14,6 @@ public interface LogBriefMapper extends BaseMapper<WorkLogBriefRes> {
     List<WorkLogBriefRes> getAllBriefLog(@Param("req") GetWorkLogReqVO reqVO);
 
     Long getAllBriefLogNum(@Param("req") GetWorkLogReqVO reqVO);
+
+//    Long getProblemNum(@Param("req") GetWorkLogReqVO reqVO,String dayTime);
 }

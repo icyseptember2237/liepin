@@ -25,7 +25,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     @Override
     public Result<WorkLogRes> getWorkLog(String loginId) {
         WorkLogRes workLogRes = new WorkLogRes();
-        workLogRes = logMapper.getWorkLogRes(loginId);
+        workLogRes = logMapper.getWorkLogRes(loginId,TimeUtil.getToday());
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRes),ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
         workLogRes.setLogId(StpUtil.getLoginIdAsInt());
         workLogRes.setWorkLogProbList(logMapper.getWorkLogProblemList(loginId,TimeUtil.getToday()));
@@ -36,9 +36,9 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     @Override
     public Result insertWorkLog(WorkLogRespVo workLogRespVo) {
         WorkLog workLog = new WorkLog();
-        WorkLogRespVo workLog1 = logMapper.getWorkLog(StpUtil.getLoginIdAsString(),TimeUtil.getToday());
-
-        if (workLog1!=null){
+        WorkLogRespVo workLog1 = logMapper.getWorkLog(StpUtil.getLoginIdAsLong(),TimeUtil.getToday());
+//        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLog1.getId()));
+        if (null!=workLog1){
             Long id = workLog1.getId();
             workLog.setId(id);
         }

@@ -12,6 +12,7 @@
         select count(*)
         from liepin.agency
         where liepin.agency.audit_status like concat('%',#{req.auditStatus},'%')
+          and liepin.agency.dlt = 'NO'
         <if test="req.enterpriseName != null and req.enterpriseName != ''">
             and liepin.agency.enterprise_name like concat('%',#{req.enterprise_name},'%')
         </if>
@@ -29,6 +30,7 @@
         tel,audit_status,create_time,remark
         from liepin.agency
         where liepin.agency.audit_status like concat('%',#{req.auditStatus},'%')
+          and liepin.agency.dlt = 'NO'
         <if test="req.enterpriseName != null and req.enterpriseName != ''">
             and liepin.agency.enterprise_name like concat('%',#{req.enterpriseName},'%')
         </if>

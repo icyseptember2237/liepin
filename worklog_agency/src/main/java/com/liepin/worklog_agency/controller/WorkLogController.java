@@ -46,7 +46,7 @@ public class WorkLogController {
     @PostMapping("/postWorkLog")
     @ApiOperation(value = "更新or上传日志")
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
-        workLogRespVo.setId(Long.valueOf(StpUtil.getLoginId().toString()));
+//        workLogRespVo.setId(Long.valueOf(StpUtil.getLoginId().toString()));
         logService.insertWorkLog(workLogRespVo);
         logDetailService.insertWorkLogDetail(workLogRespVo);
         logProblemService.insertWorkLogProblem(workLogRespVo);

@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class UpdateAgencyReqVO {
     @ApiModelProperty(notes = "id")
-    private String id;
+    private Long id;
     @ApiModelProperty(notes = "企业名称")
     private String enterpriseName;
     @ApiModelProperty(notes = "企业法人")
@@ -18,5 +18,7 @@ public class UpdateAgencyReqVO {
     private String detailAddr;
     @ApiModelProperty(notes = "联系电话")
     private String tel;
+    @ApiModelProperty(notes = "备注")
+    private String remark;
 
 }
