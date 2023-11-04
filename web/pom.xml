@@ -46,6 +46,12 @@
             <artifactId>enterprise</artifactId>
             <version>1.0.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.liepin.talent</groupId>
+            <artifactId>talent</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
