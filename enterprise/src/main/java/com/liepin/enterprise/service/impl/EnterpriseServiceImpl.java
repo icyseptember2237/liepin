@@ -5,16 +5,11 @@ import com.alibaba.excel.EasyExcel;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
-import com.liepin.common.constant.config.FileConfig;
 import com.liepin.common.constant.enums.ConstantsEnums;
-import com.liepin.common.util.auditlog.AuditLog;
-import com.liepin.common.util.auditlog.constant.TableName;
 import com.liepin.common.util.time.TimeUtil;
-import com.liepin.enterprise.constant.PrivateStatus;
+import com.liepin.enterprise.constant.EnterprisePrivateStatus;
 import com.liepin.enterprise.entity.base.EnterpriseInfo;
-import com.liepin.enterprise.entity.base.EnterpriseOcean;
 import com.liepin.enterprise.entity.base.EnterprisePrivate;
-import com.liepin.enterprise.entity.dto.GetEnterpriseListDTO;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
@@ -37,8 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,10 +71,10 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
         EnterpriseImportListener listener = new EnterpriseImportListener();
         try {
-            log.info("准备导入");
+            log.info("准备导入单位公海");
             EasyExcel.read(file.getInputStream(),EnterpriseInfo.class,listener).sheet().doRead();
 
-        } catch (IOException ie){
+        } catch (Exception ie){
             ie.printStackTrace();
             AssertUtils.throwException(ExceptionsEnums.File.IMPORT_FAIL);
         }
@@ -158,9 +151,8 @@ public class EnterpriseServiceImpl implements EnterpriseService {
             EnterprisePrivate enterprisePrivate = new EnterprisePrivate();
             enterprisePrivate.setUserId(StpUtil.getLoginIdAsLong());
             enterprisePrivate.setInfoId(info.getId());
-            enterprisePrivate.setFollowUpId(StpUtil.getLoginIdAsLong());
             enterprisePrivate.setCreateTime(TimeUtil.getNowWithSec());
-            enterprisePrivate.setStatus(PrivateStatus.NOT_CONTACT.getStatus());
+            enterprisePrivate.setStatus(EnterprisePrivateStatus.NOT_CONTACT.getStatus());
             enterprisePrivateService.save(enterprisePrivate);
         } catch (Exception e){
             e.printStackTrace();

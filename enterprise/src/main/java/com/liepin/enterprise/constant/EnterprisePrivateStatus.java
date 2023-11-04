@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PrivateStatus {
+public enum EnterprisePrivateStatus {
     // 未联系
     NOT_CONTACT("NOT_CONTACT"),
     // 跟进中

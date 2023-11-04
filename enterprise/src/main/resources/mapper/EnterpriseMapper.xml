@@ -39,7 +39,7 @@
                 <if test="req.name != null and req.name != ''">
                     and enterprise_info.name like concat('%',#{req.name},'%')
                 </if>
-              order by enterprise_info.id) as temp
+              order by enterprise_info.id desc) as temp
         on temp.id = enterprise_info.id
         <bind name="offset" value="(req.page-1)*req.pageSize"/>
         limit #{offset},#{req.pageSize}

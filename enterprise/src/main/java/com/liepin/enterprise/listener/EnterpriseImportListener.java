@@ -99,7 +99,6 @@ public class EnterpriseImportListener extends AnalysisEventListener<EnterpriseIn
             fileWriter.close();
 
             EnterpriseMapper mapper = SpringUtil.getBean(EnterpriseMapper.class);
-            log.info(importFile.getPath());
             mapper.importEnterprise(importFile.getPath());
             time = System.currentTimeMillis()-start;
             log.info("{}条数据上传成功",dataNum);
