@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.talent.mapper.TalentMapper">
+    <select id="getTalentList" resultType="com.liepin.talent.entity.vo.resp.GetTalentListVO">
+        select
+            talent_info.id,
+            talent_info.name,
+            talent_info.type,
+            talent_info.agency_id as agencyId,
+            (select agency.enterprise_name from agency
+             where agency.id = agencyId) as agencyName,
+            talent_info.phone,
+            talent_info.sex,
+            talent_info.certificate_type,
+            talent_info.certificate_major,
+            talent_info.hire_type
+        from talent_info
+        inner join
+            (select id from talent_info
+             where dlt = 'NO'
+                and is_private = 'NO'
+             <if test="req.name != null and req.name != ''">
+                 and name = #{req.name}
+             </if>
+             <if test="req.phone != null and req.phone != ''">
+                 and phone = #{req.phone}
+             </if>
+             <if test="req.sex != null and req.sex != ''">
+                 and sex = #{req.sex}
+             </if>
+             <if test="req.type != null and req.type != ''">
+                 and type = #{req.type}
+             </if>
+             <if test="req.certificateType != null and req.certificateType != ''">
+                 and certificate_type = #{req.certificateType}
+             </if>
+             <if test="req.certificateMajor != null and req.certificateMajor != ''">
+                 and certificate_major = #{req.certificateMajor}
+             </if>
+             order by id desc ) as temp
+        on temp.id = talent_info.id
+        <bind name="offset" value="(req.page-1)*req.pageSize"/>
+        limit #{offset},#{req.pageSize}
+    </select>
+
+    <select id="getTalentListNum" resultType="java.lang.Long">
+        select count(talent_info.id) from talent_info
+        where dlt = 'NO'
+        and is_private = 'NO'
+        <if test="req.name != null and req.name != ''">
+            and name = #{req.name}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and phone = #{req.phone}
+        </if>
+        <if test="req.sex != null and req.sex != ''">
+            and sex = #{req.sex}
+        </if>
+        <if test="req.type != null and req.type != ''">
+            and type = #{req.type}
+        </if>
+        <if test="req.certificateType != null and req.certificateType != ''">
+            and certificate_type = #{req.certificateType}
+        </if>
+        <if test="req.certificateMajor != null and req.certificateMajor != ''">
+            and certificate_major = #{req.certificateMajor}
+        </if>
+        order by id desc
+    </select>
+
+    <insert id="importTalent" parameterType="java.lang.String">
+        load data local infile '${fileName}'
+            into table talent_info
+            fields terminated by ','
+            lines terminated by '\n'
+            (name,phone,sex,create_time,certificate_type,certificate_major);
+    </insert>
+
+</mapper>
