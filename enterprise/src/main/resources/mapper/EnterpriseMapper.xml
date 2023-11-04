@@ -79,4 +79,28 @@
         insert into liepin.enterprise_ocean (create_time, info_id)
         select now(),id from enterprise_info;
     </insert>
+
+    <select id="getFollowupHistory" resultType="com.liepin.enterprise.entity.vo.resp.FollowupHistory">
+        select
+            enterprise_private_followup.id,
+            enterprise_private_followup.followup_id,
+            user.username as followUp,
+            enterprise_private_followup.time,
+            enterprise_private_followup.next_time,
+            enterprise_private_followup.remark
+        from enterprise_private_followup
+        left join enterprise_private
+        on enterprise_private.id = enterprise_private_followup.private_id
+        left join enterprise_info
+        on enterprise_info.id = enterprise_private.info_id
+        left join user
+        on user.id = enterprise_private_followup.followup_id
+        where dlt = 'NO'
+        and enterprise_info.id = #{id}
+        order by id desc
+        <if test="page != null and pageSize != null ">
+            <bind name="offset" value="(page-1)*pageSIze"/>
+        limit #{offset},#{pageSize}
+        </if>
+    </select>
 </mapper>

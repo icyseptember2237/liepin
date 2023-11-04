@@ -29,16 +29,16 @@ public class EnterpriseController {
 
     @PostMapping("/getEnterpriseList")
     @ApiOperation(value = "查询公海页面")
-    //@SaCheckLogin
+    @SaCheckLogin
     public Result<GetEnterpriseListRespVO> getEnterpriseList(@RequestBody GetEnterpriseListReqVO reqVO){
         return enterpriseService.getEnterpriseList(reqVO);
     }
 
     @GetMapping("/getEnterpriseInfo")
-    @ApiOperation(value = "查询单位在公海详情")
+    @ApiOperation(value = "查询单位详情")
     @SaCheckLogin
     public Result<GetEnterpriseInfoRespVO> getEnterpriseInfo(@RequestParam Long id){
-        return null;
+        return enterpriseService.getEnterpriseInfo(id);
     }
 
     @PostMapping("/import")

@@ -2,6 +2,7 @@ package com.liepin.enterprise.mapper;
 
 import com.liepin.enterprise.entity.dto.GetEnterpriseListDTO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
+import com.liepin.enterprise.entity.vo.resp.FollowupHistory;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,4 +18,6 @@ public interface EnterpriseMapper {
     void importEnterprise(String fileName);
 
     Boolean importEnterpriseOcean();
+
+    List<FollowupHistory> getFollowupHistory(@Param("id") Long id,@Param("page") Integer page,@Param("pageSize")Integer pageSize);
 }

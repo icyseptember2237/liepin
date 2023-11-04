@@ -13,6 +13,7 @@ import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
+import com.liepin.enterprise.entity.vo.resp.GetEnterpriseInfoRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListVO;
 import com.liepin.enterprise.entity.vo.resp.ImportEnterpriseRespVO;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -61,6 +63,17 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
         respVO.setList(list);
         respVO.setTotal(enterpriseMapper.getEnterpriseOceanNum(reqVO));
+        return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetEnterpriseInfoRespVO> getEnterpriseInfo(Long id){
+        EnterpriseInfo info = enterpriseInfoService.getById(id);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Enterprise.NO_DATA);
+
+        GetEnterpriseInfoRespVO respVO = new GetEnterpriseInfoRespVO();
+        BeanUtils.copyProperties(info,respVO);
+        respVO.setList(enterpriseMapper.getFollowupHistory(id,1,5));
         return Result.success(respVO);
     }
 
