@@ -11,6 +11,8 @@ public class GetTalentListVO {
     private String name;
     @ApiModelProperty(notes = "客户类型")
     private String type;
+    @ApiModelProperty(notes = "中介id")
+    private Long agencyId;
     @ApiModelProperty(notes = "中介名称")
     private String agencyName;
     @ApiModelProperty(notes = "电话")

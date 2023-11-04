@@ -76,4 +76,28 @@
             (name,phone,sex,create_time,certificate_type,certificate_major);
     </insert>
 
+    <select id="getFollowupHistory" resultType="com.liepin.talent.entity.vo.resp.FollowupHistory">
+        select
+        talent_private_followup.id,
+        user.id as followup_id,
+        user.username as followUp,
+        talent_private_followup.time,
+        talent_private_followup.next_time,
+        talent_private_followup.remark
+        from talent_private_followup
+        left join talent_private
+        on talent_private.id = talent_private_followup.private_id
+        left join talent_info
+        on talent_info.id = talent_private.info_id
+        left join user
+        on user.id = talent_private_followup.followup_id
+        where dlt = 'NO'
+        and talent_info.id = #{id}
+        order by id desc
+        <if test="page != null and pageSize != null ">
+            <bind name="offset" value="(page-1)*pageSIze"/>
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+
 </mapper>

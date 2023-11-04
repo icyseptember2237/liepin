@@ -4,6 +4,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.talent.entity.vo.req.AddTalentReqVO;
 import com.liepin.talent.entity.vo.req.AlterTalentReqVO;
 import com.liepin.talent.entity.vo.req.GetTalentListReqVO;
+import com.liepin.talent.entity.vo.resp.GetTalentInfoRespVO;
 import com.liepin.talent.entity.vo.resp.GetTalentListRespVO;
 import com.liepin.talent.entity.vo.resp.ImportTalentRespVO;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 public interface TalentService {
 
     Result<GetTalentListRespVO> getTalentList(GetTalentListReqVO reqVO);
+
+    Result<GetTalentInfoRespVO> getTalentInfo(Long id);
 
     Result<ImportTalentRespVO> importTalent(MultipartFile file);
 

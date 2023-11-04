@@ -7,6 +7,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.talent.entity.vo.req.AddTalentReqVO;
 import com.liepin.talent.entity.vo.req.AlterTalentReqVO;
 import com.liepin.talent.entity.vo.req.GetTalentListReqVO;
+import com.liepin.talent.entity.vo.resp.GetTalentInfoRespVO;
 import com.liepin.talent.entity.vo.resp.GetTalentListRespVO;
 import com.liepin.talent.entity.vo.resp.ImportTalentRespVO;
 import com.liepin.talent.service.TalentService;
@@ -39,8 +40,8 @@ public class TalentController {
     @GetMapping("/getTalentInfo")
     @ApiOperation(value = "查询人才在公海详情")
     @SaCheckLogin
-    public Result getTalentInfo(@RequestParam Long id){
-        return null;
+    public Result<GetTalentInfoRespVO> getTalentInfo(@RequestParam Long id){
+        return talentService.getTalentInfo(id);
     }
 
     @PostMapping("/import")

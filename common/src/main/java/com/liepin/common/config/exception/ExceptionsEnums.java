@@ -80,6 +80,17 @@ public interface ExceptionsEnums extends Exceptions{
         private int code;
         private String msg;
     }
+
+    @Getter
+    @AllArgsConstructor
+    enum Talent implements ExceptionsEnums {
+        NO_DATA(500,"人才不存在"),
+        INSERT_FAIL(500,"人才新增失败"),
+        ALTER_FAIL(500,"人才修改失败");
+        private int code;
+        private String msg;
+    }
+
     @Getter
     @AllArgsConstructor
     enum AgencyEX implements ExceptionsEnums{

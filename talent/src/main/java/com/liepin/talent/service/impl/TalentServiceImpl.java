@@ -13,6 +13,7 @@ import com.liepin.talent.entity.base.TalentPrivate;
 import com.liepin.talent.entity.vo.req.AddTalentReqVO;
 import com.liepin.talent.entity.vo.req.AlterTalentReqVO;
 import com.liepin.talent.entity.vo.req.GetTalentListReqVO;
+import com.liepin.talent.entity.vo.resp.GetTalentInfoRespVO;
 import com.liepin.talent.entity.vo.resp.GetTalentListRespVO;
 import com.liepin.talent.entity.vo.resp.ImportTalentRespVO;
 import com.liepin.talent.listener.TalentImportListener;
@@ -50,6 +51,17 @@ public class TalentServiceImpl implements TalentService {
         GetTalentListRespVO respVO = new GetTalentListRespVO();
         respVO.setList(talentMapper.getTalentList(reqVO));
         respVO.setTotal(talentMapper.getTalentListNum(reqVO));
+        return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetTalentInfoRespVO> getTalentInfo(Long id){
+        TalentInfo info = talentInfoService.getById(id);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.NO_DATA);
+
+        GetTalentInfoRespVO respVO = new GetTalentInfoRespVO();
+        BeanUtils.copyProperties(info,respVO);
+        respVO.setList(talentMapper.getFollowupHistory(id,1,5));
         return Result.success(respVO);
     }
 
@@ -92,7 +104,7 @@ public class TalentServiceImpl implements TalentService {
     @Override
     public Result alterTalent(AlterTalentReqVO reqVO){
         TalentInfo info = talentInfoService.getById(reqVO.getId());
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),"人才不存在");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.ALTER_FAIL);
 
         BeanUtils.copyProperties(reqVO,info);
         talentInfoService.updateById(info);
@@ -102,7 +114,7 @@ public class TalentServiceImpl implements TalentService {
     @Override
     public Result deleteTalent(Long id){
         TalentInfo info = talentInfoService.getById(id);
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),"人才不存在");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.NO_DATA);
 
         info.setDlt(ConstantsEnums.YESNO.YES.getValue());
         talentInfoService.updateById(info);
@@ -113,7 +125,7 @@ public class TalentServiceImpl implements TalentService {
     @Transactional
     public Result pullTalent(Long id){
         TalentInfo info = talentInfoService.getById(id);
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),"人才不存在");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.NO_DATA);
 
         try {
             info.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
