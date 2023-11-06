@@ -91,7 +91,7 @@
         on talent_info.id = talent_private.info_id
         left join user
         on user.id = talent_private_followup.followup_id
-        where dlt = 'NO'
+        where talent_info.dlt = 'NO'
         and talent_info.id = #{id}
         order by id desc
         <if test="page != null and pageSize != null ">

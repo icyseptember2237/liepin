@@ -104,7 +104,10 @@ public class TalentServiceImpl implements TalentService {
     @Override
     public Result alterTalent(AlterTalentReqVO reqVO){
         TalentInfo info = talentInfoService.getById(reqVO.getId());
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.ALTER_FAIL);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info)
+                        && ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate())
+                        && ConstantsEnums.YESNO.NO.getValue().equals(info.getDlt()),
+                ExceptionsEnums.Talent.ALTER_FAIL);
 
         BeanUtils.copyProperties(reqVO,info);
         talentInfoService.updateById(info);
@@ -115,6 +118,8 @@ public class TalentServiceImpl implements TalentService {
     public Result deleteTalent(Long id){
         TalentInfo info = talentInfoService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.NO_DATA);
+        AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
+                "删除失败, 人才位于私库中");
 
         info.setDlt(ConstantsEnums.YESNO.YES.getValue());
         talentInfoService.updateById(info);

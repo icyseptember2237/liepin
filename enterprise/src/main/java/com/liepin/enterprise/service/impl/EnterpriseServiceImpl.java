@@ -125,12 +125,17 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
     @Override
     public Result alterEnterprise(AlterEnterpriseReqVO reqVO){
+        EnterpriseInfo info = enterpriseInfoService.getById(reqVO.getId());
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info) && ConstantsEnums.YESNO.NO.getValue().equals(info.getDlt()),
+                ExceptionsEnums.Enterprise.NO_DATA);
+        AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
+                "修改失败, 单位位于私海中");
+
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getName()),
                 "单位名称不能为空");
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getEmail()) || StringUtils.isNotEmpty(reqVO.getPhone()),
                 "联系方式不能为空");
         try {
-            EnterpriseInfo info = new EnterpriseInfo();
             BeanUtils.copyProperties(reqVO,info);
             enterpriseInfoService.updateById(info);
         } catch (Exception e){
@@ -145,6 +150,8 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     @Override
     public Result deleteEnterprise(Long id){
         EnterpriseInfo info = enterpriseInfoService.getById(id);
+        AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
+                "删除失败, 单位位于私海中");
         info.setDlt(ConstantsEnums.YESNO.YES.getValue());
         enterpriseInfoService.updateById(info);
         return Result.success();
