@@ -65,7 +65,7 @@ public class TalentController {
         return talentService.alterTalent(reqVO);
     }
 
-    @PostMapping("/deleteTalent")
+    @GetMapping("/deleteTalent")
     @ApiOperation(value = "删除人才信息")
     @SaCheckRole(value = RoleType.MANAGER.code)
     public Result deleteTalent(@RequestParam Long id){
