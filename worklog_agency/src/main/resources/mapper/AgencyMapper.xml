@@ -40,7 +40,11 @@
         <if test="req.city != null and req.city != ''">
             and liepin.agency.city = #{req.city}
         </if>
-
+        order by liepin.agency.id asc
+        <if test="req.page != null and req.pageSize != null and req.page != '' and req.pageSize != ''">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
     </select>
     <select id="getSelfAgenctList" resultType="com.liepin.worklog_agency.entity.base.Agency">
         select id,enterprise_name,person,province,city,detail_addr,

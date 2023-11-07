@@ -58,4 +58,13 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
 
         return Result.success(workLogRes);
     }
+    @Override
+    public Result insertOtherWorkLog(WorkLogRespVo workLogRespVo) {
+        WorkLog workLog = new WorkLog();
+        workLog.setId(workLogRespVo.getId());
+        workLog.setUpdateTime(TimeUtil.getNowWithMin());
+        saveOrUpdate(workLog);
+        return Result.success();
+    }
+
 }

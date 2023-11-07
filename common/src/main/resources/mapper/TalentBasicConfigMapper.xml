@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.common.util.talentBasicConfig.mapper.TalentBasicConfigMapper">
+
+    <select id="getCertificateMajor"
+            resultType="com.liepin.common.util.talentBasicConfig.entity.CertificationDetail">
+        select value_name as secondConstructor
+        from liepin.basic_config
+        where parent_id = 7
+    </select>
+    <select id="getProfeesionCertificate" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 2
+    </select>
+    <select id="getNineMember" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 3
+    </select>
+    <select id="getOtherCertificate" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 4
+    </select>
+    <select id="getTechnicianCertificate" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 5
+    </select>
+    <select id="getFireEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 6
+    </select>
+    <select id="getSecondConstructor" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 7
+    </select>
+    <select id="getFirstConstructor" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 8
+    </select>
+    <select id="getPublicDeviceEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 9
+    </select>
+    <select id="getElectricEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 10
+    </select>
+    <select id="getPriceEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 11
+    </select>
+    <select id="getSupervisorEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 12
+    </select>
+    <select id="getSoilWoodEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 13
+    </select>
+    <select id="getConstructEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 14
+    </select>
+    <select id="getRegistryConsoleEngineer" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 15
+    </select>
+    <select id="getEvaluator" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 16
+    </select>
+    <select id="getConstructor" resultType="java.lang.String">
+        select value_name
+        from liepin.basic_config
+        where parent_id = 17
+    </select>
+    <select id="getAll" resultType="com.liepin.common.util.talentBasicConfig.entity.EntryPair">
+        select parent_id as id,value_name
+        from liepin.basic_config
+    </select>
+</mapper>

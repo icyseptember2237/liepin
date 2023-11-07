@@ -25,14 +25,41 @@ public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDe
     public Result insertWorkLogDetail(WorkLogRespVo workLogRespVo) {
         WorkLogDetail workLogDetail = new WorkLogDetail();
         BeanUtils.copyProperties(workLogRespVo,workLogDetail);
-
+        Long userId;
+        if (null!=workLogRespVo.getId()){
+            userId = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getId, workLogRespVo.getId())).getUserId();
+        }else{
+            userId = StpUtil.getLoginIdAsLong();
+        }
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong()).
+        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,userId).
                 like(WorkLog::getCreateTime, TimeUtil.getToday());
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
 
         workLogDetail.setId(id);
+        saveOrUpdate(workLogDetail);
+        return Result.success("插入or更新成功");
+    }
+
+    @Override
+    public Result insertOtherWorkLogDetail(WorkLogRespVo workLogRespVo) {
+        WorkLogDetail workLogDetail = new WorkLogDetail();
+        BeanUtils.copyProperties(workLogRespVo,workLogDetail);
+
+//        Long logId = workLogRespVo.getId();
+//        Long userId = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getId, workLogRespVo.getId())).getUserId();
+
+//        workLogDetail
+
+//        LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,userId).
+//                like(WorkLog::getCreateTime, TimeUtil.getToday());
+//        WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
+//        Long id = workLog.getId();
+//
+//        workLogDetail.setId(id);
+
         saveOrUpdate(workLogDetail);
         return Result.success("插入or更新成功");
     }
