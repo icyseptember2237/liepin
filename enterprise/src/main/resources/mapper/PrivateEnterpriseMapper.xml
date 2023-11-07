@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.enterprise.mapper.PrivateEnterpriseMapper">
+    <select id="selectNotContactList" resultType="com.liepin.enterprise.entity.vo.resp.GetNotContactList">
+        select
+            enterprise_private.id,
+            enterprise_info.province,
+            enterprise_info.city,
+            enterprise_info.county,
+            enterprise_info.legal_representative,
+            enterprise_private.create_time
+        from enterprise_private
+        inner join
+            (select enterprise_private.id
+             from enterprise_private
+             left join enterprise_info
+             on enterprise_info.id = enterprise_private.info_id
+             where enterprise_private.throwback = 'NO'
+                and enterprise_private.status = 'NOT_CONTACT'
+             <if test="userId != null and userId != 0">
+                 and enterprise_private.user_id = #{userId}
+             </if>
+             <if test="req.phone != null and req.phone != ''">
+                 and enterprise_info.phone = #{req.phone}
+             </if>
+             <if test="req.contact != null and req.phone != ''">
+                 and enterprise_info.contact = #{req.contact}
+             </if>
+             <if test="req.county != null and req.county != ''">
+                 and enterprise_info.county = #{req.county}
+             </if>
+             <if test="req.city != null and req.city != ''">
+                 and enterprise_info.city = #{req.city}
+             </if>
+             <if test="req.province != null and req.province != ''">
+                 and enterprise_info.province = #{req.province}
+             </if>
+             <if test="req.name != null and req.name != ''">
+                 and enterprise_info.name like concat('%',#{req.name},'%')
+             </if>
+             order by enterprise_private.id desc
+             ) as temp
+        on temp.id = enterprise_private.id
+        left join
+            enterprise_info
+        on enterprise_private.info_id = enterprise_info.id
+        <if test="req.pageSize != null and req.pageSize != 0">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+
+    <select id="selectNotContactListNum" resultType="java.lang.Long">
+        select count(enterprise_private.id)
+        from enterprise_private
+        left join enterprise_info
+        on enterprise_info.id = enterprise_private.info_id
+        where enterprise_private.throwback = 'NO'
+        and enterprise_private.status = 'NOT_CONTACT'
+        <if test="userId != null and userId != 0">
+            and enterprise_private.user_id = #{userId}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and enterprise_info.phone = #{req.phone}
+        </if>
+        <if test="req.contact != null and req.phone != ''">
+            and enterprise_info.contact = #{req.contact}
+        </if>
+        <if test="req.county != null and req.county != ''">
+            and enterprise_info.county = #{req.county}
+        </if>
+        <if test="req.city != null and req.city != ''">
+            and enterprise_info.city = #{req.city}
+        </if>
+        <if test="req.province != null and req.province != ''">
+            and enterprise_info.province = #{req.province}
+        </if>
+        <if test="req.name != null and req.name != ''">
+            and enterprise_info.name like concat('%',#{req.name},'%')
+        </if>
+    </select>
+
+    <select id="selectAuditList" resultType="com.liepin.enterprise.entity.vo.resp.AuditList">
+        select
+            enterprise_throwback_history.id,
+            enterprise_info.name,
+            enterprise_throwback_history.throwback_reason,
+            enterprise_throwback_history.remark,
+            enterprise_private.user_id,
+            user.name as username,
+            enterprise_throwback_history.create_time as sendAuditTime,
+            enterprise_throwback_history.audit_status,
+            enterprise_throwback_history.audit_time
+        from enterprise_throwback_history
+        inner join (
+            select enterprise_throwback_history.id from enterprise_throwback_history
+            left join enterprise_private
+                on enterprise_private.id = enterprise_throwback_history.private_id
+            where enterprise_throwback_history.audit_status = #{req.auditStatus}
+            <if test="userId != null">
+                and enterprise_private.user_id = #{userId}
+            </if>
+            <if test="req.startTime != null and req.startTime != ''">
+                and enterprise_throwback_history.create_time >= #{req.startTime}
+            </if>
+            <if test="req.endTime != null and req.endTime != ''">
+                and enterprise_throwback_history.create_time &lt;= #{req.endTime}
+            </if>
+            order by enterprise_throwback_history.create_time desc
+        ) as temp
+            on enterprise_throwback_history.id = temp.id
+        left join enterprise_private
+            on enterprise_throwback_history.private_id = enterprise_private.id
+        left join enterprise_info
+            on enterprise_info.id = enterprise_throwback_history.info_id
+        left join user
+            on user.id = enterprise_private.user_id
+        <if test="pageSize != null and pageSize != 0">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{pageSize}
+        </if>
+    </select>
+
+    <select id="selectAuditListNum" resultType="java.lang.Long">
+        select count(enterprise_throwback_history.id) from enterprise_throwback_history
+        left join enterprise_private
+        on enterprise_private.id = enterprise_throwback_history.private_id
+        where enterprise_throwback_history.audit_status = #{req.auditStatus}
+        <if test="userId != null">
+            and enterprise_private.user_id = #{userId}
+        </if>
+        <if test="req.startTime != null and req.startTime != ''">
+            and enterprise_throwback_history.create_time >= #{req.startTime}
+        </if>
+        <if test="req.endTime != null and req.endTime != ''">
+            and enterprise_throwback_history.create_time &lt;= #{req.endTime}
+        </if>
+    </select>
+</mapper>

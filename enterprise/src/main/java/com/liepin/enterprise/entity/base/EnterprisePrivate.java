@@ -12,5 +12,4 @@ public class EnterprisePrivate {
     private String createTime;
     private String status;
     private String throwback;
-    private String dlt;
 }

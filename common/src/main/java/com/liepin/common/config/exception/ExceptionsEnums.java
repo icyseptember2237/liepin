@@ -11,9 +11,11 @@ public interface ExceptionsEnums extends Exceptions{
         DATA_IS_ERROR(500, "数据错误!"),
         PARAMTER_IS_ERROR(500, "参数不正确！"),
         NO_RESOURCE(500, "请求资源不存在！"),
-        DATETIME_BEFORE(500, "开始日期不能小于当前日期！");
-        private int code;
-        private String msg;
+        DATETIME_BEFORE(500, "开始日期不能小于当前日期！"),
+        NO_PERMISSION(500,"权限不足"),
+        NO_DATA(500,"数据不存在");
+        private final int code;
+        private final String msg;
     }
 
     @Getter
@@ -24,8 +26,8 @@ public interface ExceptionsEnums extends Exceptions{
         ACCOUNT_NOT_FIND(500, "未查询到该用户信息"),
         NO_LOGIN(500, "请求异常，无登录信息"),
         ROLE_NAME_REPEAT(500, "角色名称/编码重复,请重新输入");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
 
     @Getter
@@ -37,8 +39,8 @@ public interface ExceptionsEnums extends Exceptions{
         USER_CLOSE(500, "当前账号已被禁用,请联系管理员"),
         LOGOUT_FAIL(500,"登出失败"),
         NO_ROLE(500,"用户未分配角色");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
 
     @Getter
@@ -46,8 +48,8 @@ public interface ExceptionsEnums extends Exceptions{
     enum Excel implements ExceptionsEnums{
         TEMPLATE_ERROR(500,"模板表头错误"),
         ERROR_READING_FILE_HEADER(500, "读取文件表头报错！");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
 
     @Getter
@@ -60,15 +62,15 @@ public interface ExceptionsEnums extends Exceptions{
         IMPORT_FAIL(500,"导入失败"),
         TYPE_NOT_ALLOWED(500,"非法文件类型"),
         EMPTY_FILE(500,"文件不能为空");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
     @Getter
     @AllArgsConstructor
     enum WorkLog implements ExceptionsEnums{
         WORK_LOG_EMPTY(500,"未上传日志");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
 
     @Getter
@@ -77,8 +79,8 @@ public interface ExceptionsEnums extends Exceptions{
         NO_DATA(500,"单位不存在"),
         INSERT_FAIL(500,"单位新增失败"),
         ALTER_FAIL(500,"单位修改失败");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
 
     @Getter
@@ -87,15 +89,15 @@ public interface ExceptionsEnums extends Exceptions{
         NO_DATA(500,"人才不存在"),
         INSERT_FAIL(500,"人才新增失败"),
         ALTER_FAIL(500,"人才修改失败");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
 
     @Getter
     @AllArgsConstructor
     enum AgencyEX implements ExceptionsEnums{
         AGENCY_NOT_FOUND(500,"未找到中介");
-        private int code;
-        private String msg;
+        private final int code;
+        private final String msg;
     }
 }

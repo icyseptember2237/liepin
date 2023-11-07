@@ -17,7 +17,7 @@
             (select throwback_reason
              from liepin.enterprise_throwback_history
              where enterprise_throwback_history.info_id = infoId
-             order by throwback_time desc
+             order by enterprise_throwback_history.create_time desc
              limit 1) as throwback_reason
         from enterprise_info
         inner join
