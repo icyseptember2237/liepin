@@ -99,7 +99,7 @@
         and enterprise_info.id = #{id}
         order by id desc
         <if test="page != null and pageSize != null ">
-            <bind name="offset" value="(page-1)*pageSIze"/>
+            <bind name="offset" value="(page-1)*pageSize"/>
         limit #{offset},#{pageSize}
         </if>
     </select>
