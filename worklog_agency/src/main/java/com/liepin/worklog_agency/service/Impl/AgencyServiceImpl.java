@@ -15,6 +15,7 @@ import com.liepin.common.util.time.TimeUtil;
 import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
 import com.liepin.worklog_agency.entity.base.Agency;
 import com.liepin.worklog_agency.entity.base.AgencyBrief;
+import com.liepin.worklog_agency.entity.base.AgencyNameAndId;
 import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
 import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
 import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
@@ -151,5 +152,24 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
         agency.setAuditStatus(ConstantsEnums.AuditStatus.PASS.getStatus());
         updateById(agency);
         return Result.success();
+    }
+
+    @Override
+    public Result<List<AgencyNameAndId>> getAllAgencyAndId() {
+        List<AgencyNameAndId> agencyNameAndIdList = new ArrayList<>();
+        List<Agency> agencyList = agencyMapper.selectList(new LambdaQueryWrapper<Agency>().eq(Agency::getDlt, ConstantsEnums.YESNO.NO).eq(Agency::getAuditStatus,ConstantsEnums.AuditStatus.PASS));
+        agencyList.forEach(agency ->{
+                AgencyNameAndId agencyNameAndId = new AgencyNameAndId();
+                BeanUtils.copyProperties(agency,agencyNameAndId);
+                agencyNameAndIdList.add(agencyNameAndId);
+                }
+                );
+        return Result.success(agencyNameAndIdList);
+    }
+
+    @Override
+    public Result<String> getAgencyById(Long id) {
+        Agency agency = getById(id);
+        return Result.success(agency.getEnterpriseName());
     }
 }

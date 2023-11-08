@@ -13,4 +13,7 @@ public interface LogService extends IService<WorkLog> {
     Result insertWorkLog(WorkLogRespVo workLogRespVo);
 
     Result<WorkLogRes> getWorkLogByLogId(String logId);
+
+    Result insertOtherWorkLog(WorkLogRespVo workLogRespVo);
+
 }

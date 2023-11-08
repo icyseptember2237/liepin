@@ -59,10 +59,20 @@ public class WorkLogController {
         return logBriefService.getAllWork(reqVO);
     }
     @SaCheckRole(value = RoleType.MANAGER.code)
-    @GetMapping("getSomeoneWorkLog")
+    @GetMapping("/getSomeoneWorkLog")
     @ApiOperation(value = "管理员获取某个人日志")
         public Result<WorkLogRes> getSomeoneWorkLog(@RequestParam String logId){
             return logService.getWorkLogByLogId(logId);
     }
 
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @PostMapping("/updateOthersWorkLog")
+    @ApiOperation(value = "管理员更改其他人日志")
+    public Result updateOthersWorkLog(@RequestBody WorkLogRespVo workLogRespVo){
+
+        logService.insertOtherWorkLog(workLogRespVo);
+        logDetailService.insertOtherWorkLogDetail(workLogRespVo);
+        logProblemService.insertOtherWorkLogProblem(workLogRespVo);
+        return Result.success();
+    }
 }

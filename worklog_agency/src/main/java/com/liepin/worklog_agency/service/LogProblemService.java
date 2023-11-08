@@ -7,4 +7,7 @@ import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
 
 public interface LogProblemService extends IService<WorkLogProblem> {
     Result insertWorkLogProblem(WorkLogRespVo workLogRespVo);
+
+    Result insertOtherWorkLogProblem(WorkLogRespVo workLogRespVo);
+
 }

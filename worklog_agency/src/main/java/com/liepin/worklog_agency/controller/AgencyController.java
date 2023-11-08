@@ -6,6 +6,7 @@ import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
 import com.liepin.worklog_agency.entity.base.Agency;
+import com.liepin.worklog_agency.entity.base.AgencyNameAndId;
 import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
 import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
 import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
@@ -27,15 +28,15 @@ public class AgencyController {
     @SaCheckLogin
     @PostMapping("/getAgencyList")
     @ApiOperation(value = "获取中介List")
-        public Result<GetAgencyRespVO> getAgencyList(@RequestBody GetAgencyReqVO reqVO){
-            return agencyService.getAgencyList(reqVO);
+    public Result<GetAgencyRespVO> getAgencyList(@RequestBody GetAgencyReqVO reqVO){
+        return agencyService.getAgencyList(reqVO);
     }
     @SaCheckRole
     @GetMapping("/get")
     @ApiOperation(value = "管理员获取未审核的中介List")
-        public Result<GetAgencyRespVO> getWaitedAgency(){
-            GetAgencyReqVO reqVO = new GetAgencyReqVO();
-            return agencyService.getWaitAgencyList(reqVO);
+    public Result<GetAgencyRespVO> getWaitedAgency(){
+        GetAgencyReqVO reqVO = new GetAgencyReqVO();
+        return agencyService.getWaitAgencyList(reqVO);
     }
     @PostMapping("/post")
     @ApiOperation(value = "添加中介")
@@ -67,23 +68,34 @@ public class AgencyController {
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/rejectAgency")
     @ApiOperation(value = "拒绝待审核中介")
-        public Result rejectAgency(@RequestParam Long id){
+    public Result rejectAgency(@RequestParam Long id){
             return agencyService.rejectAgency(id);
     }
 
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/passAgency")
     @ApiOperation(value = "通过待审核中介")
-        public Result passAgency(@RequestParam Long id){
+    public Result passAgency(@RequestParam Long id){
         return agencyService.passAgency(id);
     }
 
     @SaCheckLogin
     @GetMapping("/getSelfAgency")
     @ApiOperation(value = "查看自己上传的中介")
-        public Result<GetAgencyRespVO> getSelfAgencyList(){
+    public Result<GetAgencyRespVO> getSelfAgencyList(){
         return agencyService.getSelfAgencyList();
     }
 
-
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @GetMapping("/getAllAgencyAndId")
+    @ApiOperation(value = "管理员获取所有中介和对应id")
+    public Result<List<AgencyNameAndId>> getAllAgencyAndId(){
+        return agencyService.getAllAgencyAndId();
+    }
+    @SaCheckRole
+    @GetMapping("/getDetailAgencyById")
+    @ApiOperation(value = "管理员通过id得到中介名称")
+    public Result<String>  getAgencyNameById(@RequestParam Long id){
+        return agencyService.getAgencyById(id);
+    }
 }

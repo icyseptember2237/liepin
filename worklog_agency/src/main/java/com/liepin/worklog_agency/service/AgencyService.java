@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
 import com.liepin.worklog_agency.entity.base.Agency;
+import com.liepin.worklog_agency.entity.base.AgencyNameAndId;
 import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
 import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
 import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
@@ -31,4 +32,7 @@ public interface AgencyService extends IService<Agency> {
 
     Result passAgency(Long id);
 
+    Result<List<AgencyNameAndId>> getAllAgencyAndId();
+
+    Result<String> getAgencyById(Long id);
 }

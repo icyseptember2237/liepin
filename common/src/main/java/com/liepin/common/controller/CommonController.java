@@ -1,10 +1,18 @@
 package com.liepin.common.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.HashResult;
+import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.config.FileConfig;
+
+import com.liepin.common.util.talentBasicConfig.entity.GetTalentBasicConfigResVO;
 import com.liepin.common.util.system.GetSystem;
+import com.liepin.common.util.talentBasicConfig.service.GetTalentBasicConfigService;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +25,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/common")
 public class CommonController {
+
+    @Autowired
+    private GetTalentBasicConfigService basicConfigService;
 
     @PostMapping("/upload")
     public HashResult uploadFile(MultipartFile file) {
@@ -70,5 +81,11 @@ public class CommonController {
             AssertUtils.throwException(ExceptionsEnums.File.UPLOAD_FAIL);
             return HashResult.error();
         }
+    }
+    @SaCheckLogin
+    @GetMapping("/getTalentBasicConfig")
+    @ApiOperation(value = "获取人才基本配置")
+    public Result<GetTalentBasicConfigResVO> getTalentBasicConfig(){
+            return basicConfigService.getTalentBasicConfig();
     }
 }
