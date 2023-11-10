@@ -7,6 +7,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
 import com.liepin.worklog_agency.entity.base.Agency;
 import com.liepin.worklog_agency.entity.base.AgencyNameAndId;
+import com.liepin.worklog_agency.entity.base.ImportAgencyResVO;
 import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
 import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
 import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
@@ -14,7 +15,9 @@ import com.liepin.worklog_agency.service.AgencyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -98,4 +101,11 @@ public class AgencyController {
     public Result<String>  getAgencyNameById(@RequestParam Long id){
         return agencyService.getAgencyById(id);
     }
+    @SaCheckLogin
+    @PostMapping("/import")
+    @ApiOperation(value = "批量通过excel导入中介")
+    public Result<ImportAgencyResVO> importAgency(MultipartFile file){
+        return agencyService.importAgency(file);
+    }
+
 }

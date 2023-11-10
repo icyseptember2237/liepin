@@ -5,9 +5,11 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
 import com.liepin.worklog_agency.entity.base.Agency;
 import com.liepin.worklog_agency.entity.base.AgencyNameAndId;
+import com.liepin.worklog_agency.entity.base.ImportAgencyResVO;
 import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
 import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
 import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -35,4 +37,6 @@ public interface AgencyService extends IService<Agency> {
     Result<List<AgencyNameAndId>> getAllAgencyAndId();
 
     Result<String> getAgencyById(Long id);
+
+    Result<ImportAgencyResVO> importAgency(MultipartFile file);
 }

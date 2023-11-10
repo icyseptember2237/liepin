@@ -1,6 +1,7 @@
 package com.liepin.worklog_agency.service.Impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liepin.auth.entity.base.User;
@@ -12,24 +13,24 @@ import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.auditlog.AuditLog;
 import com.liepin.common.util.auditlog.constant.TableName;
 import com.liepin.common.util.time.TimeUtil;
-import com.liepin.worklog_agency.entity.base.AddAgencyReqVO;
-import com.liepin.worklog_agency.entity.base.Agency;
-import com.liepin.worklog_agency.entity.base.AgencyBrief;
-import com.liepin.worklog_agency.entity.base.AgencyNameAndId;
+import com.liepin.worklog_agency.entity.base.*;
 import com.liepin.worklog_agency.entity.request.GetAgencyReqVO;
 import com.liepin.worklog_agency.entity.request.UpdateAgencyReqVO;
 import com.liepin.worklog_agency.entity.response.GetAgencyRespVO;
 import com.liepin.worklog_agency.mapper.AgencyMapper;
 import com.liepin.worklog_agency.service.AgencyService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implements AgencyService {
     @Autowired
     private AgencyMapper agencyMapper;
@@ -171,5 +172,31 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
     public Result<String> getAgencyById(Long id) {
         Agency agency = getById(id);
         return Result.success(agency.getEnterpriseName());
+    }
+
+    @Override
+    public Result<ImportAgencyResVO> importAgency(MultipartFile file) {
+        checkFile(file);
+
+        AgencyImportListener listener = new AgencyImportListener();
+
+        try {
+            log.info("准备导入中介");
+            EasyExcel.read(file.getInputStream(),Agency.class,listener).sheet().doRead();
+
+        }catch (Exception ie){
+            ie.printStackTrace();
+            AssertUtils.throwException(ExceptionsEnums.File.IMPORT_FAIL);
+        }
+        ImportAgencyResVO resVO = new ImportAgencyResVO();
+        resVO.setTotal(listener.getDataNum());
+        resVO.setMilSeconds(listener.getTime());
+        return Result.success(resVO);
+    }
+    private void checkFile(MultipartFile file){
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(file),ExceptionsEnums.File.EMPTY_FILE);
+        String type = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);
+        AssertUtils.isFalse("xlsx".equals(type) || "xls".equals(type),ExceptionsEnums.File.TYPE_NOT_ALLOWED);
+
     }
 }

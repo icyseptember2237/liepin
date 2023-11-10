@@ -18,4 +18,6 @@ public interface AgencyMapper extends BaseMapper<Agency> {
     Long getAgencyNum(@Param("req") GetAgencyReqVO respVO);
 
     List<Agency> getSelfAgenctList(@Param("req") GetAgencyReqVO reqVO);
+
+    void importAgency(String path);
 }
