@@ -46,6 +46,21 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     private final EnterpriseOceanServiceImpl enterpriseOceanService;
     private final EnterprisePrivateServiceImpl enterprisePrivateService;
 
+    Integer[] nums;
+
+    private void insert(Integer[] nums,Integer data,int index){
+        for (int i = nums.length-1; i > index; i--){
+            nums[i] = nums[i - 1];
+        }
+        nums[index] = data;
+    }
+
+    private void delete(Integer[] nums,int index){
+        for (int i = index ;i < nums.length-1  ;i++ ){
+            nums[i] = nums[i+1];
+        }
+    }
+
     @Autowired
     public EnterpriseServiceImpl(EnterpriseMapper enterpriseMapper,EnterpriseInfoServiceImpl enterpriseInfoService,
                                  EnterpriseOceanServiceImpl enterpriseOceanService,EnterprisePrivateServiceImpl enterprisePrivateService){

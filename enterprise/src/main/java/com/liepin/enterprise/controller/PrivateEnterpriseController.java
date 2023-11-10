@@ -31,7 +31,7 @@ public class PrivateEnterpriseController {
         return enterprisePrivateService.getNotContact(reqVO);
     }
 
-    @GetMapping("/managerGetAudit")
+    @PostMapping("/managerGetAudit")
     @ApiOperation(value = "管理员-获取扔回公海待审核/通过/不通过审核记录")
     @SaCheckRole(value = RoleType.MANAGER.code)
     public Result<GetAuditRespVO> managerGetAudit(@RequestBody GetAuditReqVO reqVO){

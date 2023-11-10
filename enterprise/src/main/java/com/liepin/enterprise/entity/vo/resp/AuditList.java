@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class AuditList {
-    @ApiModelProperty(notes = "id")
+    @ApiModelProperty(notes = "审核id")
     private Long id;
     @ApiModelProperty(notes = "单位名称")
     private String name;

@@ -115,9 +115,9 @@
             on enterprise_info.id = enterprise_throwback_history.info_id
         left join user
             on user.id = enterprise_private.user_id
-        <if test="pageSize != null and pageSize != 0">
+        <if test="req.pageSize != null and req.pageSize != 0">
             <bind name="offset" value="(req.page-1)*req.pageSize"/>
-            limit #{offset},#{pageSize}
+            limit #{offset},#{req.pageSize}
         </if>
     </select>
 

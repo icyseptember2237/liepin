@@ -102,12 +102,13 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
     @Transactional
     public Result throwback(ThrowbackReqVO reqVO){
         EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(reqVO.getId());
-        AssertUtils.isFalse(StpUtil.getLoginIdAsLong() == enterprisePrivate.getUserId(),
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterprisePrivate),ExceptionsEnums.Enterprise.NO_DATA);
+        AssertUtils.isFalse( StpUtil.getLoginIdAsLong() == enterprisePrivate.getUserId(),
                 ExceptionsEnums.Common.NO_PERMISSION);
         AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(enterprisePrivate.getThrowback()),
                 "重复操作");
 
-        enterprisePrivate.setStatus(ConstantsEnums.AuditStatus.WAIT.getStatus());
+        enterprisePrivate.setThrowback(ConstantsEnums.AuditStatus.WAIT.getStatus());
         enterprisePrivateService.updateById(enterprisePrivate);
 
         EnterpriseThrowbackHistory history = new EnterpriseThrowbackHistory();
