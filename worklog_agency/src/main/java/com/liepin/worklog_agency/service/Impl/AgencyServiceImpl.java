@@ -40,6 +40,7 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
 
     @Override
     public Result<GetAgencyRespVO> getAgencyList(GetAgencyReqVO reqVO) {
+
         GetAgencyRespVO respVO = new GetAgencyRespVO();
         if("ALL".equals(reqVO.getAuditStatus())){
             reqVO.setAuditStatus("");
