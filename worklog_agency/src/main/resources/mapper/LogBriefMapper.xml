@@ -4,7 +4,7 @@
 
     <select id="getAllBriefLog" resultType="com.liepin.worklog_agency.entity.response.WorkLogBriefRes">
         select distinct liepin.work_log.id as log_id,username,name,liepin.user.id,liepin.role.role_code as role,
-        liepin.work_log.update_time,liepin.work_log_detail.phone_num,liepin.work_log_detail.wechat_num,
+        liepin.work_log.update_time as create_time,liepin.work_log_detail.phone_num,liepin.work_log_detail.wechat_num,
         liepin.work_log_detail.intentional_customer,
         (t.cnt) as unfinishedProblemNum
         from liepin.work_log left join liepin.work_log_problem on liepin.work_log.id =liepin.work_log_problem.id
@@ -12,6 +12,9 @@
         join liepin.role on user.role_id = role.id
         join (select work_log_problem.id, count(work_log_problem.id) as cnt from liepin.work_log_problem,liepin.work_log,liepin.user
         where liepin.work_log_problem.dlt = 'NO'
+        <if test="req.solved != null and req.solved != ''">
+            and liepin.work_log_problem.solved = #{req.solved}
+        </if>
         and liepin.work_log_problem.id = liepin.work_log.id
         and liepin.work_log.id = liepin.work_log_problem.id
         and liepin.work_log.user_id = liepin.user.id
@@ -33,7 +36,7 @@
         <if test="req.solved != null and req.solved != ''">
             and liepin.work_log_problem.solved = #{req.solved}
         </if>
-        order by liepin.user.id asc
+        order by liepin.work_log.update_time desc
         <if test="req.page != null and req.pageSize != null and req.page != '' and req.pageSize != ''">
             <bind name="offset" value="(req.page-1)*req.pageSize"/>
             limit #{offset},#{req.pageSize}

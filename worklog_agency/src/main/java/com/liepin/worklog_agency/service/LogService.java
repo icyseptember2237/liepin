@@ -8,11 +8,11 @@ import com.liepin.worklog_agency.entity.response.WorkLogRespVo;
 
 public interface LogService extends IService<WorkLog> {
 
-    Result<WorkLogRes> getWorkLog(String loginId);
+    Result<WorkLogRes> getWorkLog(Long loginId);
 
     Result insertWorkLog(WorkLogRespVo workLogRespVo);
 
-    Result<WorkLogRes> getWorkLogByLogId(String logId);
+    Result<WorkLogRes> getWorkLogByLogId(Long logId);
 
     Result insertOtherWorkLog(WorkLogRespVo workLogRespVo);
 

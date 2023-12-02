@@ -23,10 +23,12 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     private LogMapper logMapper;
 
     @Override
-    public Result<WorkLogRes> getWorkLog(String loginId) {
+    public Result<WorkLogRes> getWorkLog(Long loginId) {
         WorkLogRes workLogRes = new WorkLogRes();
         workLogRes = logMapper.getWorkLogRes(loginId,TimeUtil.getToday());
+
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRes),ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
+
         workLogRes.setLogId(StpUtil.getLoginIdAsInt());
         workLogRes.setWorkLogProbList(logMapper.getWorkLogProblemList(loginId,TimeUtil.getToday()));
         return Result.success(workLogRes);
@@ -43,6 +45,8 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
             workLog.setId(id);
         }
         workLog.setUserId(StpUtil.getLoginIdAsLong());
+//        改创建时间
+//        if((ObjectUtils.isNotEmpty()))
         workLog.setCreateTime(TimeUtil.getNowWithMin());
         workLog.setUpdateTime(TimeUtil.getNowWithMin());
         saveOrUpdate(workLog);
@@ -50,7 +54,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     }
 
     @Override
-    public Result<WorkLogRes> getWorkLogByLogId(String logId) {
+    public Result<WorkLogRes> getWorkLogByLogId(Long logId) {
 
         WorkLogRes workLogRes = logMapper.getWorkLogResByLogId(logId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRes), ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);

@@ -2,7 +2,6 @@ package com.liepin.worklog_agency.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.liepin.worklog_agency.entity.request.GetWorkLogReqVO;
-import com.liepin.worklog_agency.entity.response.GetWorkLogRespVO;
 import com.liepin.worklog_agency.entity.response.WorkLogBriefRes;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

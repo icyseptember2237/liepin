@@ -19,11 +19,11 @@ public interface LogMapper extends BaseMapper<WorkLog> {
 
     void insertWorkLog(WorkLog workLog);
 
-    WorkLogRes getWorkLogRes(String loginId,String dayTime);
+    WorkLogRes getWorkLogRes(Long loginId,String dayTime);
 
-    List<WorkLogProblemRes> getWorkLogProblemList(String loginId, String dayTime);
+    List<WorkLogProblemRes> getWorkLogProblemList(Long loginId, String dayTime);
 
-    WorkLogRes getWorkLogResByLogId(String logId);
+    WorkLogRes getWorkLogResByLogId(Long logId);
 
-    List<WorkLogProblemRes> getWorkLogProblemListById(String logId);
+    List<WorkLogProblemRes> getWorkLogProblemListById(Long logId);
 }

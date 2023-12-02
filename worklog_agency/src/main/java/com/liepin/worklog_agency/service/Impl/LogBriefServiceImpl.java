@@ -37,7 +37,14 @@ public class LogBriefServiceImpl extends ServiceImpl<LogBriefMapper,WorkLogBrief
         if ("ALL".equals(reqVO.getSolved())){
             reqVO.setSolved("");
         }
+
         respVO.setList(logBriefMapper.getAllBriefLog(reqVO));
+//        if("YES".equals((reqVO.getSolved()))){
+//            List<WorkLogBriefRes> list = respVO.getList();
+//            for (WorkLogBriefRes workLogBriefRes : list) {
+//                workLogBriefRes.setUnfinishedProblemNum(0);
+//            }
+//        }
         respVO.setTotal(logBriefMapper.getAllBriefLogNum(reqVO));
         return Result.success(respVO);
     }

@@ -39,14 +39,13 @@ public class WorkLogController {
     @GetMapping("/getWorkLog")
     @ApiOperation(value = "获取日志")
         public Result<WorkLogRes> getLog(){
-        String loginId = StpUtil.getLoginId().toString();
+        long loginId = StpUtil.getLoginIdAsLong();
         return logService.getWorkLog(loginId);
     }
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @PostMapping("/postWorkLog")
     @ApiOperation(value = "更新or上传日志")
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
-//        workLogRespVo.setId(Long.valueOf(StpUtil.getLoginId().toString()));
         logService.insertWorkLog(workLogRespVo);
         logDetailService.insertWorkLogDetail(workLogRespVo);
         logProblemService.insertWorkLogProblem(workLogRespVo);
@@ -61,7 +60,7 @@ public class WorkLogController {
     @SaCheckRole(value = RoleType.MANAGER.code)
     @GetMapping("/getSomeoneWorkLog")
     @ApiOperation(value = "管理员获取某个人日志")
-        public Result<WorkLogRes> getSomeoneWorkLog(@RequestParam String logId){
+        public Result<WorkLogRes> getSomeoneWorkLog(@RequestParam Long logId){
             return logService.getWorkLogByLogId(logId);
     }
 

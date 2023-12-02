@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/common")
+@RequestMapping("/api/common")
 public class CommonController {
 
     @Autowired

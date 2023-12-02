@@ -29,7 +29,7 @@
             from work_log_detail , work_log
             where work_log_detail.id = work_log.id
             and   liepin.work_log.user_id = #{loginId}
-            and work_log.create_time like CONCAT(#{dayTime},"%")
+            and work_log.create_time like CONCAT(#{dayTime},'%')
     </select>
     <select id="getWorkLogProblemList"
             resultType="com.liepin.worklog_agency.entity.response.WorkLogProblemRes">
@@ -38,7 +38,7 @@
             from work_log_problem,work_log
             where work_log_problem.id = work_log.id
             and work_log.user_id = #{loginId}
-            and work_log.create_time like CONCAT(#{dayTime},"%")
+            and work_log.create_time like CONCAT(#{dayTime},'%')
             and work_log_problem.dlt = 'NO'
     </select>
     <select id="getWorkLogProblemListById"

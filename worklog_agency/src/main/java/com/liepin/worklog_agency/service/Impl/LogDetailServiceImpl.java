@@ -27,7 +27,8 @@ public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDe
         BeanUtils.copyProperties(workLogRespVo,workLogDetail);
         Long userId;
         if (null!=workLogRespVo.getId()){
-            userId = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getId, workLogRespVo.getId())).getUserId();
+            userId = StpUtil.getLoginIdAsLong();
+//            userId = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getId, workLogRespVo.getId())).getUserId();
         }else{
             userId = StpUtil.getLoginIdAsLong();
         }
