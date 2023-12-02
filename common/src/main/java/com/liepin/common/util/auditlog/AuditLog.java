@@ -18,7 +18,7 @@ public class AuditLog {
         newAudit.setAuditTime(TimeUtil.getNowWithSec());
         newAudit.setAuditId(StpUtil.getLoginIdAsLong());
         newAudit.setAuditStatus(ConstantsEnums.AuditStatus.PASS.getStatus());
-        AsyncExecutor.getExecutor().execute(new Thread(() -> {
+        AsyncExecutor.getExecutor().schedule(new Thread(() -> {
             SpringUtil.getBean(AuditMapper.class).insert(newAudit);
         }));
     }
@@ -31,7 +31,7 @@ public class AuditLog {
         newAudit.setAuditTime(TimeUtil.getNowWithSec());
         newAudit.setAuditId(StpUtil.getLoginIdAsLong());
         newAudit.setAuditStatus(ConstantsEnums.AuditStatus.FAIL.getStatus());
-        AsyncExecutor.getExecutor().execute(new Thread(() -> {
+        AsyncExecutor.getExecutor().schedule(new Thread(() -> {
             SpringUtil.getBean(AuditMapper.class).insert(newAudit);
         }));
     }

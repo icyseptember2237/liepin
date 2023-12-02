@@ -3,6 +3,7 @@ package com.liepin.common.config.thread;
 import cn.hutool.extra.spring.SpringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,8 +16,11 @@ public class AsyncExecutor {
 
     private ScheduledExecutorService scheduledExecutorService;
 
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
     private AsyncExecutor(){
         this.scheduledExecutorService = SpringUtil.getBean("mySchedulerExecutor");
+        this.threadPoolTaskExecutor = SpringUtil.getBean("myAsyncExecutor");
     }
 
     // 使用static创造单例模式
@@ -28,11 +32,15 @@ public class AsyncExecutor {
     }
 
     public void execute(Thread thread){
-        scheduledExecutorService.schedule(thread,10, TimeUnit.MILLISECONDS);
+        threadPoolTaskExecutor.execute(thread);
     }
 
-    public void schedule(Thread thread,int delaySeconds){
-        scheduledExecutorService.schedule(thread,delaySeconds,TimeUnit.SECONDS);
+    public void schedule(Thread thread){
+        scheduledExecutorService.schedule(thread,10,TimeUnit.MILLISECONDS);
+    }
+
+    public void schedule(Thread thread,int delayMilliSeconds){
+        scheduledExecutorService.schedule(thread,delayMilliSeconds,TimeUnit.MILLISECONDS);
     }
 
     public void shutdown(){

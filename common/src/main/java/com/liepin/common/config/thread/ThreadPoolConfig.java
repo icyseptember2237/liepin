@@ -18,13 +18,13 @@ public class ThreadPoolConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(ThreadPoolConfig.class);
     // 核心线程池大小
-    private int corePoolSize = 30;
+    private int corePoolSize = 20;
 
     // 最大可创建的线程数
-    private int maxPoolSize = 105;
+    private int maxPoolSize = 50;
 
     // 队列最大长度
-    private int queueCapacity = 1000;
+    private int queueCapacity = 300;
 
     // 线程池维护线程所允许的空闲时间
     private int keepAliveSeconds = 300;

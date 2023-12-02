@@ -55,7 +55,7 @@ public class LoginLog {
         else
             log.setMsg("其他原因");
         // 异步存入
-        AsyncExecutor.getExecutor().execute(new Thread(() ->{
+        AsyncExecutor.getExecutor().schedule(new Thread(() ->{
             SpringUtil.getBean(SysLogServiceImpl.class).save(log);
         }));
     }
@@ -72,7 +72,7 @@ public class LoginLog {
         log.setTime(TimeUtil.getNowWithSec());
         log.setIp(getIpAddr(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest()));
         // 异步存入
-        AsyncExecutor.getExecutor().execute(new Thread(() ->{
+        AsyncExecutor.getExecutor().schedule(new Thread(() ->{
             SpringUtil.getBean(SysLogServiceImpl.class).save(log);
         }));
     }
