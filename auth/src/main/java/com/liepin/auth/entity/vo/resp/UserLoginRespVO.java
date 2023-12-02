@@ -16,5 +16,6 @@ public class UserLoginRespVO {
     private String username;
     @ApiModelProperty(notes = "角色")
     private String role;
-
+    @ApiModelProperty(notes = "昨天是否提交工作日志")
+    private Boolean commitWorkLog;
 }

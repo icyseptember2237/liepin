@@ -15,4 +15,6 @@ public interface LoginMapper {
 
     List<Role> getUserRole(@Param("userId") Long userId);
 
+    Boolean commitWorkLog(@Param("userId") Long userId);
+
 }

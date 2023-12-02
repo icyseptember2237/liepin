@@ -2,6 +2,7 @@ package com.liepin.auth.service.impl;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
+import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.entity.dto.LoginUser;
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
 import com.liepin.auth.entity.vo.resp.UserLoginRespVO;
@@ -24,9 +25,12 @@ import java.util.HashMap;
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService {
+    private final LoginMapper loginMapper;
 
     @Autowired
-    private LoginMapper loginMapper;
+    public LoginServiceImpl(LoginMapper loginMapper){
+        this.loginMapper = loginMapper;
+    }
 
     @Override
     public Result<UserLoginRespVO> userLogin(UserLoginReqVO reqVO){
@@ -53,6 +57,7 @@ public class LoginServiceImpl implements LoginService {
         respVO.setName(user.getName());
         respVO.setUsername(user.getUsername());
         respVO.setRole(user.getRoleCode());
+        respVO.setCommitWorkLog(RoleType.MANAGER.code.equals(user.getRoleCode()) || loginMapper.commitWorkLog(user.getId()));
 
         return Result.success(respVO);
     }

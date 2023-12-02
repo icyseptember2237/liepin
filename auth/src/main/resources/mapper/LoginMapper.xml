@@ -14,4 +14,12 @@
         left join liepin.user on user.role_id = role.id
         where user.id = #{userId}
     </select>
+
+    <select id="commitWorkLog" resultType="java.lang.Boolean">
+        select count(work_log.id) from work_log
+        where dlt = 'NO'
+        and date(create_time) = date(date_sub(now(),interval 1 day))
+        and weekday(date(date_sub(now(),interval 1 day))) &lt; 5
+        and user_id = #{userId}
+    </select>
 </mapper>
