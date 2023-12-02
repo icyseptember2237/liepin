@@ -30,6 +30,7 @@ public class EnterpriseController {
     @ApiOperation(value = "查询公海页面")
     @SaCheckLogin
     public Result<GetEnterpriseListRespVO> getEnterpriseList(@RequestBody GetEnterpriseListReqVO reqVO){
+        reqVO.setPageSize(Math.min(15, reqVO.getPageSize()));
         return enterpriseService.getEnterpriseList(reqVO);
     }
 
