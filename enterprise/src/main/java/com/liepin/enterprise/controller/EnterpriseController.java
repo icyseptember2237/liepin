@@ -7,6 +7,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
+import com.liepin.enterprise.entity.vo.req.PullEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseInfoRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.ImportEnterpriseRespVO;
@@ -69,11 +70,11 @@ public class EnterpriseController {
         return enterpriseService.deleteEnterprise(id);
     }
 
-    @GetMapping("/pullEnterprise")
+    @PostMapping("/pullEnterprise")
     @ApiOperation(value = "拉入私人单位库")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
-    public Result pullEnterprise(@Parameter(description = "公海id") @RequestParam Long id){
-        return enterpriseService.pullEnterprise(id);
+    public Result pullEnterprise(@RequestBody PullEnterpriseReqVO reqVO){
+        return enterpriseService.pullEnterprise(reqVO);
     }
 
 }

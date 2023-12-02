@@ -13,6 +13,7 @@ import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
+import com.liepin.enterprise.entity.vo.req.PullEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseInfoRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListVO;
@@ -174,26 +175,30 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
     @Override
     @Transactional
-    public Result pullEnterprise(Long id){
-        EnterpriseInfo info = enterpriseInfoService.getById(id);
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),
-                ExceptionsEnums.Enterprise.NO_DATA);
+    public Result pullEnterprise(PullEnterpriseReqVO reqVO){
+        AssertUtils.isFalse(!reqVO.getList().isEmpty(),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
 
-        try {
-            info.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
-            enterpriseInfoService.updateById(info);
+        reqVO.getList().forEach((id) ->{
+            EnterpriseInfo info = enterpriseInfoService.getById(id);
+            AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),
+                    ExceptionsEnums.Enterprise.NO_DATA);
 
-            EnterprisePrivate enterprisePrivate = new EnterprisePrivate();
-            enterprisePrivate.setUserId(StpUtil.getLoginIdAsLong());
-            enterprisePrivate.setInfoId(info.getId());
-            enterprisePrivate.setCreateTime(TimeUtil.getNowWithSec());
-            enterprisePrivate.setStatus(EnterprisePrivateStatus.NOT_CONTACT.getStatus());
-            enterprisePrivateService.save(enterprisePrivate);
-        } catch (Exception e){
-            e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            AssertUtils.throwException("拉入失败");
-        }
+            try {
+                info.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
+                enterpriseInfoService.updateById(info);
+
+                EnterprisePrivate enterprisePrivate = new EnterprisePrivate();
+                enterprisePrivate.setUserId(StpUtil.getLoginIdAsLong());
+                enterprisePrivate.setInfoId(info.getId());
+                enterprisePrivate.setCreateTime(TimeUtil.getNowWithSec());
+                enterprisePrivate.setStatus(EnterprisePrivateStatus.NOT_CONTACT.getStatus());
+                enterprisePrivateService.save(enterprisePrivate);
+            } catch (Exception e){
+                e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                AssertUtils.throwException("拉入失败");
+            }
+        });
         return Result.success();
     }
 }
