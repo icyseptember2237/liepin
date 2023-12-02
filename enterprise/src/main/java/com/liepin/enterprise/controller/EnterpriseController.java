@@ -7,15 +7,13 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
-import com.liepin.enterprise.entity.vo.req.PullEnterpriseReqVO;
+import com.liepin.enterprise.entity.vo.req.EnterpriseListVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseInfoRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.ImportEnterpriseRespVO;
 import com.liepin.enterprise.service.EnterpriseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.v3.oas.annotations.Parameter;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,14 +64,14 @@ public class EnterpriseController {
     @PostMapping("/deleteEnterprise")
     @ApiOperation(value = "删除单位信息")
     @SaCheckRole(value = RoleType.MANAGER.code)
-    public Result deleteEnterprise(@RequestParam Long id){
-        return enterpriseService.deleteEnterprise(id);
+    public Result deleteEnterprise(@RequestBody EnterpriseListVO reqVO){
+        return enterpriseService.deleteEnterprise(reqVO);
     }
 
     @PostMapping("/pullEnterprise")
     @ApiOperation(value = "拉入私人单位库")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
-    public Result pullEnterprise(@RequestBody PullEnterpriseReqVO reqVO){
+    public Result pullEnterprise(@RequestBody EnterpriseListVO reqVO){
         return enterpriseService.pullEnterprise(reqVO);
     }
 

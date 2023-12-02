@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PullEnterpriseReqVO {
+public class EnterpriseListVO {
     @ApiModelProperty(notes = "单位公海id列表")
     private List<Long> list;
 }

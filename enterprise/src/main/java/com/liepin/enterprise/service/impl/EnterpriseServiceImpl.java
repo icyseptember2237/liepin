@@ -13,7 +13,7 @@ import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.GetEnterpriseListReqVO;
-import com.liepin.enterprise.entity.vo.req.PullEnterpriseReqVO;
+import com.liepin.enterprise.entity.vo.req.EnterpriseListVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseInfoRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListRespVO;
 import com.liepin.enterprise.entity.vo.resp.GetEnterpriseListVO;
@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -164,18 +163,23 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     }
 
     @Override
-    public Result deleteEnterprise(Long id){
-        EnterpriseInfo info = enterpriseInfoService.getById(id);
-        AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
-                "删除失败, 单位位于私海中");
-        info.setDlt(ConstantsEnums.YESNO.YES.getValue());
-        enterpriseInfoService.updateById(info);
+    public Result deleteEnterprise(EnterpriseListVO reqVO){
+        AssertUtils.isFalse(!reqVO.getList().isEmpty(),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+
+        reqVO.getList().forEach(id -> {
+            EnterpriseInfo info = enterpriseInfoService.getById(id);
+            AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
+                    "删除失败, 单位 " + info.getName() +" 位于私海中");
+            info.setDlt(ConstantsEnums.YESNO.YES.getValue());
+            enterpriseInfoService.updateById(info);
+        });
+
         return Result.success();
     }
 
     @Override
     @Transactional
-    public Result pullEnterprise(PullEnterpriseReqVO reqVO){
+    public Result pullEnterprise(EnterpriseListVO reqVO){
         AssertUtils.isFalse(!reqVO.getList().isEmpty(),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
 
         reqVO.getList().forEach((id) ->{
@@ -199,6 +203,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
                 AssertUtils.throwException("拉入失败");
             }
         });
+
         return Result.success();
     }
 }
