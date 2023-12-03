@@ -141,9 +141,9 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     @Override
     public Result alterEnterprise(AlterEnterpriseReqVO reqVO){
         EnterpriseInfo info = enterpriseInfoService.getById(reqVO.getId());
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info) && ConstantsEnums.YESNO.NO.getValue().equals(info.getDlt()),
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info) && ConstantsEnums.YESNOWAIT.NO.getValue().equals(info.getDlt()),
                 ExceptionsEnums.Enterprise.NO_DATA);
-        AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
+        AssertUtils.isFalse(ConstantsEnums.YESNOWAIT.NO.getValue().equals(info.getIsPrivate()),
                 "修改失败, 单位位于私海中");
 
         AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getName()),
@@ -168,9 +168,9 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
         reqVO.getList().forEach(id -> {
             EnterpriseInfo info = enterpriseInfoService.getById(id);
-            AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
+            AssertUtils.isFalse(ConstantsEnums.YESNOWAIT.NO.getValue().equals(info.getIsPrivate()),
                     "删除失败, 单位 " + info.getName() +" 位于私海中");
-            info.setDlt(ConstantsEnums.YESNO.YES.getValue());
+            info.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
             enterpriseInfoService.updateById(info);
         });
 
@@ -188,7 +188,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
                     ExceptionsEnums.Enterprise.NO_DATA);
 
             try {
-                info.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
+                info.setIsPrivate(ConstantsEnums.YESNOWAIT.YES.getValue());
                 enterpriseInfoService.updateById(info);
 
                 EnterprisePrivate enterprisePrivate = new EnterprisePrivate();

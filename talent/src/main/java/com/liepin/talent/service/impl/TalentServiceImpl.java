@@ -1,7 +1,6 @@
 package com.liepin.talent.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.excel.EasyExcel;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
@@ -106,8 +105,8 @@ public class TalentServiceImpl implements TalentService {
     public Result alterTalent(AlterTalentReqVO reqVO){
         TalentInfo info = talentInfoService.getById(reqVO.getId());
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(info)
-                        && ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate())
-                        && ConstantsEnums.YESNO.NO.getValue().equals(info.getDlt()),
+                        && ConstantsEnums.YESNOWAIT.NO.getValue().equals(info.getIsPrivate())
+                        && ConstantsEnums.YESNOWAIT.NO.getValue().equals(info.getDlt()),
                 ExceptionsEnums.Talent.ALTER_FAIL);
 
         BeanUtils.copyProperties(reqVO,info);
@@ -119,10 +118,10 @@ public class TalentServiceImpl implements TalentService {
     public Result deleteTalent(Long id){
         TalentInfo info = talentInfoService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.NO_DATA);
-        AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(info.getIsPrivate()),
+        AssertUtils.isFalse(ConstantsEnums.YESNOWAIT.NO.getValue().equals(info.getIsPrivate()),
                 "删除失败, 人才位于私库中");
 
-        info.setDlt(ConstantsEnums.YESNO.YES.getValue());
+        info.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
         talentInfoService.updateById(info);
         return Result.success();
     }
@@ -134,7 +133,7 @@ public class TalentServiceImpl implements TalentService {
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Talent.NO_DATA);
 
         try {
-            info.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
+            info.setIsPrivate(ConstantsEnums.YESNOWAIT.YES.getValue());
             talentInfoService.updateById(info);
 
             TalentPrivate talentPrivate = new TalentPrivate();

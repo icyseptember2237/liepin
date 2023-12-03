@@ -79,10 +79,10 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
             history.setAuditTime(TimeUtil.getNowWithSec());
             enterpriseThrowbackHistoryService.updateById(history);
 
-            enterprisePrivate.setThrowback(ConstantsEnums.YESNO.YES.getValue());
+            enterprisePrivate.setThrowback(ConstantsEnums.YESNOWAIT.YES.getValue());
             enterprisePrivateService.updateById(enterprisePrivate);
 
-            info.setIsPrivate(ConstantsEnums.YESNO.NO.getValue());
+            info.setIsPrivate(ConstantsEnums.YESNOWAIT.NO.getValue());
             enterpriseInfoService.updateById(info);
             return Result.success();
         } else if (ConstantsEnums.AuditStatus.FAIL.getStatus().equals(reqVO.getStatus())){
@@ -90,7 +90,7 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
             history.setAuditTime(TimeUtil.getNowWithSec());
             enterpriseThrowbackHistoryService.updateById(history);
 
-            enterprisePrivate.setThrowback(ConstantsEnums.YESNO.NO.getValue());
+            enterprisePrivate.setThrowback(ConstantsEnums.YESNOWAIT.NO.getValue());
             enterprisePrivateService.updateById(enterprisePrivate);
             return Result.success();
         }
@@ -105,10 +105,17 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterprisePrivate),ExceptionsEnums.Enterprise.NO_DATA);
         AssertUtils.isFalse( StpUtil.getLoginIdAsLong() == enterprisePrivate.getUserId(),
                 ExceptionsEnums.Common.NO_PERMISSION);
-        AssertUtils.isFalse(ConstantsEnums.YESNO.NO.getValue().equals(enterprisePrivate.getThrowback()),
+        AssertUtils.isFalse(ConstantsEnums.YESNOWAIT.NO.getValue().equals(enterprisePrivate.getThrowback()),
                 "重复操作");
 
-        enterprisePrivate.setThrowback(ConstantsEnums.AuditStatus.WAIT.getStatus());
+        // 未联系可直接扔回,不生成记录
+        if (EnterprisePrivateStatus.NOT_CONTACT.getStatus().equals(enterprisePrivate.getStatus())){
+            enterprisePrivate.setThrowback(ConstantsEnums.YESNOWAIT.YES.getValue());
+            enterprisePrivateService.updateById(enterprisePrivate);
+            return Result.success();
+        }
+
+        enterprisePrivate.setThrowback(ConstantsEnums.YESNOWAIT.WAIT.getValue());
         enterprisePrivateService.updateById(enterprisePrivate);
 
         EnterpriseThrowbackHistory history = new EnterpriseThrowbackHistory();
@@ -142,7 +149,7 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         try {
             EnterpriseInfo info = new EnterpriseInfo();
             BeanUtils.copyProperties(reqVO,info);
-            info.setIsPrivate(ConstantsEnums.YESNO.YES.getValue());
+            info.setIsPrivate(ConstantsEnums.YESNOWAIT.YES.getValue());
             info.setCreateTime(TimeUtil.getNowWithSec());
             enterpriseInfoService.save(info);
 

@@ -11,7 +11,6 @@ import com.liepin.auth.service.LoginService;
 import com.liepin.auth.util.Crypto;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
-import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +18,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
 
 @Service
 @Slf4j
@@ -46,7 +43,7 @@ public class LoginServiceImpl implements LoginService {
         AssertUtils.isFalse(user.getPassword().equals(Crypto.md5(reqVO.getPassword())),ExceptionsEnums.Login.USER_ERROR);
 
         // 检查账号状态
-        AssertUtils.isFalse(ConstantsEnums.YESNO.YES.getValue().equals(user.getStatus()),ExceptionsEnums.Login.USER_CLOSE);
+        AssertUtils.isFalse(ConstantsEnums.YESNOWAIT.YES.getValue().equals(user.getStatus()),ExceptionsEnums.Login.USER_CLOSE);
 
         StpUtil.login(user.getId());
         StpUtil.getRoleList();

@@ -1,17 +1,14 @@
 package com.liepin.auth.loginlog;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
-import com.liepin.auth.entity.vo.resp.UserLoginRespVO;
 import com.liepin.auth.loginlog.entity.SysLog;
 import com.liepin.auth.loginlog.service.impl.SysLogServiceImpl;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.config.thread.AsyncExecutor;
-import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +16,11 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -44,7 +38,7 @@ public class LoginLog {
         SysLog log = new SysLog();
         log.setIp((getIpAddr(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest())));
         log.setUsername(req.getUsername());
-        log.setRes(ConstantsEnums.YESNO.NO.getValue());
+        log.setRes(ConstantsEnums.YESNOWAIT.NO.getValue());
         log.setTime(TimeUtil.getNowWithSec());
         if (ExceptionsEnums.Login.USER_ERROR.getMsg().equals(e.getMessage()))
             log.setMsg("密码错误");
@@ -67,7 +61,7 @@ public class LoginLog {
         // 日志内容组装
         SysLog log = new SysLog();
         log.setUsername(req.getUsername());
-        log.setRes(ConstantsEnums.YESNO.YES.getValue());
+        log.setRes(ConstantsEnums.YESNOWAIT.YES.getValue());
         log.setMsg("登录成功");
         log.setTime(TimeUtil.getNowWithSec());
         log.setIp(getIpAddr(((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest()));

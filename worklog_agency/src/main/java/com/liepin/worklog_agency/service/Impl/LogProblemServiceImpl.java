@@ -38,7 +38,7 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
         LambdaQueryWrapper<WorkLogProblem> lambdaQueryWrapperForProblem = new LambdaQueryWrapper<>();
         lambdaQueryWrapperForProblem.eq(WorkLogProblem::getId,id);
         WorkLogProblem workLogProblemDlt = new WorkLogProblem();
-        workLogProblemDlt.setDlt(ConstantsEnums.YESNO.YES.getValue());
+        workLogProblemDlt.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
         logProblemMapper.update(workLogProblemDlt,lambdaQueryWrapperForProblem);
 
         //更新
@@ -70,7 +70,7 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
         LambdaQueryWrapper<WorkLogProblem> lambdaQueryWrapperForProblem = new LambdaQueryWrapper<>();
         lambdaQueryWrapperForProblem.eq(WorkLogProblem::getId,id);
         WorkLogProblem workLogProblemDlt = new WorkLogProblem();
-        workLogProblemDlt.setDlt(ConstantsEnums.YESNO.YES.getValue());
+        workLogProblemDlt.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
         logProblemMapper.update(workLogProblemDlt,lambdaQueryWrapperForProblem);
 
         //更新

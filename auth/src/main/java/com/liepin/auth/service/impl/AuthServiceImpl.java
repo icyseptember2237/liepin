@@ -116,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
     public Result<GetLoginHistoryRespVO> getLoginHistory(GetLoginHistoryReqVO reqVO){
         LambdaQueryWrapper<SysLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StringUtils.isNotEmpty(reqVO.getUsername()), SysLog::getUsername,reqVO.getUsername())
-                .eq(ObjectUtils.isNotEmpty(reqVO.getSuccess()),SysLog::getRes,reqVO.getSuccess() ? ConstantsEnums.YESNO.YES : ConstantsEnums.YESNO.NO)
+                .eq(ObjectUtils.isNotEmpty(reqVO.getSuccess()),SysLog::getRes,reqVO.getSuccess() ? ConstantsEnums.YESNOWAIT.YES : ConstantsEnums.YESNOWAIT.NO)
                 .ge(StringUtils.isNotEmpty(reqVO.getStartTime()),SysLog::getTime,reqVO.getStartTime())
                 .le(StringUtils.isNotEmpty(reqVO.getEndTime()),SysLog::getTime,reqVO.getEndTime());
         Page<SysLog> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
@@ -148,7 +148,7 @@ public class AuthServiceImpl implements AuthService {
     public Result banUser(Long id){
         User user = userService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(user),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
-        user.setStatus(ConstantsEnums.YESNO.NO.getValue());
+        user.setStatus(ConstantsEnums.YESNOWAIT.NO.getValue());
         userService.updateById(user);
         return Result.success();
     }
@@ -157,7 +157,7 @@ public class AuthServiceImpl implements AuthService {
     public Result activateUser(Long id){
         User user = userService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(user),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
-        user.setStatus(ConstantsEnums.YESNO.YES.getValue());
+        user.setStatus(ConstantsEnums.YESNOWAIT.YES.getValue());
         userService.updateById(user);
         return Result.success();
     }
@@ -166,7 +166,7 @@ public class AuthServiceImpl implements AuthService {
     public Result deleteUser(Long id){
         User user = userService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(user),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
-        user.setDlt(ConstantsEnums.YESNO.YES.getValue());
+        user.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
         userService.updateById(user);
         return Result.success();
     }

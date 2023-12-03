@@ -15,9 +15,10 @@ public interface ConstantsEnums {
 
     @Getter
     @AllArgsConstructor
-    enum YESNO implements ConstantsEnums {
+    enum YESNOWAIT implements ConstantsEnums {
         YES("YES"),
-        NO("NO");
+        NO("NO"),
+        WAIT("WAIT");
         private String value;
     }
 

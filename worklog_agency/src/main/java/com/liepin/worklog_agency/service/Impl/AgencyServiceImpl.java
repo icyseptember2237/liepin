@@ -114,7 +114,7 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
     @Override
     public void deleteAgency(Long id) {
         Agency agency = getById(id);
-        agency.setDlt(ConstantsEnums.YESNO.YES.getValue());
+        agency.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
         updateById(agency);
     }
 
@@ -159,7 +159,7 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
     @Override
     public Result<List<AgencyNameAndId>> getAllAgencyAndId() {
         List<AgencyNameAndId> agencyNameAndIdList = new ArrayList<>();
-        List<Agency> agencyList = agencyMapper.selectList(new LambdaQueryWrapper<Agency>().eq(Agency::getDlt, ConstantsEnums.YESNO.NO).eq(Agency::getAuditStatus,ConstantsEnums.AuditStatus.PASS));
+        List<Agency> agencyList = agencyMapper.selectList(new LambdaQueryWrapper<Agency>().eq(Agency::getDlt, ConstantsEnums.YESNOWAIT.NO).eq(Agency::getAuditStatus,ConstantsEnums.AuditStatus.PASS));
         agencyList.forEach(agency ->{
                 AgencyNameAndId agencyNameAndId = new AgencyNameAndId();
                 BeanUtils.copyProperties(agency,agencyNameAndId);
