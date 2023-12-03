@@ -108,13 +108,6 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         AssertUtils.isFalse(ConstantsEnums.YESNOWAIT.NO.getValue().equals(enterprisePrivate.getThrowback()),
                 "重复操作");
 
-        // 未联系可直接扔回,不生成记录
-        if (EnterprisePrivateStatus.NOT_CONTACT.getStatus().equals(enterprisePrivate.getStatus())){
-            enterprisePrivate.setThrowback(ConstantsEnums.YESNOWAIT.YES.getValue());
-            enterprisePrivateService.updateById(enterprisePrivate);
-            return Result.success();
-        }
-
         enterprisePrivate.setThrowback(ConstantsEnums.YESNOWAIT.WAIT.getValue());
         enterprisePrivateService.updateById(enterprisePrivate);
 
