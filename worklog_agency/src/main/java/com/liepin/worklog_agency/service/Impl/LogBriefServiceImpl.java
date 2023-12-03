@@ -23,29 +23,35 @@ public class LogBriefServiceImpl extends ServiceImpl<LogBriefMapper,WorkLogBrief
     private RoleMapper roleMapper;
     @Override
     public Result<GetWorkLogRespVO> getAllWork(GetWorkLogReqVO reqVO) {
-        GetWorkLogRespVO respVO = new GetWorkLogRespVO();
+        reqVO.setPageSize(Math.min(15,reqVO.getPageSize()));
 
-        if("ALL".equals(reqVO.getRole())){
-            reqVO.setRole("");
-        } else {
-        LambdaQueryWrapper<Role> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(Role::getRoleCode,reqVO.getRole());
-        Role role = roleMapper.selectOne(lambdaQueryWrapper);
-        Long id = role.getId();
-        reqVO.setRole(String.valueOf(id));
-         }
-        if ("ALL".equals(reqVO.getSolved())){
-            reqVO.setSolved("");
-        }
-
-        respVO.setList(logBriefMapper.getAllBriefLog(reqVO));
-//        if("YES".equals((reqVO.getSolved()))){
-//            List<WorkLogBriefRes> list = respVO.getList();
-//            for (WorkLogBriefRes workLogBriefRes : list) {
-//                workLogBriefRes.setUnfinishedProblemNum(0);
-//            }
+        GetWorkLogRespVO resp = new GetWorkLogRespVO();
+        resp.setList(logBriefMapper.getAllBriefLog(reqVO));
+        resp.setTotal(logBriefMapper.getAllBriefLogNum(reqVO));
+        return Result.success(resp);
+//        GetWorkLogRespVO respVO = new GetWorkLogRespVO();
+//
+//        if("ALL".equals(reqVO.getRole())){
+//            reqVO.setRole("");
+//        } else {
+//        LambdaQueryWrapper<Role> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        lambdaQueryWrapper.eq(Role::getRoleCode,reqVO.getRole());
+//        Role role = roleMapper.selectOne(lambdaQueryWrapper);
+//        Long id = role.getId();
+//        reqVO.setRole(String.valueOf(id));
+//         }
+//        if ("ALL".equals(reqVO.getSolved())){
+//            reqVO.setSolved("");
 //        }
-        respVO.setTotal(logBriefMapper.getAllBriefLogNum(reqVO));
-        return Result.success(respVO);
+//
+//        respVO.setList(logBriefMapper.getAllBriefLog(reqVO));
+////        if("YES".equals((reqVO.getSolved()))){
+////            List<WorkLogBriefRes> list = respVO.getList();
+////            for (WorkLogBriefRes workLogBriefRes : list) {
+////                workLogBriefRes.setUnfinishedProblemNum(0);
+////            }
+////        }
+//        respVO.setTotal(logBriefMapper.getAllBriefLogNum(reqVO));
+//        return Result.success(respVO);
     }
 }

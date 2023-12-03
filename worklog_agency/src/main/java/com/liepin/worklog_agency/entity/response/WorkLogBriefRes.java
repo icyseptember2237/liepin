@@ -24,5 +24,5 @@ public class WorkLogBriefRes {
     @ApiModelProperty(value = "未完成数量")
     private Integer unfinishedProblemNum;
     @ApiModelProperty(value = "更新时间")
-    private String createTime;
+    private String updateTime;
 }
