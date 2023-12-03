@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 @Slf4j
 @Aspect
-public class LoginLog {
+public class LoginLogAspect {
 
     private static final String LOCAL_IP = "127.0.0.1";
 

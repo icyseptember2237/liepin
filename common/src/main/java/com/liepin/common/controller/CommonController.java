@@ -10,7 +10,10 @@ import com.liepin.common.constant.config.FileConfig;
 import com.liepin.common.util.talentBasicConfig.entity.GetTalentBasicConfigResVO;
 import com.liepin.common.util.system.GetSystem;
 import com.liepin.common.util.talentBasicConfig.service.GetTalentBasicConfigService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,12 +27,15 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/common")
+@Api(tags = "通用接口")
 public class CommonController {
 
     @Autowired
     private GetTalentBasicConfigService basicConfigService;
 
     @PostMapping("/upload")
+    @ApiOperation(value = "通用文件上传接口")
+    @SaCheckLogin
     public HashResult uploadFile(MultipartFile file) {
         try
         {

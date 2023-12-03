@@ -4,7 +4,6 @@ import com.liepin.auth.entity.vo.req.UserLoginReqVO;
 import com.liepin.auth.entity.vo.resp.UserLoginRespVO;
 import com.liepin.auth.loginlog.AutoLog;
 import com.liepin.auth.service.LoginService;
-import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

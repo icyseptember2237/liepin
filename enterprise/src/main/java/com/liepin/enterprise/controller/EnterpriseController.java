@@ -3,6 +3,7 @@ package com.liepin.enterprise.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
+import com.liepin.common.aspect.ratelimit.RateLimit;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.enterprise.entity.vo.req.AddEnterpriseReqVO;
 import com.liepin.enterprise.entity.vo.req.AlterEnterpriseReqVO;
@@ -29,6 +30,7 @@ public class EnterpriseController {
     @PostMapping("/getEnterpriseList")
     @ApiOperation(value = "查询公海页面")
     @SaCheckLogin
+    @RateLimit
     public Result<GetEnterpriseListRespVO> getEnterpriseList(@RequestBody GetEnterpriseListReqVO reqVO){
         reqVO.setPageSize(Math.min(15, reqVO.getPageSize()));
         return enterpriseService.getEnterpriseList(reqVO);

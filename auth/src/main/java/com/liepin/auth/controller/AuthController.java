@@ -4,22 +4,17 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.entity.base.Role;
-import com.liepin.auth.entity.base.User;
 import com.liepin.auth.entity.vo.req.*;
 import com.liepin.auth.entity.vo.resp.GetLoginHistoryRespVO;
 import com.liepin.auth.entity.vo.resp.GetUserInfoRespVO;
 import com.liepin.auth.entity.vo.resp.GetUsersRespVO;
-import com.liepin.auth.loginlog.entity.SysLog;
 import com.liepin.auth.service.AuthService;
-import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
