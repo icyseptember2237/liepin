@@ -1,19 +1,20 @@
 package com.liepin.common.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.config.FileConfig;
 
+import com.liepin.common.util.operationLog.entity.OperationLogResp;
+import com.liepin.common.util.operationLog.service.OperationLogService;
 import com.liepin.common.util.talentBasicConfig.entity.GetTalentBasicConfigResVO;
 import com.liepin.common.util.system.GetSystem;
 import com.liepin.common.util.talentBasicConfig.service.GetTalentBasicConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Tag;
-import io.swagger.v3.oas.annotations.tags.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +33,8 @@ public class CommonController {
 
     @Autowired
     private GetTalentBasicConfigService basicConfigService;
-
+    @Autowired
+    private OperationLogService operationLogService;
     @PostMapping("/upload")
     @ApiOperation(value = "通用文件上传接口")
     @SaCheckLogin
@@ -93,5 +95,13 @@ public class CommonController {
     @ApiOperation(value = "获取人才基本配置")
     public Result<GetTalentBasicConfigResVO> getTalentBasicConfig(){
             return basicConfigService.getTalentBasicConfig();
+    }
+
+//    @SaCheckRole(value = RoleType.MANAGER.code)
+    @SaCheckRole(value = "MANAGER")
+    @GetMapping("/getOperationLog")
+    @ApiOperation(value = "获取操作日志")
+    public Result<OperationLogResp> getOperationLog(){
+        return operationLogService.getOperationLog();
     }
 }
