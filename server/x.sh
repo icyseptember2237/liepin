@@ -3,7 +3,7 @@
 appname=$1
 
 # 获取正在运行的 jar 包的 pid
-pid=`ps -ef | grep $appname | grep 'java -jar' | awk '{printf $2}'`
+pid=`ps -ef | grep $appname | grep 'java -jar'`
 
 #空值判断
 if [ -z $pid ];
