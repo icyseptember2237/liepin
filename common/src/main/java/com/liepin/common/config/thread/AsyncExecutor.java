@@ -13,12 +13,12 @@ import java.util.concurrent.TimeUnit;
 public class AsyncExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncExecutor.class);
-
     private ScheduledExecutorService scheduledExecutorService;
 
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     private AsyncExecutor(){
+    //异步操作任务调度线程池
         this.scheduledExecutorService = SpringUtil.getBean("mySchedulerExecutor");
         this.threadPoolTaskExecutor = SpringUtil.getBean("myAsyncExecutor");
     }

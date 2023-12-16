@@ -5,7 +5,10 @@ import cn.dev33.satoken.annotation.SaMode;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.codec.Rot;
 import com.liepin.auth.constant.RoleType;
+import com.liepin.common.aspect.operationAspect.OperationAspect;
 import com.liepin.common.constant.classes.Result;
+import com.liepin.common.constant.enums.OperationModule;
+import com.liepin.common.constant.enums.OperationType;
 import com.liepin.common.util.time.TimeUtil;
 import com.liepin.worklog_agency.entity.base.WorkLog;
 import com.liepin.worklog_agency.entity.request.GetWorkLogReqVO;
@@ -38,6 +41,7 @@ public class WorkLogController {
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @GetMapping("/getWorkLog")
     @ApiOperation(value = "获取日志")
+    @OperationAspect(detail = "获取个人工作日志",type = OperationType.SERACH.value ,module = OperationModule.WORKLOG.value)
         public Result<WorkLogRes> getLog(){
         long loginId = StpUtil.getLoginIdAsLong();
         return logService.getWorkLog(loginId);
@@ -45,12 +49,14 @@ public class WorkLogController {
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @PostMapping("/postWorkLog")
     @ApiOperation(value = "更新or上传日志")
+    @OperationAspect(detail = "更新or上传日志", type = OperationType.INSERT.value, module = OperationModule.WORKLOG.value)
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
         logService.insertWorkLog(workLogRespVo);
         logDetailService.insertWorkLogDetail(workLogRespVo);
         logProblemService.insertWorkLogProblem(workLogRespVo);
         return Result.success();
     }
+
     @SaCheckRole(value = RoleType.MANAGER.code)
     @PostMapping("/getAllWorkLog")
     @ApiOperation(value = "管理员获取简要日志")

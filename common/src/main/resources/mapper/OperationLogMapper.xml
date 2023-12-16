@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.common.util.operationLog.mapper.OperationLogMapper">
+    <insert id="insertOperationLog">
+        insert into liepin.operation_log(create_time,operator_id,module,type,operation_ip,operation_detail)
+        values (#{operationLog.createTime},#{operationLog.operatorName}
+                #{operationLog.module},#{operationLog.type},
+                #{operationLog.operation_ip},#{operationLog.operation_detail})
+    </insert>
+
+    <select id="getOperatorName" resultType="java.lang.String">
+        select username from liepin.user where id = #{id}
+    </select>
+    <select id="getOperationList" resultType="com.liepin.common.util.operationLog.entity.OperationLog">
+        select liepin.operation_log.create_time,liepin.user.username as operator_name,module,type,operation_ip,operation_detail
+        from liepin.operation_log
+        left join liepin.user on liepin.operation_log.operator_id = liepin.user.id
+    </select>
+</mapper>

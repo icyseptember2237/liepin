@@ -43,10 +43,12 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
         if (null!=workLog1){
             Long id = workLog1.getId();
             workLog.setId(id);
+            workLog.setUserId(StpUtil.getLoginIdAsLong());
+            workLog.setUpdateTime(TimeUtil.getNowWithMin());
+            saveOrUpdate(workLog);
+            return Result.success();
         }
         workLog.setUserId(StpUtil.getLoginIdAsLong());
-//        改创建时间
-//        if((ObjectUtils.isNotEmpty()))
         workLog.setCreateTime(TimeUtil.getNowWithMin());
         workLog.setUpdateTime(TimeUtil.getNowWithMin());
         saveOrUpdate(workLog);
