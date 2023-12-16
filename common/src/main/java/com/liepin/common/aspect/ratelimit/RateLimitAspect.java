@@ -40,6 +40,7 @@ public class RateLimitAspect {
         int times = annotation.times();
         long withinTime = annotation.withinTime();
         long loginId = StpUtil.getLoginIdAsLong();
+        long blockTime = annotation.blockTime();
         TimeUnit timeUnit = annotation.timeunit();
         String key = signature.getMethod().getName() + loginId + KEY_PREFIX;
         String key1 = signature.getMethod().getName() + loginId + OVER_RATE_PREFIX;
@@ -66,7 +67,7 @@ public class RateLimitAspect {
             }
             // 超限10次封禁半小时
             if (overRateCount != null && overRateCount >= 10){
-                redisTemplate.expire(key1,1800,TimeUnit.SECONDS);
+                redisTemplate.expire(key1,blockTime,TimeUnit.SECONDS);
             }
 
             // 禁止期间再次访问重置时间
