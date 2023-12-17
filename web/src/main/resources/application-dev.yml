@@ -9,7 +9,7 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://162.14.79.224:3306/liepin?allowLoadLocalInfile=true
+      url: jdbc:mysql://115.159.88.234:3306/liepin?allowLoadLocalInfile=true
       username: root
       password: mysql123
   redis:
