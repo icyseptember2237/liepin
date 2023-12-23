@@ -27,7 +27,7 @@ public class FileConfig {
         return FileConfig.linuxPath;
     }
 
-    public void setUrl(){
+    public void setUrl(String url){
         FileConfig.url = url;
     }
 

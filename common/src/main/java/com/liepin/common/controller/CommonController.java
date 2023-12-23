@@ -46,7 +46,7 @@ public class CommonController {
             // 上传文件路径
             UploadRespVO respVO = new UploadRespVO();
             //生成随机文件名防止同名文件覆盖
-            String RandomFileName = UUID.randomUUID().toString();
+            String RandomFileName = UUID.randomUUID() + "." + suffix;
             //设置文件转存路径
             File FilePath = new File(FileConfig.getLinuxPath() + suffix + "/" + RandomFileName);
             //将临时文件file转存至FilePath路径
