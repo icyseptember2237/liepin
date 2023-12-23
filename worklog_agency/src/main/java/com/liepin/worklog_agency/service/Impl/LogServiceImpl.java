@@ -1,6 +1,7 @@
 package com.liepin.worklog_agency.service.Impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
@@ -61,7 +62,6 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
         WorkLogRes workLogRes = logMapper.getWorkLogResByLogId(logId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRes), ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
         workLogRes.setWorkLogProbList(logMapper.getWorkLogProblemListById(logId));
-
         return Result.success(workLogRes);
     }
     @Override
@@ -71,6 +71,18 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
         workLog.setUpdateTime(TimeUtil.getNowWithMin());
         saveOrUpdate(workLog);
         return Result.success();
+    }
+
+    @Override
+    public Result<WorkLogRes> getLastWorkLog(long loginId) {
+        WorkLog workLog = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getUserId, loginId).orderByDesc(WorkLog::getUpdateTime).last("limit 1"));
+        Long logId = workLog.getId();
+
+        WorkLogRes workLogRes = logMapper.getWorkLogResByLogId(logId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRes), ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
+        workLogRes.setWorkLogProbList(logMapper.getWorkLogProblemListById(logId));
+
+        return Result.success(workLogRes);
     }
 
 }

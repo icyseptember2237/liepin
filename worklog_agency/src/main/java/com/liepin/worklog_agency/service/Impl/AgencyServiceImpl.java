@@ -25,10 +25,12 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -195,6 +197,23 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
         resVO.setMilSeconds(listener.getTime());
         return Result.success(resVO);
     }
+
+    @Override
+    public Result<List<String>> insertAgencyImage(List<MultipartFile> fileList) {
+        List<String> fileNameList = new ArrayList<>();
+        for(MultipartFile file:fileList){
+            String fileName = file.getOriginalFilename();
+            String suffixName = fileName.substring(fileName.indexOf("."));
+            fileName = UUID.randomUUID() + suffixName;
+            fileNameList.add(fileName);
+//TODO 生成链接？放在哪
+
+// String path =
+
+        }
+        return Result.success(fileNameList);
+    }
+
     private void checkFile(MultipartFile file){
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(file),ExceptionsEnums.File.EMPTY_FILE);
         String type = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);

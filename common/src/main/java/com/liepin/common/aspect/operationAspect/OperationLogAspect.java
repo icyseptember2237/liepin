@@ -80,10 +80,11 @@ public class OperationLogAspect {
             operationLog.setOperationDetail(annotation.detail());
             operationLog.setOperatorId(StpUtil.getLoginIdAsLong());
             operationLog.setOperationStatus(OperationStatus.FAIL.value);
+//TODO 后续测试再开启插入日志，不然太多日志到数据库里了
 
-            AsyncExecutor.getExecutor().schedule(new Thread(() ->{
-                SpringUtil.getBean(OperationLogServiceImpl.class).insertOperationLog(operationLog);
-            }));
+//            AsyncExecutor.getExecutor().schedule(new Thread(() ->{
+//                SpringUtil.getBean(OperationLogServiceImpl.class).insertOperationLog(operationLog);
+//            }));
 //            operationLogService.insertOperationLog(operationLog);
         }catch (Exception e){
             System.err.println(e);

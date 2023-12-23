@@ -39,4 +39,6 @@ public interface AgencyService extends IService<Agency> {
     Result<String> getAgencyById(Long id);
 
     Result<ImportAgencyResVO> importAgency(MultipartFile file);
+
+    Result<List<String>> insertAgencyImage(List<MultipartFile> fileList);
 }

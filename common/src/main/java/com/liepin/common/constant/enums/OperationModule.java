@@ -9,6 +9,7 @@ public interface OperationModule {
     class WORKLOG implements OperationModule {
         public static final String value = "工作日志模块";
     }
+
     @Getter
     @AllArgsConstructor
     class AGENCY implements OperationModule {

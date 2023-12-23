@@ -1,7 +1,11 @@
 package com.liepin.worklog_agency.entity.base;
 
+import com.liepin.common.config.exception.ExceptionsEnums;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.io.File;
 
 @Data
 public class AddAgencyReqVO {
@@ -20,4 +24,6 @@ public class AddAgencyReqVO {
     private String tel;
     @ApiModelProperty(notes = "备注")
     private String remark;
+    @ApiModelProperty(notes = "认证图片")
+    private String fileLink;
 }
