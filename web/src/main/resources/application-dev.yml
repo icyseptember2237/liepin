@@ -2,7 +2,7 @@ config:
   file:
     winPath: D:\liepin\file\
     linuxPath: /home/liepin/file/
-    url: localhost:8080
+    url: http://115.159.88.234/
     allowType: png,jpg,jpeg,gif,bmp,xlsx,xls,doc,docx
 
 spring:

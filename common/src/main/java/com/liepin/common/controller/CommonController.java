@@ -8,6 +8,7 @@ import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.config.FileConfig;
 
+import com.liepin.common.entity.UploadRespVO;
 import com.liepin.common.util.operationLog.entity.OperationLogResp;
 import com.liepin.common.util.operationLog.service.OperationLogService;
 import com.liepin.common.util.talentBasicConfig.entity.GetTalentBasicConfigResVO;
@@ -38,57 +39,28 @@ public class CommonController {
     @PostMapping("/upload")
     @ApiOperation(value = "通用文件上传接口")
     @SaCheckLogin
-    public HashResult uploadFile(MultipartFile file) {
-        try
-        {
+    public Result<UploadRespVO> uploadFile(MultipartFile file) {
             //类型检查
-            String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);
-            AssertUtils.isFalse(FileConfig.getAllowType().contains(suffix),ExceptionsEnums.File.TYPE_NOT_ALLOWED);
+            String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
+            AssertUtils.isFalse(FileConfig.getAllowType().contains(suffix), ExceptionsEnums.File.TYPE_NOT_ALLOWED);
             // 上传文件路径
-            String filePath = new String();
-            switch (GetSystem.getType().getValue()){
-                case 1 : {
-                    filePath = FileConfig.getWinPath() + "\\" + suffix + "\\" ;
-                    break;
-                }
-                case 2 : {
-                    filePath = FileConfig.getLinuxPath() + "/" + suffix + "/" ;
-                    break;
-                }
-                default: {
-                    AssertUtils.throwException(ExceptionsEnums.File.NO_PATH_FOUND);
-                }
-            }
-
-
-            // 上传并返回新文件名称
-            AssertUtils.isFalse(FileConfig.getAllowType().contains(suffix),ExceptionsEnums.File.TYPE_NOT_ALLOWED);
-            String randomFileName = UUID.randomUUID() + suffix;
+            UploadRespVO respVO = new UploadRespVO();
+            //生成随机文件名防止同名文件覆盖
+            String RandomFileName = UUID.randomUUID().toString();
             //设置文件转存路径
-            File FilePath = new File( filePath + randomFileName);
-            if (!FilePath.exists()){
-                FilePath.getParentFile().mkdir();
-            }
+            File FilePath = new File(FileConfig.getLinuxPath() + suffix + "/" + RandomFileName);
             //将临时文件file转存至FilePath路径
             try {
                 file.transferTo(FilePath);
-            } catch (IOException e){
-                e.printStackTrace();
-                AssertUtils.throwException(ExceptionsEnums.File.UPLOAD_FAIL);
+            } catch (IOException e) {
+                return Result.fail();
             }
-            String url = FileConfig.getUrl() + randomFileName;
-            HashResult result = HashResult.success();
-            result.put("url", url);
-            result.put("fileName", randomFileName);
-            result.put("originalFilename", file.getOriginalFilename());
-            return result;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            AssertUtils.throwException(ExceptionsEnums.File.UPLOAD_FAIL);
-            return HashResult.error();
-        }
+            respVO.setFilename(RandomFileName);
+            respVO.setSuffix(suffix);
+            respVO.setUrl(FileConfig.getUrl() + "file/" + suffix + "/"  + RandomFileName);
+            return Result.success(respVO);
+
+
     }
     @SaCheckLogin
     @GetMapping("/getTalentBasicConfig")
