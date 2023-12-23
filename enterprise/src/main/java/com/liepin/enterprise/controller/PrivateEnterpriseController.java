@@ -1,14 +1,17 @@
 package com.liepin.enterprise.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaMode;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.enterprise.entity.vo.req.*;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.enterprise.entity.vo.resp.*;
 import com.liepin.enterprise.service.PrivateEnterpriseService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,10 +86,46 @@ public class PrivateEnterpriseController {
     }
 
     @PostMapping("/getFollowup")
-    @ApiOperation(value = "单位部-获取跟进中单位")
+    @ApiOperation(value = "单位部-获取跟进中单位列表")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
     public Result<GetFollowupRespVO> getFollowup(@RequestBody GetFollowupReqVO reqVO){
         return enterprisePrivateService.getFollowup(reqVO);
+    }
+
+    @PostMapping("/sendTo")
+    @ApiOperation(value = "单位部-内推")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result sendTo(@RequestBody SendToReqVO reqVO){
+        return enterprisePrivateService.sendTo(reqVO);
+    }
+
+    @PostMapping("/getSendHistory")
+    @ApiOperation(value = "单位部-获取自己内推记录")
+    @SaCheckRole(value = {RoleType.ENTERPRISE.code,RoleType.TALENT.code},mode = SaMode.OR)
+    public Result getSendHistory(){
+        return null;
+    }
+
+    @PostMapping("/getSendAudit")
+    @ApiOperation(value = "总经办-获取内推记录")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    public Result getSendAudit(){
+        return null;
+    }
+
+    @PostMapping("/auditSend")
+    @ApiOperation(value = "总经办-审核内推")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    public Result auditSend(){
+        return null;
+    }
+
+
+    @PostMapping("/contract")
+    @ApiOperation(value = "单位部-合同需求")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result contract(){
+        return null;
     }
 
 }

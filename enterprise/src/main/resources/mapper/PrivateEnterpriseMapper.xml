@@ -138,6 +138,67 @@
     </select>
 
     <select id="selectFollowupList" resultType="com.liepin.enterprise.entity.vo.resp.GetFollowupListVO">
+        select
+            temp.privateId as id,
+            name,
+            province,
+            city,
+            county,
+            legal_representative,
+            intention,
+            datediff(now(),(select time from enterprise_private_followup
+                where enterprise_private_followup.dlt = 'NO'
+                and enterprise_private_followup.private_id = temp.privateId
+                order by id desc
+                limit 1)) as lostContactDays
+        from enterprise_info
+        inner join (select id as privateId,info_id as infoId from enterprise_private
+                        where user_id = #{userId}
+                        and throwback = 'NO'
+                        and status = 'FOLLOWUP'
+                        order by id desc ) as temp
+        on temp.infoId = enterprise_info.id
+        where dlt = 'NO'
+        <if test="req.province != null and req.province != ''">
+            and province = #{req.province}
+        </if>
+        <if test="req.city != null and req.city != ''">
+            and city = #{req.city}
+        </if>
+        <if test="req.county != null and req.county != ''">
+            and county = #{req.county}
+        </if>
+        <if test="req.intention != null and req.intention != ''">
+            and intention = #{req.intention}
+        </if>
+        <if test="req.pageSize != null and req.pageSize != 0">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
 
+    <select id="selectFollowupListNum" resultType="java.lang.Long">
+        select
+            count(enterprise_info.id)
+        from enterprise_info
+        inner join (select id as privateId,info_id as infoId from enterprise_private
+        where user_id = #{userId}
+        and throwback = 'NO'
+        and status = 'FOLLOWUP'
+        order by id desc ) as temp
+        on temp.infoId = enterprise_info.id
+        where dlt = 'NO'
+        <if test="req.province != null and req.province != ''">
+            and province = #{req.province}
+        </if>
+        <if test="req.city != null and req.city != ''">
+            and city = #{req.city}
+        </if>
+        <if test="req.county != null and req.county != ''">
+            and county = #{req.county}
+        </if>
+        <if test="req.intention != null and req.intention != ''">
+            and intention = #{req.intention}
+        </if>
     </select>
 </mapper>

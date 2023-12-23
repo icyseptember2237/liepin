@@ -8,11 +8,13 @@ import lombok.Data;
 public class SendTo {
     private Long id;
     private String dept;
+    private Long privateId;
     private Long fromId;
     private Long toId;
     private String createTime;
+    private String remark;
     private String auditStatus;
     private Long auditId;
-    private String remark;
+    private String auditRemark;
     private String dlt;
 }

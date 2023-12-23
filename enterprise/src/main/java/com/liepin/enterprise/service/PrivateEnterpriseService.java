@@ -28,4 +28,6 @@ public interface PrivateEnterpriseService {
     Result followupEnterprise(FollowupEnterpriseReqVO reqVO);
 
     Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO);
+
+    Result sendTo(SendToReqVO reqVO);
 }

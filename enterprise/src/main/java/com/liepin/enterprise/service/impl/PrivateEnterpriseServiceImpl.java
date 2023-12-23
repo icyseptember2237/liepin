@@ -1,25 +1,23 @@
 package com.liepin.enterprise.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.liepin.auth.constant.RoleType;
+import com.liepin.auth.entity.base.User;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
 import com.liepin.enterprise.constant.EnterprisePrivateStatus;
-import com.liepin.enterprise.entity.base.EnterpriseInfo;
-import com.liepin.enterprise.entity.base.EnterprisePrivate;
-import com.liepin.enterprise.entity.base.EnterprisePrivateFollowup;
-import com.liepin.enterprise.entity.base.EnterpriseThrowbackHistory;
+import com.liepin.enterprise.entity.base.*;
 import com.liepin.enterprise.entity.vo.req.*;
 import com.liepin.enterprise.entity.vo.resp.*;
 import com.liepin.enterprise.mapper.EnterpriseMapper;
 import com.liepin.enterprise.mapper.PrivateEnterpriseMapper;
+import com.liepin.enterprise.mapper.base.SendToMapper;
 import com.liepin.enterprise.service.PrivateEnterpriseService;
-import com.liepin.enterprise.service.base.impl.EnterpriseInfoServiceImpl;
-import com.liepin.enterprise.service.base.impl.EnterprisePrivateFollowupServiceImpl;
-import com.liepin.enterprise.service.base.impl.EnterprisePrivateServiceImpl;
-import com.liepin.enterprise.service.base.impl.EnterpriseThrowbackHistoryServiceImpl;
+import com.liepin.enterprise.service.base.impl.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,10 +46,17 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
 
     private final EnterpriseMapper enterpriseMapper;
 
+    private final SendToServiceImpl sendToService;
+
+    private final SendToMapper sendToMapper;
+
     @Autowired
     public PrivateEnterpriseServiceImpl(PrivateEnterpriseMapper privateEnterpriseMapper,EnterprisePrivateServiceImpl enterprisePrivateService,
                                         EnterpriseInfoServiceImpl enterpriseInfoService,EnterpriseThrowbackHistoryServiceImpl enterpriseThrowbackHistoryService,
-                                        EnterprisePrivateFollowupServiceImpl enterprisePrivateFollowupService,EnterpriseMapper enterpriseMapper){
+                                        EnterprisePrivateFollowupServiceImpl enterprisePrivateFollowupService,EnterpriseMapper enterpriseMapper,
+                                        SendToServiceImpl sendToService,SendToMapper sendToMapper){
+        this.sendToMapper = sendToMapper;
+        this.sendToService = sendToService;
         this.enterpriseMapper = enterpriseMapper;
         this.enterpriseThrowbackHistoryService = enterpriseThrowbackHistoryService;
         this.enterpriseInfoService = enterpriseInfoService;
@@ -115,7 +120,8 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
     @Override
     @Transactional
     public Result throwback(ThrowbackReqVO reqVO){
-        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(reqVO.getId());
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getOne(new LambdaQueryWrapper<EnterprisePrivate>().eq(EnterprisePrivate::getId,reqVO.getId())
+                .eq(EnterprisePrivate::getThrowback,ConstantsEnums.YESNOWAIT.NO));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterprisePrivate),ExceptionsEnums.Enterprise.NO_DATA);
         AssertUtils.isFalse( StpUtil.getLoginIdAsLong() == enterprisePrivate.getUserId(),
                 ExceptionsEnums.Common.NO_PERMISSION);
@@ -177,8 +183,9 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
     @Override
     public Result<FollowupInfoRespVO> followupInfo(Long id){
         FollowupInfoRespVO respVO = new FollowupInfoRespVO();
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(id);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterprisePrivate) && enterprisePrivate.getThrowback().equals(ConstantsEnums.YESNOWAIT.NO.getValue()),ExceptionsEnums.Enterprise.NO_DATA);
         EnterpriseInfo info = enterpriseInfoService.getById(enterprisePrivateService.getById(id).getInfoId());
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Enterprise.NO_DATA);
 
         BeanUtils.copyProperties(info,respVO);
         respVO.setList(enterpriseMapper.getFollowupHistory(id,1,5));
@@ -188,7 +195,11 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
     @Override
     @Transactional
     public Result followupEnterprise(FollowupEnterpriseReqVO reqVO){
-        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(reqVO.getId());
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getOne(new LambdaQueryWrapper<EnterprisePrivate>().eq(EnterprisePrivate::getId,reqVO.getId())
+                .eq(EnterprisePrivate::getThrowback,ConstantsEnums.YESNOWAIT.NO));
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterprisePrivate),ExceptionsEnums.Enterprise.NO_DATA);
+        AssertUtils.isFalse(enterprisePrivate.getUserId() == StpUtil.getLoginIdAsLong(),ExceptionsEnums.Common.NO_PERMISSION);
+
         if (enterprisePrivate.getStatus().equals(EnterprisePrivateStatus.NOT_CONTACT.getStatus())){
             enterprisePrivate.setStatus(EnterprisePrivateStatus.FOLLOWUP.getStatus());
             enterprisePrivateService.updateById(enterprisePrivate);
@@ -213,9 +224,45 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
 
     @Override
     public Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO){
+        reqVO.setPageSize(Math.max(15,reqVO.getPageSize()));
         GetFollowupRespVO respVO = new GetFollowupRespVO();
-        List<GetFollowupListVO> list = privateEnterpriseMapper.selectFollowupList(reqVO);
+        List<GetFollowupListVO> list = privateEnterpriseMapper.selectFollowupList(reqVO,StpUtil.getLoginIdAsLong());
+        respVO.setList(list);
+        respVO.setTotal(privateEnterpriseMapper.selectFollowupListNum(reqVO,StpUtil.getLoginIdAsLong()));
         return Result.success(respVO);
+    }
+
+    @Override
+    @Transactional
+    public Result sendTo(SendToReqVO reqVO){
+        AssertUtils.isFalse(StpUtil.getLoginIdAsLong() != reqVO.getUserId(),"不能内推给本人");
+        AssertUtils.isFalse(sendToMapper.checkDept(RoleType.ENTERPRISE.code, reqVO.getUserId()) == 1,"只能内推至部门内部");
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getOne(new LambdaQueryWrapper<EnterprisePrivate>().eq(EnterprisePrivate::getId,reqVO.getPrivateId())
+                .eq(EnterprisePrivate::getThrowback,ConstantsEnums.YESNOWAIT.NO));
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterprisePrivate),ExceptionsEnums.Enterprise.NO_DATA);
+        AssertUtils.isFalse(enterprisePrivate.getUserId() == StpUtil.getLoginIdAsLong(),"不能内推非本人私库单位");
+
+        SendTo sendTo = sendToService.getOne(new LambdaQueryWrapper<SendTo>().eq(SendTo::getAuditStatus,ConstantsEnums.YESNOWAIT.WAIT.getValue())
+                .eq(SendTo::getFromId,StpUtil.getLoginIdAsLong())
+                .eq(SendTo::getToId,reqVO.getUserId())
+                .eq(SendTo::getPrivateId,reqVO.getPrivateId()));
+        AssertUtils.isFalse(ObjectUtils.isEmpty(sendTo),"请勿重复操作");
+
+        sendTo = new SendTo();
+        sendTo.setPrivateId(reqVO.getPrivateId());
+        sendTo.setAuditStatus(ConstantsEnums.YESNOWAIT.WAIT.getValue());
+        sendTo.setRemark(reqVO.getRemark());
+        sendTo.setDept(RoleType.ENTERPRISE.code);
+        sendTo.setFromId(StpUtil.getLoginIdAsLong());
+        sendTo.setToId(reqVO.getUserId());
+        sendTo.setCreateTime(TimeUtil.getNowWithSec());
+        try {
+            sendToService.save(sendTo);
+        } catch (Exception e){
+            e.printStackTrace();
+            AssertUtils.throwException("操作失败");
+        }
+        return Result.success();
     }
 
 }

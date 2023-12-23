@@ -22,5 +22,8 @@ public interface PrivateEnterpriseMapper {
 
     Long selectAuditListNum(@Param("req") GetAuditReqVO reqVO,@Param("userId") Long userId);
 
-    List<GetFollowupListVO> selectFollowupList(@Param("req") GetFollowupReqVO reqVO);
+    List<GetFollowupListVO> selectFollowupList(@Param("req") GetFollowupReqVO reqVO,@Param("userId") Long userId);
+
+    Long selectFollowupListNum(@Param("req") GetFollowupReqVO reqVO,@Param("userId") Long userId);
+
 }
