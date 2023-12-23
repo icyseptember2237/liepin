@@ -38,6 +38,7 @@
         left join role
         on role.id = user.role_id
         where user.dlt = 'NO'
+        and status = 'YES'
         and role.role_code = #{role}
     </select>
 
