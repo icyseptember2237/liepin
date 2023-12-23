@@ -56,6 +56,7 @@ public class CommonController {
                 return Result.fail();
             }
             respVO.setFilename(RandomFileName);
+            respVO.setOriginalFilename(file.getOriginalFilename());
             respVO.setSuffix(suffix);
             respVO.setUrl(FileConfig.getUrl() + "file/" + suffix + "/"  + RandomFileName);
             return Result.success(respVO);

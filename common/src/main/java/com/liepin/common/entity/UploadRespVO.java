@@ -6,5 +6,6 @@ import lombok.Data;
 public class UploadRespVO {
     private String url;
     private String suffix;
+    private String originalFilename;
     private String filename;
 }
