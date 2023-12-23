@@ -3,9 +3,11 @@ package com.liepin.auth.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.entity.base.Role;
 import com.liepin.auth.entity.base.User;
 import com.liepin.auth.entity.vo.req.*;
+import com.liepin.auth.entity.vo.resp.GetColleaguesRespVO;
 import com.liepin.auth.entity.vo.resp.GetLoginHistoryRespVO;
 import com.liepin.auth.entity.vo.resp.GetUserInfoRespVO;
 import com.liepin.auth.entity.vo.resp.GetUsersRespVO;
@@ -49,6 +51,21 @@ public class AuthServiceImpl implements AuthService {
         respVO.setList(authMapper.getUsers(reqVO));
         respVO.setTotal(authMapper.getUsersNum(reqVO));
         return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetColleaguesRespVO> getColleagues(){
+        GetColleaguesRespVO respVO = new GetColleaguesRespVO();
+        List<String> roles = StpUtil.getRoleList();
+        if (roles.contains(RoleType.ENTERPRISE.code)){
+            respVO.setList(authMapper.getColleagueList(RoleType.ENTERPRISE.code));
+            return Result.success(respVO);
+        }
+        if (roles.contains(RoleType.TALENT.code)){
+            respVO.setList(authMapper.getColleagueList(RoleType.TALENT.code));
+            return Result.success(respVO);
+        }
+        return Result.fail();
     }
 
     @Override

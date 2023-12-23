@@ -2,9 +2,11 @@ package com.liepin.auth.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaMode;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.entity.base.Role;
 import com.liepin.auth.entity.vo.req.*;
+import com.liepin.auth.entity.vo.resp.GetColleaguesRespVO;
 import com.liepin.auth.entity.vo.resp.GetLoginHistoryRespVO;
 import com.liepin.auth.entity.vo.resp.GetUserInfoRespVO;
 import com.liepin.auth.entity.vo.resp.GetUsersRespVO;
@@ -30,10 +32,17 @@ public class AuthController {
     }
 
     @PostMapping("/getUserList")
-    @ApiOperation(value = "管理员获取用户信息(条件或全部)")
+    @ApiOperation(value = "管理员-获取用户信息(条件或全部)")
     @SaCheckRole(value = RoleType.MANAGER.code)
     public Result<GetUsersRespVO> getUsers(@RequestBody GetUsersReqVO reqVO){
         return authService.getUsers(reqVO);
+    }
+
+    @GetMapping("/getColleagues")
+    @ApiOperation("员工-获取本部门员工信息")
+    @SaCheckRole(value = {RoleType.ENTERPRISE.code,RoleType.TALENT.code},mode = SaMode.OR)
+    public Result<GetColleaguesRespVO> getColleagues(){
+        return authService.getColleagues();
     }
 
     @GetMapping("/getUserInfo")

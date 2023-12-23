@@ -1,6 +1,7 @@
 package com.liepin.auth.mapper;
 
 import com.liepin.auth.entity.vo.req.GetUsersReqVO;
+import com.liepin.auth.entity.vo.resp.GetColleaguesListVO;
 import com.liepin.auth.entity.vo.resp.GetUserInfoRespVO;
 import com.liepin.auth.entity.vo.resp.GetUsersListVO;
 import com.liepin.auth.entity.vo.resp.GetUsersRespVO;
@@ -13,6 +14,8 @@ import java.util.List;
 public interface AuthMapper {
 
     List<GetUsersListVO> getUsers(@Param("req") GetUsersReqVO reqVO);
+
+    List<GetColleaguesListVO> getColleagueList(@Param("role") String role);
 
     Long getUsersNum(@Param("req") GetUsersReqVO reqVO);
 

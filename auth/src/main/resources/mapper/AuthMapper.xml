@@ -29,6 +29,18 @@
         </if>
     </select>
 
+    <select id="getColleagueList" resultType="com.liepin.auth.entity.vo.resp.GetColleaguesListVO">
+        select
+            user.id,
+            user.username,
+            user.name
+        from user
+        left join role
+        on role.id = user.role_id
+        where user.dlt = 'NO'
+        and role.role_code = #{role}
+    </select>
+
     <select id="getUsersNum" resultType="java.lang.Long">
         select count(user.id) from liepin.user
         left join liepin.role on user.role_id = role.id
