@@ -10,6 +10,7 @@ public class SendTo {
     private String dept;
     private Long fromId;
     private Long toId;
+    private String createTime;
     private String auditStatus;
     private Long auditId;
     private String remark;
