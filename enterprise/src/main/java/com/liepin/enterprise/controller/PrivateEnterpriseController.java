@@ -4,11 +4,11 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.enterprise.entity.vo.req.*;
 import com.liepin.common.constant.classes.Result;
-import com.liepin.enterprise.entity.vo.resp.GetNotContactRespVO;
-import com.liepin.enterprise.entity.vo.resp.GetAuditRespVO;
+import com.liepin.enterprise.entity.vo.resp.*;
 import com.liepin.enterprise.service.PrivateEnterpriseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,6 +66,27 @@ public class PrivateEnterpriseController {
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
     public Result addEnterprise(@RequestBody AddEnterpriseReqVO reqVO){
         return enterprisePrivateService.addEnterprise(reqVO);
+    }
+
+    @PostMapping("/followupInfo")
+    @ApiOperation(value = "单位部-跟进详情")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result<FollowupInfoRespVO> followupInfo(@RequestParam @Parameter(description = "私库id") Long id){
+        return enterprisePrivateService.followupInfo(id);
+    }
+
+    @PostMapping("/followupEnterprise")
+    @ApiOperation(value = "单位部-跟进单位")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result followupEnterprise(@RequestBody FollowupEnterpriseReqVO reqVO){
+        return enterprisePrivateService.followupEnterprise(reqVO);
+    }
+
+    @PostMapping("/getFollowup")
+    @ApiOperation(value = "单位部-获取跟进中单位")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result<GetFollowupRespVO> getFollowup(@RequestBody GetFollowupReqVO reqVO){
+        return enterprisePrivateService.getFollowup(reqVO);
     }
 
 }

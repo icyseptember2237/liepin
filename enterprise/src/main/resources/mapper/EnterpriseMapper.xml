@@ -75,16 +75,12 @@
         (name,contact,phone,email,address,legal_representative,create_time,province,city,county);
     </insert>
 
-    <insert id="importEnterpriseOcean">
-        insert into liepin.enterprise_ocean (create_time, info_id)
-        select now(),id from enterprise_info;
-    </insert>
 
     <select id="getFollowupHistory" resultType="com.liepin.enterprise.entity.vo.resp.FollowupHistory">
         select
             enterprise_private_followup.id,
             enterprise_private_followup.followup_id,
-            user.username as followUp,
+            user.name as followUp,
             enterprise_private_followup.time,
             enterprise_private_followup.next_time,
             enterprise_private_followup.remark

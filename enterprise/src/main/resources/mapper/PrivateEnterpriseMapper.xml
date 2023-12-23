@@ -136,4 +136,8 @@
             and enterprise_throwback_history.create_time &lt;= #{req.endTime}
         </if>
     </select>
+
+    <select id="selectFollowupList" resultType="com.liepin.enterprise.entity.vo.resp.GetFollowupListVO">
+
+    </select>
 </mapper>

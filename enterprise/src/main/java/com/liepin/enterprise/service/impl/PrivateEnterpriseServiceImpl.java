@@ -9,15 +9,18 @@ import com.liepin.common.util.time.TimeUtil;
 import com.liepin.enterprise.constant.EnterprisePrivateStatus;
 import com.liepin.enterprise.entity.base.EnterpriseInfo;
 import com.liepin.enterprise.entity.base.EnterprisePrivate;
+import com.liepin.enterprise.entity.base.EnterprisePrivateFollowup;
 import com.liepin.enterprise.entity.base.EnterpriseThrowbackHistory;
 import com.liepin.enterprise.entity.vo.req.*;
-import com.liepin.enterprise.entity.vo.resp.GetNotContactRespVO;
-import com.liepin.enterprise.entity.vo.resp.GetAuditRespVO;
+import com.liepin.enterprise.entity.vo.resp.*;
+import com.liepin.enterprise.mapper.EnterpriseMapper;
 import com.liepin.enterprise.mapper.PrivateEnterpriseMapper;
 import com.liepin.enterprise.service.PrivateEnterpriseService;
 import com.liepin.enterprise.service.base.impl.EnterpriseInfoServiceImpl;
+import com.liepin.enterprise.service.base.impl.EnterprisePrivateFollowupServiceImpl;
 import com.liepin.enterprise.service.base.impl.EnterprisePrivateServiceImpl;
 import com.liepin.enterprise.service.base.impl.EnterpriseThrowbackHistoryServiceImpl;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Service
 public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
@@ -37,13 +44,20 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
 
     private final EnterpriseThrowbackHistoryServiceImpl enterpriseThrowbackHistoryService;
 
+    private final EnterprisePrivateFollowupServiceImpl enterprisePrivateFollowupService;
+
+    private final EnterpriseMapper enterpriseMapper;
+
     @Autowired
     public PrivateEnterpriseServiceImpl(PrivateEnterpriseMapper privateEnterpriseMapper,EnterprisePrivateServiceImpl enterprisePrivateService,
-                                        EnterpriseInfoServiceImpl enterpriseInfoService,EnterpriseThrowbackHistoryServiceImpl enterpriseThrowbackHistoryService){
+                                        EnterpriseInfoServiceImpl enterpriseInfoService,EnterpriseThrowbackHistoryServiceImpl enterpriseThrowbackHistoryService,
+                                        EnterprisePrivateFollowupServiceImpl enterprisePrivateFollowupService,EnterpriseMapper enterpriseMapper){
+        this.enterpriseMapper = enterpriseMapper;
         this.enterpriseThrowbackHistoryService = enterpriseThrowbackHistoryService;
         this.enterpriseInfoService = enterpriseInfoService;
         this.enterprisePrivateService = enterprisePrivateService;
         this.privateEnterpriseMapper = privateEnterpriseMapper;
+        this.enterprisePrivateFollowupService = enterprisePrivateFollowupService;
     }
 
     @Override
@@ -158,6 +172,50 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         }
 
         return Result.success();
+    }
+
+    @Override
+    public Result<FollowupInfoRespVO> followupInfo(Long id){
+        FollowupInfoRespVO respVO = new FollowupInfoRespVO();
+        EnterpriseInfo info = enterpriseInfoService.getById(enterprisePrivateService.getById(id).getInfoId());
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),ExceptionsEnums.Enterprise.NO_DATA);
+
+        BeanUtils.copyProperties(info,respVO);
+        respVO.setList(enterpriseMapper.getFollowupHistory(id,1,5));
+        return Result.success(respVO);
+    }
+
+    @Override
+    @Transactional
+    public Result followupEnterprise(FollowupEnterpriseReqVO reqVO){
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(reqVO.getId());
+        if (enterprisePrivate.getStatus().equals(EnterprisePrivateStatus.NOT_CONTACT.getStatus())){
+            enterprisePrivate.setStatus(EnterprisePrivateStatus.FOLLOWUP.getStatus());
+            enterprisePrivateService.updateById(enterprisePrivate);
+        }
+
+        EnterpriseInfo enterpriseInfo = new EnterpriseInfo();
+        BeanUtils.copyProperties(reqVO,enterpriseInfo,"id");
+        enterpriseInfo.setId(enterprisePrivate.getInfoId());
+        enterpriseInfoService.updateById(enterpriseInfo);
+
+        EnterprisePrivateFollowup followup = new EnterprisePrivateFollowup();
+        followup.setPrivateId(enterprisePrivate.getId());
+        followup.setFollowupId(StpUtil.getLoginIdAsLong());
+        followup.setTime(TimeUtil.getNowWithSec());
+        followup.setRemark(reqVO.getFollowupRemark());
+        followup.setNextTime(reqVO.getNextTime());
+        enterprisePrivateFollowupService.save(followup);
+
+        return Result.success();
+
+    }
+
+    @Override
+    public Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO){
+        GetFollowupRespVO respVO = new GetFollowupRespVO();
+        List<GetFollowupListVO> list = privateEnterpriseMapper.selectFollowupList(reqVO);
+        return Result.success(respVO);
     }
 
 }

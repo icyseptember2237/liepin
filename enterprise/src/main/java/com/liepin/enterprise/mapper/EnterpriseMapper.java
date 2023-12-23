@@ -17,7 +17,5 @@ public interface EnterpriseMapper {
 
     void importEnterprise(String fileName);
 
-    Boolean importEnterpriseOcean();
-
     List<FollowupHistory> getFollowupHistory(@Param("id") Long id,@Param("page") Integer page,@Param("pageSize")Integer pageSize);
 }
