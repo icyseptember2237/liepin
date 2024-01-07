@@ -17,6 +17,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 @Service
 public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDetail> implements LogDetailService {
     @Autowired
@@ -61,6 +65,34 @@ public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDe
 //
 //        workLogDetail.setId(id);
 
+        saveOrUpdate(workLogDetail);
+        return Result.success("插入or更新成功");
+    }
+
+    @Override
+    public Result insertLastWorkLogDetail(WorkLogRespVo workLogRespVo) {
+        WorkLogDetail workLogDetail = new WorkLogDetail();
+        BeanUtils.copyProperties(workLogRespVo,workLogDetail);
+        Long userId;
+        if (null!=workLogRespVo.getId()){
+            userId = StpUtil.getLoginIdAsLong();
+//            userId = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getId, workLogRespVo.getId())).getUserId();
+        }else{
+            userId = StpUtil.getLoginIdAsLong();
+        }
+//      昨天的日期
+        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar= Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,-24);
+        String yesterdayDate=dateFormat.format(calendar.getTime());
+
+        LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,userId).
+                like(WorkLog::getCreateTime, yesterdayDate);
+        WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
+        Long id = workLog.getId();
+
+        workLogDetail.setId(id);
         saveOrUpdate(workLogDetail);
         return Result.success("插入or更新成功");
     }

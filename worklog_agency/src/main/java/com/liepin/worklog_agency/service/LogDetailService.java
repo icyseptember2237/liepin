@@ -11,4 +11,6 @@ public interface LogDetailService extends IService<WorkLogDetail> {
     Result insertWorkLogDetail(WorkLogRespVo workLogRespVo);
 
     Result insertOtherWorkLogDetail(WorkLogRespVo workLogRespVo);
+
+    Result insertLastWorkLogDetail(WorkLogRespVo workLogRespVo);
 }

@@ -35,8 +35,10 @@ public class OperationLogAspect {
 
     @AfterReturning(value = "operationLogPointCut()", returning = "data")
     public void saveOperationLog(JoinPoint joinPoint, Object data){
+        //获取request请求，用于解析IP地址
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
+
         OperationLog operationLog = new OperationLog();
         long id = StpUtil.getLoginIdAsLong();
 
@@ -52,10 +54,11 @@ public class OperationLogAspect {
             operationLog.setOperationDetail(annotation.detail());
             operationLog.setOperatorId(StpUtil.getLoginIdAsLong());
             operationLog.setOperationStatus(OperationStatus.SUCCESS.value);
+
 //            operationLogService.insertOperationLog(operationLog);
-            AsyncExecutor.getExecutor().schedule(new Thread(() ->{
-                SpringUtil.getBean(OperationLogServiceImpl.class).insertOperationLog(operationLog);
-            }));
+//            AsyncExecutor.getExecutor().schedule(new Thread(() ->{
+//                SpringUtil.getBean(OperationLogServiceImpl.class).insertOperationLog(operationLog);
+//            }));
         }catch (Exception e){
             System.err.println(e);
         }

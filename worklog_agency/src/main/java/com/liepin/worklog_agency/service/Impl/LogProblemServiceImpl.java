@@ -17,7 +17,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -65,6 +68,44 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
 //        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong()).like(WorkLog::getCreateTime, TimeUtil.getToday());
 //        WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
 //        Long id = workLog.getId();
+        // 全覆盖更新
+        //删除
+        LambdaQueryWrapper<WorkLogProblem> lambdaQueryWrapperForProblem = new LambdaQueryWrapper<>();
+        lambdaQueryWrapperForProblem.eq(WorkLogProblem::getId,id);
+        WorkLogProblem workLogProblemDlt = new WorkLogProblem();
+        workLogProblemDlt.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
+        logProblemMapper.update(workLogProblemDlt,lambdaQueryWrapperForProblem);
+
+        //更新
+        List<InsertProblemLogReqVO> workLogProblemList = workLogRespVo.getInsertProblemLogReqVOList();
+
+        List<WorkLogProblem> logProblemList = new ArrayList<>();
+        for(InsertProblemLogReqVO insertProblemLogReqVO:workLogProblemList){
+            WorkLogProblem workLogProblem = new WorkLogProblem();
+            BeanUtils.copyProperties(insertProblemLogReqVO,workLogProblem);
+            workLogProblem.setId(id);
+            logProblemList.add(workLogProblem);
+        }
+
+        saveOrUpdateBatch(logProblemList);
+//        saveOrUpdateBatch(logProblemList);
+        return Result.success("插入问题成功");
+    }
+
+    @Override
+    public Result insertLastWorkLogProblem(WorkLogRespVo workLogRespVo) {
+
+        //昨天的日期
+        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar= Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,-24);
+        String yesterdayDate=dateFormat.format(calendar.getTime());
+
+        // 得到日志id
+        LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong()).like(WorkLog::getCreateTime, yesterdayDate);
+        WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
+        Long id = workLog.getId();
         // 全覆盖更新
         //删除
         LambdaQueryWrapper<WorkLogProblem> lambdaQueryWrapperForProblem = new LambdaQueryWrapper<>();

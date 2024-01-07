@@ -50,13 +50,20 @@ public class AgencyServiceImpl extends ServiceImpl<AgencyMapper,Agency> implemen
         }
         List<Agency> agenctList = agencyMapper.getAgenctList(reqVO);
         List<AgencyBrief> agencyBriefList = new ArrayList<>();
+
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getId,StpUtil.getLoginIdAsLong()));
+        String username = user.getName();
+
         for(Agency agency:agenctList){
             AgencyBrief agencyBrief = new AgencyBrief();
             BeanUtils.copyProperties(agency,agencyBrief);
+            if(agencyBrief.getAuditStatus().equals("WAIT") && agencyBrief.getCreateId().equals(username) ||
+            !agencyBrief.getAuditStatus().equals("WAIT"))
             agencyBriefList.add(agencyBrief);
         }
         respVO.setList(agencyBriefList);
-        respVO.setTotal(agencyMapper.getAgencyNum(reqVO));
+        int size = agencyBriefList.size();
+        respVO.setTotal((long) size);
         return Result.success(respVO);
     }
 

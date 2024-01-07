@@ -17,4 +17,6 @@ public interface LogService extends IService<WorkLog> {
     Result insertOtherWorkLog(WorkLogRespVo workLogRespVo);
 
     Result<WorkLogRes> getLastWorkLog(long loginIdAsLong);
+
+    Result insertLastWorkLog(WorkLogRespVo workLogRespVo);
 }

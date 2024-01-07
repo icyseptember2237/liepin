@@ -17,6 +17,10 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 @Service
 @Slf4j
 public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements LogService {
@@ -83,6 +87,32 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
         workLogRes.setWorkLogProbList(logMapper.getWorkLogProblemListById(logId));
 
         return Result.success(workLogRes);
+    }
+
+    @Override
+    public Result<Object> insertLastWorkLog(WorkLogRespVo workLogRespVo) {
+        WorkLog workLog = new WorkLog();
+        WorkLogRespVo workLog1 = logMapper.getWorkLog(StpUtil.getLoginIdAsLong(),TimeUtil.getToday());
+//        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLog1.getId()));
+        if (null!=workLog1){
+            Long id = workLog1.getId();
+            workLog.setId(id);
+            workLog.setUserId(StpUtil.getLoginIdAsLong());
+            workLog.setUpdateTime(TimeUtil.getNowWithMin());
+            saveOrUpdate(workLog);
+            return Result.success();
+        }
+
+        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Calendar calendar= Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY,-24);
+        String yesterdayDate=dateFormat.format(calendar.getTime());
+
+        workLog.setUserId(StpUtil.getLoginIdAsLong());
+        workLog.setCreateTime(yesterdayDate);
+        workLog.setUpdateTime(TimeUtil.getNowWithMin());
+        saveOrUpdate(workLog);
+        return Result.success();
     }
 
 }

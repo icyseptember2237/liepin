@@ -51,6 +51,16 @@ public class WorkLogController {
         logProblemService.insertWorkLogProblem(workLogRespVo);
         return Result.success();
     }
+    @SaCheckLogin
+    @PostMapping("postLastWorkLog")
+    @ApiOperation(value = "上传昨天的日志")
+    @OperationAspect(detail = "上传昨天的日志",type = OperationType.INSERT.value,module = OperationModule.WORKLOG.value)
+    public Result postLastWorkLog(@RequestBody WorkLogRespVo workLogRespVo){
+        logService.insertLastWorkLog(workLogRespVo);
+        logDetailService.insertLastWorkLogDetail(workLogRespVo);
+        logProblemService.insertLastWorkLogProblem(workLogRespVo);
+        return Result.success();
+    }
 
     @SaCheckRole(value = RoleType.MANAGER.code)
     @PostMapping("/getAllWorkLog")
@@ -85,4 +95,7 @@ public class WorkLogController {
     public Result<WorkLogRes> getLastWorkLog(){
         return logService.getLastWorkLog(StpUtil.getLoginIdAsLong());
     }
+
+
+
 }

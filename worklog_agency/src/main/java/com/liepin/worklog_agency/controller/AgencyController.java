@@ -127,11 +127,11 @@ public class AgencyController {
         return agencyService.importAgency(file);
     }
 
-    @SaCheckLogin
-    @PostMapping
-    @ApiOperation(value = "上传中介认证图片")
-    @OperationAspect(detail = "上传中介认证图片",type = OperationType.SERACH.value ,module = OperationModule.AGENCY.value)
-    public Result<List<String>> insertAgencyImage(@RequestParam("fileList") List<MultipartFile> fileList){
-        return agencyService.insertAgencyImage(fileList);
-    }
+//    @SaCheckLogin
+//    @PostMapping
+//    @ApiOperation(value = "上传中介认证图片")
+//    @OperationAspect(detail = "上传中介认证图片",type = OperationType.SERACH.value ,module = OperationModule.AGENCY.value)
+//    public Result<List<String>> insertAgencyImage(@RequestParam("fileList") List<MultipartFile> fileList){
+//        return agencyService.insertAgencyImage(fileList);
+//    }
 }

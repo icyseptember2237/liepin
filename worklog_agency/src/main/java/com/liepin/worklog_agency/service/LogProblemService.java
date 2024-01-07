@@ -10,4 +10,5 @@ public interface LogProblemService extends IService<WorkLogProblem> {
 
     Result insertOtherWorkLogProblem(WorkLogRespVo workLogRespVo);
 
+    Result insertLastWorkLogProblem(WorkLogRespVo workLogRespVo);
 }
