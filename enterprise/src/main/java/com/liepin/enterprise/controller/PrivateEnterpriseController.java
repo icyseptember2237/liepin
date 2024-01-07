@@ -71,7 +71,7 @@ public class PrivateEnterpriseController {
         return enterprisePrivateService.addEnterprise(reqVO);
     }
 
-    @PostMapping("/followupInfo")
+    @GetMapping("/followupInfo")
     @ApiOperation(value = "单位部-跟进详情")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
     public Result<FollowupInfoRespVO> followupInfo(@RequestParam @Parameter(description = "私库id") Long id){
@@ -101,16 +101,16 @@ public class PrivateEnterpriseController {
 
     @PostMapping("/getSendHistory")
     @ApiOperation(value = "单位部-获取自己内推记录")
-    @SaCheckRole(value = {RoleType.ENTERPRISE.code,RoleType.TALENT.code},mode = SaMode.OR)
-    public Result getSendHistory(){
-        return null;
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result<GetSendHistoryRespVO> getSendHistory(@RequestBody GetSendHistoryReqVO reqVO){
+        return enterprisePrivateService.getSendHistory(reqVO);
     }
 
     @PostMapping("/getSendAudit")
     @ApiOperation(value = "总经办-获取内推记录")
     @SaCheckRole(value = RoleType.MANAGER.code)
-    public Result getSendAudit(){
-        return null;
+    public Result<GetSendHistoryRespVO> getSendAudit(@RequestBody GetSendAuditReqVO reqVO){
+        return enterprisePrivateService.getSendAudit(reqVO);
     }
 
     @PostMapping("/auditSend")
@@ -119,7 +119,6 @@ public class PrivateEnterpriseController {
     public Result auditSend(){
         return null;
     }
-
 
     @PostMapping("/contract")
     @ApiOperation(value = "单位部-合同需求")

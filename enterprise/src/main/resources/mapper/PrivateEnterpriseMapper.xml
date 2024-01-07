@@ -5,9 +5,11 @@
         select
             enterprise_private.id,
             enterprise_info.province,
+            enterprise_info.name,
             enterprise_info.city,
             enterprise_info.county,
             enterprise_info.legal_representative,
+            enterprise_info.phone,
             enterprise_private.create_time
         from enterprise_private
         inner join

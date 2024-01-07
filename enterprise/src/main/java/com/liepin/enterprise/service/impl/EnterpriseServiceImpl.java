@@ -2,8 +2,10 @@ package com.liepin.enterprise.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.fastjson.JSONObject;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
+import com.liepin.common.config.thread.AsyncExecutor;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
@@ -29,13 +31,15 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -45,25 +49,14 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     private final EnterpriseMapper enterpriseMapper;
     private final EnterpriseOceanServiceImpl enterpriseOceanService;
     private final EnterprisePrivateServiceImpl enterprisePrivateService;
+    private final RedisTemplate redisTemplate;
 
-    Integer[] nums;
-
-    private void insert(Integer[] nums,Integer data,int index){
-        for (int i = nums.length-1; i > index; i--){
-            nums[i] = nums[i - 1];
-        }
-        nums[index] = data;
-    }
-
-    private void delete(Integer[] nums,int index){
-        for (int i = index ;i < nums.length-1  ;i++ ){
-            nums[i] = nums[i+1];
-        }
-    }
 
     @Autowired
     public EnterpriseServiceImpl(EnterpriseMapper enterpriseMapper,EnterpriseInfoServiceImpl enterpriseInfoService,
-                                 EnterpriseOceanServiceImpl enterpriseOceanService,EnterprisePrivateServiceImpl enterprisePrivateService){
+                                 EnterpriseOceanServiceImpl enterpriseOceanService,EnterprisePrivateServiceImpl enterprisePrivateService,
+                                 RedisTemplate redisTemplate){
+        this.redisTemplate = redisTemplate;
         this.enterprisePrivateService = enterprisePrivateService;
         this.enterpriseOceanService = enterpriseOceanService;
         this.enterpriseInfoService = enterpriseInfoService;
@@ -178,32 +171,52 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     }
 
     @Override
-    @Transactional
     public Result pullEnterprise(EnterpriseListVO reqVO){
         AssertUtils.isFalse(!reqVO.getList().isEmpty(),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
-
-        reqVO.getList().forEach((id) ->{
+        ArrayList<Long> res = new ArrayList<>();
+        for (Long id : reqVO.getList()){
             EnterpriseInfo info = enterpriseInfoService.getById(id);
-            AssertUtils.isFalse(ObjectUtils.isNotEmpty(info),
-                    ExceptionsEnums.Enterprise.NO_DATA);
+            if (ObjectUtils.isEmpty(info) || info.getIsPrivate().equals(ConstantsEnums.YESNOWAIT.YES.getValue()))
+                continue;
 
-            try {
-                info.setIsPrivate(ConstantsEnums.YESNOWAIT.YES.getValue());
-                enterpriseInfoService.updateById(info);
+            if (redisTemplate.opsForValue().setIfAbsent("EnterPrise:" + id,StpUtil.getLoginIdAsLong(),2, TimeUnit.SECONDS)){
+                HashMap<String,Long> map = new HashMap<>();
+                map.put("userId",StpUtil.getLoginIdAsLong());
+                map.put("enterPriseId",id);
+                redisTemplate.opsForList().leftPush("EnterPriseList",map);
+                res.add(id);
+                try {
+                    JSONObject object = (JSONObject) redisTemplate.opsForList().rightPop("EnterPriseList");
+                    if (ObjectUtils.isNotEmpty(object)){
+                        map =new HashMap<>();
+                        Iterator it =object.entrySet().iterator();
+                        while (it.hasNext()) {
+                            Map.Entry<String, Integer> entry = (Map.Entry<String, Integer>) it.next();
+                            map.put(entry.getKey(), entry.getValue().longValue());
+                        }
+                        Long userId = map.get("userId");
+                        Long enterPriseId = map.get("enterPriseId");
+                        info = enterpriseInfoService.getById(enterPriseId);
+                        info.setIsPrivate(ConstantsEnums.YESNOWAIT.YES.getValue());
+                        enterpriseInfoService.updateById(info);
 
-                EnterprisePrivate enterprisePrivate = new EnterprisePrivate();
-                enterprisePrivate.setUserId(StpUtil.getLoginIdAsLong());
-                enterprisePrivate.setInfoId(info.getId());
-                enterprisePrivate.setCreateTime(TimeUtil.getNowWithSec());
-                enterprisePrivate.setStatus(EnterprisePrivateStatus.NOT_CONTACT.getStatus());
-                enterprisePrivateService.save(enterprisePrivate);
-            } catch (Exception e){
-                e.printStackTrace();
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                AssertUtils.throwException("拉入失败");
+                        EnterprisePrivate enterprisePrivate = new EnterprisePrivate();
+                        enterprisePrivate.setUserId(userId);
+                        enterprisePrivate.setInfoId(info.getId());
+                        enterprisePrivate.setCreateTime(TimeUtil.getNowWithSec());
+                        enterprisePrivate.setStatus(EnterprisePrivateStatus.NOT_CONTACT.getStatus());
+                        if (enterprisePrivateService.save(enterprisePrivate))
+                            redisTemplate.delete("EnterPrise:" + enterPriseId);
+                    }
+                } catch (Exception e){
+                    log.warn(e.toString());
+                }
+            } else {
+                log.info(id + "冲突");
             }
-        });
+        }
 
-        return Result.success();
+        return Result.success(res);
     }
+
 }

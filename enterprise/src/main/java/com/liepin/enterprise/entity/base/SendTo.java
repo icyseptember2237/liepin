@@ -9,6 +9,7 @@ public class SendTo {
     private Long id;
     private String dept;
     private Long privateId;
+    private String enterpriseName;
     private Long fromId;
     private Long toId;
     private String createTime;

@@ -29,6 +29,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -224,7 +225,8 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
 
     @Override
     public Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO){
-        reqVO.setPageSize(Math.max(15,reqVO.getPageSize()));
+        if (ObjectUtils.isNotEmpty(reqVO.getPageSize()))
+            reqVO.setPageSize(Math.min(15,reqVO.getPageSize()));
         GetFollowupRespVO respVO = new GetFollowupRespVO();
         List<GetFollowupListVO> list = privateEnterpriseMapper.selectFollowupList(reqVO,StpUtil.getLoginIdAsLong());
         respVO.setList(list);
@@ -250,6 +252,7 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
 
         sendTo = new SendTo();
         sendTo.setPrivateId(reqVO.getPrivateId());
+        sendTo.setEnterpriseName(enterpriseInfoService.getById(enterprisePrivate.getInfoId()).getName());
         sendTo.setAuditStatus(ConstantsEnums.YESNOWAIT.WAIT.getValue());
         sendTo.setRemark(reqVO.getRemark());
         sendTo.setDept(RoleType.ENTERPRISE.code);
@@ -265,4 +268,23 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         return Result.success();
     }
 
+    @Override
+    public Result<GetSendHistoryRespVO> getSendHistory(GetSendHistoryReqVO reqVO){
+        if (ObjectUtils.isNotEmpty(reqVO.getPageSize()))
+            reqVO.setPageSize(Math.min(15,reqVO.getPageSize()));
+        GetSendHistoryRespVO respVO = new GetSendHistoryRespVO();
+        respVO.setList(sendToMapper.selectSendHistoryList(reqVO,StpUtil.getLoginIdAsLong()));
+        respVO.setTotal(sendToMapper.selectSendHistoryNum(reqVO,StpUtil.getLoginIdAsLong()));
+        return Result.success(respVO);
+    }
+
+    @Override
+    public Result<GetSendHistoryRespVO> getSendAudit(GetSendAuditReqVO reqVO){
+        if (ObjectUtils.isNotEmpty(reqVO.getPageSize()))
+            reqVO.setPageSize(Math.min(15,reqVO.getPageSize()));
+        GetSendHistoryRespVO respVO = new GetSendHistoryRespVO();
+        respVO.setList(sendToMapper.selectAllSendTo(reqVO));
+        respVO.setTotal(sendToMapper.selectAllSendToNum(reqVO));
+        return Result.success(respVO);
+    }
 }

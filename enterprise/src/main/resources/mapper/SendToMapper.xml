@@ -8,4 +8,125 @@
                     where user.dlt = 'NO'
                     and user.id = #{toId}) = #{dept},'1','0')
     </select>
+
+    <select id="selectSendHistoryList" resultType="com.liepin.enterprise.entity.vo.resp.GetSendListVO">
+        select
+            id,
+            dept,
+            private_id,
+            enterprise_name,
+            from_id,
+            (select name from user where user.id = from_id) as fromName,
+            to_id,
+            (select name from user where user.id = to_id) as toName,
+            remark,
+            create_time,
+            audit_status as status,
+            if(audit_status is not 'WAIT',audit_id,null) as auditId,
+            (select name from user where user.id = auditId) as auditName,
+            audit_remark
+        from send_to
+        where dept = 'ENTERPRISE'
+            and dlt = 'NO'
+        <if test="req.toId != null and req.toId != 0">
+            and to_id = #{req.toId}
+        </if>
+        <if test="req.enterpriseName != null and req.enterpriseName != ''">
+            and enterprise_name = #{req.enterpriseName}
+        </if>
+        <if test="req.isSend == true">
+            and from_id = #{userId}
+            and audit_status = #{req.status}
+        </if>
+        <if test="req.isSend == false">
+            and to_id = #{userId}
+            and audit_status = 'PASS'
+        </if>
+        <if test="req.pageSize != null and req.pageSize > 0">
+            <bind name="offset" value="(req.page + 1) * req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+
+    <select id="selectSendHistoryNum" resultType="java.lang.Long">
+        select
+            count(id)
+        from send_to
+        where dept = 'ENTERPRISE'
+        and dlt = 'NO'
+        <if test="req.toId != null and req.toId != 0">
+            and to_id = #{req.toId}
+        </if>
+        <if test="req.enterpriseName != null and req.enterpriseName != ''">
+            and enterprise_name = #{req.enterpriseName}
+        </if>
+        <if test="req.isSend == true">
+            and from_id = #{userId}
+            and audit_status = #{req.status}
+        </if>
+        <if test="req.isSend == false">
+            and to_id = #{userId}
+            and audit_status = 'PASS'
+        </if>
+    </select>
+    <select id="selectAllSendTo" resultType="com.liepin.enterprise.entity.vo.resp.GetSendListVO">
+        select
+            id,
+            dept,
+            private_id,
+            enterprise_name,
+            from_id,
+            (select name from user where user.id = from_id) as fromName,
+            to_id,
+            (select name from user where user.id = to_id) as toName,
+            remark,
+            create_time,
+            audit_status as status,
+            if(audit_status is not 'WAIT',audit_id,null) as auditId,
+            (select name from user where user.id = auditId) as auditName,
+            audit_remark
+        from send_to
+        where dlt = 'NO'
+        <if test="req.dept != null and req.dept != ''">
+            and dept = #{req.dept}
+        </if>
+        <if test="req.enterpriseName != null and req.enterpriseName != ''">
+            and enterprise_name = #{req.enterpriseName}
+        </if>
+        <if test="req.fromId != null and req.formId > 0">
+            and from_id = #{req.fromId}
+        </if>
+        <if test="req.toId != null and req.toId > 0">
+            and from_id = #{req.toId}
+        </if>
+        <if test="req.status != null and req.status != ''">
+            and audit_status = #{req.status}
+        </if>
+        <if test="req.pageSize != null and req.pageSize > 0">
+            <bind name="offset" value="(req.page + 1) * req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+
+    <select id="selectAllSendToNum" resultType="java.lang.Long">
+        select
+        count(id)
+        from send_to
+        where dlt = 'NO'
+        <if test="req.dept != null and req.dept != ''">
+            and dept = #{req.dept}
+        </if>
+        <if test="req.enterpriseName != null and req.enterpriseName != ''">
+            and enterprise_name = #{req.enterpriseName}
+        </if>
+        <if test="req.fromId != null and req.formId > 0">
+            and from_id = #{req.fromId}
+        </if>
+        <if test="req.toId != null and req.toId > 0">
+            and from_id = #{req.toId}
+        </if>
+        <if test="req.status != null and req.status != ''">
+            and audit_status = #{req.status}
+        </if>
+    </select>
 </mapper>
