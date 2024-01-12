@@ -57,6 +57,7 @@ public class PrivateEnterpriseController {
 
     @PostMapping("/getSelfAudit")
     @ApiOperation(value = "单位部-获取本人扔回公海待审核/失败/成功记录")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
     public Result<GetAuditRespVO> getSelfAudit(@RequestBody GetAuditReqVO reqVO){
         return enterprisePrivateService.getSelfAudit(reqVO);
     }
@@ -116,14 +117,14 @@ public class PrivateEnterpriseController {
     @PostMapping("/auditSend")
     @ApiOperation(value = "总经办-审核内推")
     @SaCheckRole(value = RoleType.MANAGER.code)
-    public Result auditSend(){
-        return null;
+    public Result auditSend(@RequestBody AuditSendReqVO reqVO){
+        return enterprisePrivateService.auditSend(reqVO);
     }
 
-    @PostMapping("/contract")
+    @PostMapping("/enterpriseContract")
     @ApiOperation(value = "单位部-合同需求")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
-    public Result contract(){
+    public Result enterpriseContract(@RequestBody EnterpriseContractReqVO reqVO){
         return null;
     }
 

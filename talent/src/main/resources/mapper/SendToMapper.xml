@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.liepin.enterprise.mapper.base.SendToMapper">
+<mapper namespace="com.liepin.talent.mapper.base.SendToMapper">
     <select id="checkDept" resultType="java.lang.Integer">
         select if ((select role.role_code from user
                     inner join role
@@ -9,12 +9,12 @@
                     and user.id = #{toId}) = #{dept},'1','0')
     </select>
 
-    <select id="selectSendHistoryList" resultType="com.liepin.enterprise.entity.vo.resp.GetSendListVO">
+    <select id="selectSendHistoryList" resultType="com.liepin.talent.entity.vo.list.GetSendListVO">
         select
             id,
             dept,
             private_id,
-            enterprise_name,
+            talent_name,
             from_id,
             (select name from user where user.id = from_id) as fromName,
             to_id,
@@ -26,13 +26,13 @@
             (select name from user where user.id = auditId) as auditName,
             audit_remark
         from send_to
-        where dept = 'ENTERPRISE'
+        where dept = 'TALENT'
             and dlt = 'NO'
         <if test="req.toId != null and req.toId != 0">
             and to_id = #{req.toId}
         </if>
-        <if test="req.enterpriseName != null and req.enterpriseName != ''">
-            and enterprise_name = #{req.enterpriseName}
+        <if test="req.talentName != null and req.talentName != ''">
+            and talent_name = #{req.talentName}
         </if>
         <if test="req.isSend == true">
             and from_id = #{userId}
@@ -52,13 +52,13 @@
         select
             count(id)
         from send_to
-        where dept = 'ENTERPRISE'
+        where dept = 'TALENT'
         and dlt = 'NO'
         <if test="req.toId != null and req.toId != 0">
             and to_id = #{req.toId}
         </if>
-        <if test="req.enterpriseName != null and req.enterpriseName != ''">
-            and enterprise_name = #{req.enterpriseName}
+        <if test="req.talentName != null and req.talentName != ''">
+            and talent_name = #{req.talentName}
         </if>
         <if test="req.isSend == true">
             and from_id = #{userId}
@@ -69,12 +69,12 @@
             and audit_status = 'PASS'
         </if>
     </select>
-    <select id="selectAllSendTo" resultType="com.liepin.enterprise.entity.vo.resp.GetSendListVO">
+    <select id="selectAllSendTo" resultType="com.liepin.talent.entity.vo.list.GetSendListVO">
         select
             id,
             dept,
             private_id,
-            enterprise_name,
+            talent_name,
             from_id,
             (select name from user where user.id = from_id) as fromName,
             to_id,
@@ -87,9 +87,9 @@
             audit_remark
         from send_to
         where dlt = 'NO'
-            and dept = 'ENTERPRISE'
-        <if test="req.enterpriseName != null and req.enterpriseName != ''">
-            and enterprise_name = #{req.enterpriseName}
+            and dept = 'TALENT'
+        <if test="req.talentName != null and req.talentName != ''">
+            and talent_name = #{req.talentName}
         </if>
         <if test="req.fromId != null and req.formId > 0">
             and from_id = #{req.fromId}
@@ -111,9 +111,9 @@
         count(id)
         from send_to
         where dlt = 'NO'
-            and dept = 'ENTERPRISE'
-        <if test="req.enterpriseName != null and req.enterpriseName != ''">
-            and enterprise_name = #{req.enterpriseName}
+            and dept = 'TALENT'
+        <if test="req.talentName != null and req.talentName != ''">
+            and talent_name = #{req.talentName}
         </if>
         <if test="req.fromId != null and req.formId > 0">
             and from_id = #{req.fromId}

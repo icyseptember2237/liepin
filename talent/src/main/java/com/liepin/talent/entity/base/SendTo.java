@@ -1,4 +1,4 @@
-package com.liepin.enterprise.entity.base;
+package com.liepin.talent.entity.base;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;

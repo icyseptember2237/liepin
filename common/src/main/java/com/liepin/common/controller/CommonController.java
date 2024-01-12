@@ -4,7 +4,6 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
-import com.liepin.common.constant.classes.HashResult;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.config.FileConfig;
 
@@ -12,7 +11,6 @@ import com.liepin.common.entity.UploadRespVO;
 import com.liepin.common.util.operationLog.entity.OperationLogResp;
 import com.liepin.common.util.operationLog.service.OperationLogService;
 import com.liepin.common.util.talentBasicConfig.entity.GetTalentBasicConfigResVO;
-import com.liepin.common.util.system.GetSystem;
 import com.liepin.common.util.talentBasicConfig.service.GetTalentBasicConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

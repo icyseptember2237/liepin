@@ -239,7 +239,8 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
     public Result sendTo(SendToReqVO reqVO){
         AssertUtils.isFalse(StpUtil.getLoginIdAsLong() != reqVO.getUserId(),"不能内推给本人");
         AssertUtils.isFalse(sendToMapper.checkDept(RoleType.ENTERPRISE.code, reqVO.getUserId()) == 1,"只能内推至部门内部");
-        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getOne(new LambdaQueryWrapper<EnterprisePrivate>().eq(EnterprisePrivate::getId,reqVO.getPrivateId())
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getOne(new LambdaQueryWrapper<EnterprisePrivate>()
+                .eq(EnterprisePrivate::getId,reqVO.getPrivateId())
                 .eq(EnterprisePrivate::getThrowback,ConstantsEnums.YESNOWAIT.NO));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterprisePrivate),ExceptionsEnums.Enterprise.NO_DATA);
         AssertUtils.isFalse(enterprisePrivate.getUserId() == StpUtil.getLoginIdAsLong(),"不能内推非本人私库单位");
@@ -286,5 +287,33 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         respVO.setList(sendToMapper.selectAllSendTo(reqVO));
         respVO.setTotal(sendToMapper.selectAllSendToNum(reqVO));
         return Result.success(respVO);
+    }
+
+    @Override
+    public Result auditSend(AuditSendReqVO reqVO){
+        String status = reqVO.getStatus();
+        AssertUtils.isFalse("PASS".equals(status) || "FAIL".equals(status),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+        SendTo sendTo = sendToService.getOne(new LambdaQueryWrapper<SendTo>().eq(SendTo::getId,reqVO.getId())
+                .eq(SendTo::getDlt,"NO"));
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(sendTo),ExceptionsEnums.Common.NO_DATA);
+        sendTo.setAuditStatus(status);
+        sendTo.setAuditId(StpUtil.getLoginIdAsLong());
+        sendTo.setAuditRemark(reqVO.getAuditRemark());
+        sendTo.setAuditTime(TimeUtil.getNowWithSec());
+
+        if ("PASS".equals(status)){
+            Long privateId = sendTo.getPrivateId();
+            EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(privateId);
+            if (!ConstantsEnums.YESNOWAIT.NO.getValue().equals(enterprisePrivate.getThrowback())){
+                sendTo.setAuditStatus(ConstantsEnums.AuditStatus.FAIL.getStatus());
+                sendTo.setAuditRemark("审核失败，该单位已扔回公海或扔回公海待审核");
+                sendToService.updateById(sendTo);
+                return Result.success();
+            }
+            enterprisePrivate.setUserId(sendTo.getToId());
+            sendToService.updateById(sendTo);
+            enterprisePrivateService.updateById(enterprisePrivate);
+        }
+        return Result.success();
     }
 }

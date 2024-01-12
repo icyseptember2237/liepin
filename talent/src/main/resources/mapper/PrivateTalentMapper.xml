@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.talent.mapper.PrivateTalentMapper">
+    <select id="selectNotContactList" resultType="com.liepin.talent.entity.vo.list.GetNotContactList">
+        select
+        talent_private.id,
+        talent_info.name,
+        talent_info.sex,
+        talent_info.intention,
+        talent_info.type,
+        talent_info.phone,
+        talent_private.create_time
+        from talent_private
+        inner join
+        (select talent_private.id
+        from talent_private
+        left join talent_info
+        on talent_info.id = talent_private.info_id
+        where talent_private.throwback = 'NO'
+        and talent_private.status = 'NOT_CONTACT'
+        <if test="userId != null and userId != 0">
+            and talent_private.user_id = #{userId}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and talent_info.phone = #{req.phone}
+        </if>
+        <if test="req.intention != null and req.intention != ''">
+            and talent_info.intention = #{req.intention}
+        </if>
+        <if test="req.name != null and req.name != ''">
+            and talent_info.name = #{req.name}
+        </if>
+        order by talent_private.id desc
+        ) as temp
+        on temp.id = talent_private.id
+        left join
+        talent_info
+        on talent_private.info_id = talent_info.id
+        <if test="req.pageSize != null and req.pageSize != 0">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+
+    <select id="selectNotContactListNum" resultType="java.lang.Long">
+        select count(talent_private.id)
+        from talent_private
+        left join talent_info
+        on talent_info.id = talent_private.info_id
+        where talent_private.throwback = 'NO'
+        and talent_private.status = 'NOT_CONTACT'
+        <if test="userId != null and userId != 0">
+            and talent_private.user_id = #{userId}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and talent_info.phone = #{req.phone}
+        </if>
+        <if test="req.intention != null and req.intention != ''">
+            and talent_info.intention = #{req.intention}
+        </if>
+        <if test="req.name != null and req.name != ''">
+            and talent_info.name = #{req.name}
+        </if>
+    </select>
+
+    <select id="selectAuditList" resultType="com.liepin.talent.entity.vo.list.AuditList">
+        select
+        talent_throwback_history.id,
+        talent_info.name,
+        talent_throwback_history.throwback_reason,
+        talent_throwback_history.remark,
+        talent_private.user_id,
+        user.name as username,
+        talent_throwback_history.create_time as sendAuditTime,
+        talent_throwback_history.audit_status,
+        talent_throwback_history.audit_time
+        from talent_throwback_history
+        inner join (
+        select talent_throwback_history.id from talent_throwback_history
+        left join talent_private
+        on talent_private.id = talent_throwback_history.private_id
+        where talent_throwback_history.audit_status = #{req.auditStatus}
+        <if test="userId != null">
+            and talent_private.user_id = #{userId}
+        </if>
+        <if test="req.startTime != null and req.startTime != ''">
+            and talent_throwback_history.create_time >= #{req.startTime}
+        </if>
+        <if test="req.endTime != null and req.endTime != ''">
+            and talent_throwback_history.create_time &lt;= #{req.endTime}
+        </if>
+        order by talent_throwback_history.create_time desc
+        ) as temp
+        on talent_throwback_history.id = temp.id
+        left join talent_private
+        on talent_throwback_history.private_id = talent_private.id
+        left join talent_info
+        on talent_info.id = talent_throwback_history.info_id
+        left join user
+        on user.id = talent_private.user_id
+        <if test="req.pageSize != null and req.pageSize != 0">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+
+    <select id="selectAuditListNum" resultType="java.lang.Long">
+        select count(talent_throwback_history.id) from talent_throwback_history
+        left join talent_private
+        on talent_private.id = talent_throwback_history.private_id
+        where talent_throwback_history.audit_status = #{req.auditStatus}
+        <if test="userId != null">
+            and talent_private.user_id = #{userId}
+        </if>
+        <if test="req.startTime != null and req.startTime != ''">
+            and talent_throwback_history.create_time >= #{req.startTime}
+        </if>
+        <if test="req.endTime != null and req.endTime != ''">
+            and talent_throwback_history.create_time &lt;= #{req.endTime}
+        </if>
+    </select>
+
+    <select id="selectFollowupList" resultType="com.liepin.talent.entity.vo.list.GetFollowupListVO">
+        select
+        temp.privateId as id,
+        name,
+        sex,
+        phone,
+        intention,
+        intention,
+        datediff(now(),(select time from talent_private_followup
+        where talent_private_followup.dlt = 'NO'
+        and talent_private_followup.private_id = temp.privateId
+        order by id desc
+        limit 1)) as lostContactDays
+        from talent_info
+        inner join (select id as privateId,info_id as infoId from talent_private
+        where user_id = #{userId}
+        and throwback = 'NO'
+        and status = 'FOLLOWUP'
+        order by id desc ) as temp
+        on temp.infoId = talent_info.id
+        where dlt = 'NO'
+        <if test="req.name != null and req.name != ''">
+            and name = #{req.name}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and phone = #{req.phone}
+        </if>
+        <if test="req.sex != null and req.sex != ''">
+            and sex = #{req.sex}
+        </if>
+        <if test="req.intention != null and req.intention != ''">
+            and intention = #{req.intention}
+        </if>
+        <if test="req.pageSize != null and req.pageSize != 0">
+            <bind name="offset" value="(req.page-1)*req.pageSize"/>
+            limit #{offset},#{req.pageSize}
+        </if>
+    </select>
+
+    <select id="selectFollowupListNum" resultType="java.lang.Long">
+        select
+        count(talent_info.id)
+        from talent_info
+        inner join (select id as privateId,info_id as infoId from talent_private
+        where user_id = #{userId}
+        and throwback = 'NO'
+        and status = 'FOLLOWUP'
+        order by id desc ) as temp
+        on temp.infoId = talent_info.id
+        where dlt = 'NO'
+        <if test="req.name != null and req.name != ''">
+            and name = #{req.name}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and phone = #{req.phone}
+        </if>
+        <if test="req.sex != null and req.sex != ''">
+            and sex = #{req.sex}
+        </if>
+        <if test="req.intention != null and req.intention != ''">
+            and intention = #{req.intention}
+        </if>
+    </select>
+</mapper>
