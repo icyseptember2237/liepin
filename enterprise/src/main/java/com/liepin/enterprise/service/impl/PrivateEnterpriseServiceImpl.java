@@ -3,7 +3,6 @@ package com.liepin.enterprise.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.liepin.auth.constant.RoleType;
-import com.liepin.auth.entity.base.User;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
@@ -15,10 +14,9 @@ import com.liepin.enterprise.entity.vo.req.*;
 import com.liepin.enterprise.entity.vo.resp.*;
 import com.liepin.enterprise.mapper.EnterpriseMapper;
 import com.liepin.enterprise.mapper.PrivateEnterpriseMapper;
-import com.liepin.enterprise.mapper.base.SendToMapper;
+import com.liepin.enterprise.mapper.base.EnterpriseSendToMapper;
 import com.liepin.enterprise.service.PrivateEnterpriseService;
 import com.liepin.enterprise.service.base.impl.*;
-import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -26,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -47,15 +42,15 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
 
     private final EnterpriseMapper enterpriseMapper;
 
-    private final SendToServiceImpl sendToService;
+    private final EnterpriseSendToServiceImpl sendToService;
 
-    private final SendToMapper sendToMapper;
+    private final EnterpriseSendToMapper sendToMapper;
 
     @Autowired
-    public PrivateEnterpriseServiceImpl(PrivateEnterpriseMapper privateEnterpriseMapper,EnterprisePrivateServiceImpl enterprisePrivateService,
-                                        EnterpriseInfoServiceImpl enterpriseInfoService,EnterpriseThrowbackHistoryServiceImpl enterpriseThrowbackHistoryService,
-                                        EnterprisePrivateFollowupServiceImpl enterprisePrivateFollowupService,EnterpriseMapper enterpriseMapper,
-                                        SendToServiceImpl sendToService,SendToMapper sendToMapper){
+    public PrivateEnterpriseServiceImpl(PrivateEnterpriseMapper privateEnterpriseMapper, EnterprisePrivateServiceImpl enterprisePrivateService,
+                                        EnterpriseInfoServiceImpl enterpriseInfoService, EnterpriseThrowbackHistoryServiceImpl enterpriseThrowbackHistoryService,
+                                        EnterprisePrivateFollowupServiceImpl enterprisePrivateFollowupService, EnterpriseMapper enterpriseMapper,
+                                        EnterpriseSendToServiceImpl sendToService, EnterpriseSendToMapper sendToMapper){
         this.sendToMapper = sendToMapper;
         this.sendToService = sendToService;
         this.enterpriseMapper = enterpriseMapper;

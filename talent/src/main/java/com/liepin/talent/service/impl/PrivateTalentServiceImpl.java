@@ -18,7 +18,7 @@ import com.liepin.talent.entity.vo.resp.GetNotContactRespVO;
 import com.liepin.talent.entity.vo.resp.GetSendHistoryRespVO;
 import com.liepin.talent.mapper.PrivateTalentMapper;
 import com.liepin.talent.mapper.TalentMapper;
-import com.liepin.talent.mapper.base.SendToMapper;
+import com.liepin.talent.mapper.base.TalentSendToMapper;
 import com.liepin.talent.service.PrivateTalentService;
 import com.liepin.talent.service.base.*;
 import org.apache.commons.lang3.ObjectUtils;
@@ -38,15 +38,15 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     private final TalentPrivateService talentPrivateService;
     private final TalentInfoService talentInfoService;
     private final TalentPrivateFollowupService talentPrivateFollowupService;
-    private final SendToService sendToService;
-    private final SendToMapper sendToMapper;
+    private final TalentSendToService sendToService;
+    private final TalentSendToMapper sendToMapper;
     private final TalentMapper talentMapper;
 
     @Autowired
-    public PrivateTalentServiceImpl(PrivateTalentMapper privateTalentMapper,TalentThrowbackHistoryService talentThrowbackHistoryService,
-                                    TalentPrivateService talentPrivateService,TalentInfoService talentInfoService,
-                                    TalentPrivateFollowupService talentPrivateFollowupService,SendToService sendToService,
-                                    SendToMapper sendToMapper,TalentMapper talentMapper){
+    public PrivateTalentServiceImpl(PrivateTalentMapper privateTalentMapper, TalentThrowbackHistoryService talentThrowbackHistoryService,
+                                    TalentPrivateService talentPrivateService, TalentInfoService talentInfoService,
+                                    TalentPrivateFollowupService talentPrivateFollowupService, TalentSendToService sendToService,
+                                    TalentSendToMapper sendToMapper, TalentMapper talentMapper){
         this.talentMapper = talentMapper;
         this.sendToMapper = sendToMapper;
         this.sendToService = sendToService;

@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
-public interface SendToMapper extends BaseMapper<SendTo> {
+public interface EnterpriseSendToMapper extends BaseMapper<SendTo> {
     Integer checkDept(@Param("dept") String dept,@Param("toId") Long toId);
 
     List<GetSendListVO> selectSendHistoryList(@Param("req")GetSendHistoryReqVO reqVO, @Param("userId") Long userId);
