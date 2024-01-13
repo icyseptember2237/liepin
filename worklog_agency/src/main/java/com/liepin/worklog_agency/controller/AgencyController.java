@@ -103,7 +103,7 @@ public class AgencyController {
         return agencyService.getSelfAgencyList();
     }
 
-    @SaCheckRole(value = RoleType.MANAGER.code)
+    @SaCheckLogin
     @GetMapping("/getAllAgencyAndId")
     @ApiOperation(value = "管理员获取所有中介和对应id")
     @OperationAspect(detail = "管理员获取所有中介和对应id",type = OperationType.SERACH.value ,module = OperationModule.AGENCY.value)
