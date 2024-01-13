@@ -5,14 +5,16 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("talent_private")
-public class TalentPrivate {
+@TableName("talent_match")
+public class TalentMatch {
     @TableId
     private Long id;
-    private Long userId;
-    private Long infoId;
+    private Long privateId;
     private String createTime;
     private String status;
-    private String sendStatus;
-    private String throwback;
+    private Long matchId;
+    private Long auditId;
+    private String auditTime;
+    private String dlt;
+
 }

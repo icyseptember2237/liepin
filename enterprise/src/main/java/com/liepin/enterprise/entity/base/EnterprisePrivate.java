@@ -11,5 +11,6 @@ public class EnterprisePrivate {
     private Long infoId;
     private String createTime;
     private String status;
+    private String sendStatus;
     private String throwback;
 }

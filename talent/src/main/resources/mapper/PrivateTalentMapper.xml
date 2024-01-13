@@ -18,6 +18,7 @@
         on talent_info.id = talent_private.info_id
         where talent_private.throwback = 'NO'
         and talent_private.status = 'NOT_CONTACT'
+        and talent_private.send_status = 'NO'
         <if test="userId != null and userId != 0">
             and talent_private.user_id = #{userId}
         </if>
@@ -49,6 +50,7 @@
         on talent_info.id = talent_private.info_id
         where talent_private.throwback = 'NO'
         and talent_private.status = 'NOT_CONTACT'
+        and talent_private.send_status = 'NO'
         <if test="userId != null and userId != 0">
             and talent_private.user_id = #{userId}
         </if>
@@ -136,6 +138,7 @@
         from talent_info
         inner join (select id as privateId,info_id as infoId from talent_private
         where user_id = #{userId}
+        and send_status = 'NO'
         and throwback = 'NO'
         and status = 'FOLLOWUP'
         order by id desc ) as temp
@@ -165,6 +168,7 @@
         from talent_info
         inner join (select id as privateId,info_id as infoId from talent_private
         where user_id = #{userId}
+        and send_status = 'NO'
         and throwback = 'NO'
         and status = 'FOLLOWUP'
         order by id desc ) as temp

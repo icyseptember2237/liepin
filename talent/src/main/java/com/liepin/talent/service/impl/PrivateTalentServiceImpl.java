@@ -8,6 +8,8 @@ import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
+import com.liepin.talent.constant.SendStatus;
+import com.liepin.talent.constant.TalentMatchStatus;
 import com.liepin.talent.constant.TalentPrivateStatus;
 import com.liepin.talent.entity.base.*;
 import com.liepin.talent.entity.vo.list.GetFollowupListVO;
@@ -26,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -41,12 +44,14 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     private final TalentSendToService sendToService;
     private final TalentSendToMapper sendToMapper;
     private final TalentMapper talentMapper;
+    private final TalentMatchService talentMatchService;
 
     @Autowired
     public PrivateTalentServiceImpl(PrivateTalentMapper privateTalentMapper, TalentThrowbackHistoryService talentThrowbackHistoryService,
                                     TalentPrivateService talentPrivateService, TalentInfoService talentInfoService,
                                     TalentPrivateFollowupService talentPrivateFollowupService, TalentSendToService sendToService,
-                                    TalentSendToMapper sendToMapper, TalentMapper talentMapper){
+                                    TalentSendToMapper sendToMapper, TalentMapper talentMapper,TalentMatchService talentMatchService){
+        this.talentMatchService = talentMatchService;
         this.talentMapper = talentMapper;
         this.sendToMapper = sendToMapper;
         this.sendToService = sendToService;
@@ -237,6 +242,9 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
                 .eq(SendTo::getPrivateId,reqVO.getPrivateId()));
         AssertUtils.isFalse(ObjectUtils.isEmpty(sendTo),"请勿重复操作");
 
+        talentPrivate.setSendStatus(SendStatus.WAIT.getStatus());
+        talentPrivateService.updateById(talentPrivate);
+
         sendTo = new SendTo();
         sendTo.setPrivateId(reqVO.getPrivateId());
         sendTo.setTalentName(talentInfoService.getById(talentPrivate.getInfoId()).getName());
@@ -276,6 +284,7 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     }
 
     @Override
+    @Transactional
     public Result auditSend(AuditSendReqVO reqVO) {
         String status = reqVO.getStatus();
         AssertUtils.isFalse("PASS".equals(status) || "FAIL".equals(status), ExceptionsEnums.Common.PARAMTER_IS_ERROR);
@@ -287,25 +296,39 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
         sendTo.setAuditRemark(reqVO.getAuditRemark());
         sendTo.setAuditTime(TimeUtil.getNowWithSec());
 
+        Long privateId = sendTo.getPrivateId();
+        TalentPrivate talentPrivate = talentPrivateService.getById(privateId);
+        talentPrivate.setSendStatus(SendStatus.NO.getStatus());
+
         if ("PASS".equals(status)) {
-            Long privateId = sendTo.getPrivateId();
-            TalentPrivate talentPrivate = talentPrivateService.getById(privateId);
             if (!ConstantsEnums.YESNOWAIT.NO.getValue().equals(talentPrivate.getThrowback())) {
                 sendTo.setAuditStatus(ConstantsEnums.AuditStatus.FAIL.getStatus());
-                sendTo.setAuditRemark("审核失败，该人才已扔回公海或扔回公海待审核");
+                sendTo.setAuditRemark("内推失败，该人才已扔回公海或扔回公海待审核");
                 sendToService.updateById(sendTo);
                 return Result.success();
             }
             talentPrivate.setUserId(sendTo.getToId());
-            sendToService.updateById(sendTo);
-            talentPrivateService.updateById(talentPrivate);
         }
+        sendToService.updateById(sendTo);
+        talentPrivateService.updateById(talentPrivate);
         return Result.success();
     }
 
     @Override
     public Result readyMatch(Long id){
+        TalentPrivate talentPrivate = talentPrivateService.getById(id);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(talentPrivate),ExceptionsEnums.Talent.NO_DATA);
+        AssertUtils.isFalse(talentPrivate.getStatus().equals(TalentPrivateStatus.FOLLOWUP),"只能操作跟进中人才");
+        AssertUtils.isFalse(talentPrivate.getUserId() == StpUtil.getLoginIdAsLong(),ExceptionsEnums.Common.NO_PERMISSION);
 
+        talentPrivate.setStatus(TalentPrivateStatus.MATCHING.getStatus());
+        talentPrivateService.updateById(talentPrivate);
+
+        TalentMatch talentMatch = new TalentMatch();
+        talentMatch.setPrivateId(id);
+        talentMatch.setCreateTime(TimeUtil.getNowWithSec());
+        talentMatch.setStatus(TalentMatchStatus.READY.getStatus());
+        talentMatchService.save(talentMatch);
         return Result.success();
     }
 

@@ -15,6 +15,6 @@ public enum EnterprisePrivateStatus {
     // 待匹配
     WAIT_MATCH("WAIT_MATCH"),
     // 匹配中
-    MATCHING("MATCHING");
+    MATCHING("MATCHING");   
     private String status;
 }

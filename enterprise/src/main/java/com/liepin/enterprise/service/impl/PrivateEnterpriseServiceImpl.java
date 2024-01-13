@@ -9,6 +9,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
 import com.liepin.enterprise.constant.EnterprisePrivateStatus;
+import com.liepin.enterprise.constant.SendStatus;
 import com.liepin.enterprise.entity.base.*;
 import com.liepin.enterprise.entity.vo.req.*;
 import com.liepin.enterprise.entity.vo.resp.*;
@@ -246,6 +247,9 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
                 .eq(SendTo::getPrivateId,reqVO.getPrivateId()));
         AssertUtils.isFalse(ObjectUtils.isEmpty(sendTo),"请勿重复操作");
 
+        enterprisePrivate.setSendStatus(SendStatus.WAIT.getStatus());
+        enterprisePrivateService.updateById(enterprisePrivate);
+
         sendTo = new SendTo();
         sendTo.setPrivateId(reqVO.getPrivateId());
         sendTo.setEnterpriseName(enterpriseInfoService.getById(enterprisePrivate.getInfoId()).getName());
@@ -285,6 +289,7 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
     }
 
     @Override
+    @Transactional
     public Result auditSend(AuditSendReqVO reqVO){
         String status = reqVO.getStatus();
         AssertUtils.isFalse("PASS".equals(status) || "FAIL".equals(status),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
@@ -296,19 +301,21 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         sendTo.setAuditRemark(reqVO.getAuditRemark());
         sendTo.setAuditTime(TimeUtil.getNowWithSec());
 
+        Long privateId = sendTo.getPrivateId();
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(privateId);
+        enterprisePrivate.setSendStatus(SendStatus.NO.getStatus());
+
         if ("PASS".equals(status)){
-            Long privateId = sendTo.getPrivateId();
-            EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(privateId);
             if (!ConstantsEnums.YESNOWAIT.NO.getValue().equals(enterprisePrivate.getThrowback())){
                 sendTo.setAuditStatus(ConstantsEnums.AuditStatus.FAIL.getStatus());
-                sendTo.setAuditRemark("审核失败，该单位已扔回公海或扔回公海待审核");
+                sendTo.setAuditRemark("内推失败，该单位已扔回公海或扔回公海待审核");
                 sendToService.updateById(sendTo);
                 return Result.success();
             }
             enterprisePrivate.setUserId(sendTo.getToId());
-            sendToService.updateById(sendTo);
-            enterprisePrivateService.updateById(enterprisePrivate);
         }
+        sendToService.updateById(sendTo);
+        enterprisePrivateService.updateById(enterprisePrivate);
         return Result.success();
     }
 }
