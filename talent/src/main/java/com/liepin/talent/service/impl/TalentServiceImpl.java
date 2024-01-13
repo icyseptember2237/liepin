@@ -138,7 +138,7 @@ public class TalentServiceImpl implements TalentService {
     }
 
     @Override
-    @Transactional
+
     public Result pullTalent(PullTalentReqVO reqVO) {
         AssertUtils.isFalse(!reqVO.getList().isEmpty(), ExceptionsEnums.Common.PARAMTER_IS_ERROR);
         ArrayList<Long> res = new ArrayList<>();
@@ -155,6 +155,7 @@ public class TalentServiceImpl implements TalentService {
                 res.add(id);
                 try {
                     JSONObject object = (JSONObject) redisTemplate.opsForList().rightPop("TalentList");
+                    log.info(object.toString());
                     if (ObjectUtils.isNotEmpty(object)) {
                         map = new HashMap<>();
                         Iterator it = object.entrySet().iterator();
@@ -163,7 +164,7 @@ public class TalentServiceImpl implements TalentService {
                             map.put(entry.getKey(), entry.getValue().longValue());
                         }
                         Long userId = map.get("userId");
-                        Long talentId = map.get("talentId");
+                        Long talentId = map.get("TalentId");
                         info = talentInfoService.getById(talentId);
                         info.setIsPrivate(ConstantsEnums.YESNOWAIT.YES.getValue());
                         talentInfoService.updateById(info);
