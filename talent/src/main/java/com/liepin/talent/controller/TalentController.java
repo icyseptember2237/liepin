@@ -7,6 +7,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.talent.entity.vo.req.AddTalentReqVO;
 import com.liepin.talent.entity.vo.req.AlterTalentReqVO;
 import com.liepin.talent.entity.vo.req.GetTalentListReqVO;
+import com.liepin.talent.entity.vo.req.PullTalentReqVO;
 import com.liepin.talent.entity.vo.resp.GetTalentInfoRespVO;
 import com.liepin.talent.entity.vo.resp.GetTalentListRespVO;
 import com.liepin.talent.entity.vo.resp.ImportTalentRespVO;
@@ -72,10 +73,10 @@ public class TalentController {
         return talentService.deleteTalent(id);
     }
 
-    @GetMapping("/pullTalent")
+    @PostMapping("/pullTalent")
     @ApiOperation(value = "拉入私人人才库")
     @SaCheckRole(value = RoleType.TALENT.code)
-    public Result pullTalent(@Parameter(description = "公海id") @RequestParam Long id){
-        return talentService.pullTalent(id);
+    public Result pullTalent(@RequestBody PullTalentReqVO reqVO){
+        return talentService.pullTalent(reqVO);
     }
 }

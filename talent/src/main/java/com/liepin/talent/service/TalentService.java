@@ -4,6 +4,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.talent.entity.vo.req.AddTalentReqVO;
 import com.liepin.talent.entity.vo.req.AlterTalentReqVO;
 import com.liepin.talent.entity.vo.req.GetTalentListReqVO;
+import com.liepin.talent.entity.vo.req.PullTalentReqVO;
 import com.liepin.talent.entity.vo.resp.GetTalentInfoRespVO;
 import com.liepin.talent.entity.vo.resp.GetTalentListRespVO;
 import com.liepin.talent.entity.vo.resp.ImportTalentRespVO;
@@ -25,5 +26,5 @@ public interface TalentService {
 
     Result deleteTalent(Long id);
 
-    Result pullTalent(Long id);
+    Result pullTalent(PullTalentReqVO reqVO);
 }
