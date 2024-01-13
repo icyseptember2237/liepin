@@ -79,7 +79,10 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
 
     @Override
     public Result<WorkLogRes> getLastWorkLog(long loginId) {
+
+
         WorkLog workLog = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getUserId, loginId).orderByDesc(WorkLog::getUpdateTime).last("limit 1"));
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLog), ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
         Long logId = workLog.getId();
 
         WorkLogRes workLogRes = logMapper.getWorkLogResByLogId(logId);

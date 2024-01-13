@@ -54,6 +54,7 @@ public class OperationLogAspect {
             operationLog.setOperationDetail(annotation.detail());
             operationLog.setOperatorId(StpUtil.getLoginIdAsLong());
             operationLog.setOperationStatus(OperationStatus.SUCCESS.value);
+//TODO 后续测试再开启插入日志，不然太多日志到数据库里了
 
 //            operationLogService.insertOperationLog(operationLog);
 //            AsyncExecutor.getExecutor().schedule(new Thread(() ->{
