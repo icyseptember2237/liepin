@@ -15,7 +15,7 @@ public interface AuthMapper {
 
     List<GetUsersListVO> getUsers(@Param("req") GetUsersReqVO reqVO);
 
-    List<GetColleaguesListVO> getColleagueList(@Param("role") String role);
+    List<GetColleaguesListVO> getColleagueList(@Param("role") String role,@Param("userId") Long userId);
 
     Long getUsersNum(@Param("req") GetUsersReqVO reqVO);
 

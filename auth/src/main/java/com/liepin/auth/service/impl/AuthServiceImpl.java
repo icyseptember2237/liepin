@@ -58,11 +58,11 @@ public class AuthServiceImpl implements AuthService {
         GetColleaguesRespVO respVO = new GetColleaguesRespVO();
         List<String> roles = StpUtil.getRoleList();
         if (roles.contains(RoleType.ENTERPRISE.code)){
-            respVO.setList(authMapper.getColleagueList(RoleType.ENTERPRISE.code));
+            respVO.setList(authMapper.getColleagueList(RoleType.ENTERPRISE.code,StpUtil.getLoginIdAsLong()));
             return Result.success(respVO);
         }
         if (roles.contains(RoleType.TALENT.code)){
-            respVO.setList(authMapper.getColleagueList(RoleType.TALENT.code));
+            respVO.setList(authMapper.getColleagueList(RoleType.TALENT.code,StpUtil.getLoginIdAsLong()));
             return Result.success(respVO);
         }
         return Result.fail();
