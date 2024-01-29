@@ -47,6 +47,7 @@ spring:
       pool-prepared-statements: false
       use-global-data-source-stat: true
       connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+      default-auto-commit: false #关闭自动事务
 
       # Druid stat view
       stat-view-servlet:

@@ -121,11 +121,4 @@ public class PrivateEnterpriseController {
         return enterprisePrivateService.auditSend(reqVO);
     }
 
-    @PostMapping("/enterpriseContract")
-    @ApiOperation(value = "单位部-合同需求")
-    @SaCheckRole(value = RoleType.ENTERPRISE.code)
-    public Result enterpriseContract(@RequestBody EnterpriseContractReqVO reqVO){
-        return null;
-    }
-
 }

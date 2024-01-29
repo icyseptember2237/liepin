@@ -13,7 +13,8 @@ public interface ExceptionsEnums extends Exceptions{
         NO_RESOURCE(500, "请求资源不存在！"),
         DATETIME_BEFORE(500, "开始日期不能小于当前日期！"),
         NO_PERMISSION(500,"权限不足"),
-        NO_DATA(500,"数据不存在");
+        NO_DATA(500,"数据不存在"),
+        FAIL(500,"操作失败");
         private final int code;
         private final String msg;
     }
@@ -97,6 +98,15 @@ public interface ExceptionsEnums extends Exceptions{
     @AllArgsConstructor
     enum AgencyEX implements ExceptionsEnums{
         AGENCY_NOT_FOUND(500,"未找到中介");
+        private final int code;
+        private final String msg;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    enum Contract implements ExceptionsEnums{
+        OVER_NUM(500,"匹配人数过多"),
+        LESS_NUM(500,"合同匹配人数不足");
         private final int code;
         private final String msg;
     }

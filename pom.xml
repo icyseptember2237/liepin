@@ -21,6 +21,7 @@
         <module>worklog_agency</module>
         <module>enterprise</module>
         <module>talent</module>
+        <module>contract</module>
     </modules>
 	<properties>
 		<java.version>1.8</java.version>

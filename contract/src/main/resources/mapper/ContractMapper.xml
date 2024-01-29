@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liepin.contract.mapper.ContractMapper">
+    <select id="selectEnterpriseNameByPrivateId" resultType="java.lang.String" parameterType="java.lang.Long">
+        select enterprise_info.name from enterprise_info
+            right join enterprise_private
+            on enterprise_info.id = enterprise_private.info_id
+        where enterprise_private.id = #{privateId}
+    </select>
+    
+    <select id="selectTalentNameByPrivateId" resultType="java.lang.String" parameterType="java.lang.Long">
+        select talent_info.name from talent_info
+        right join talent_private
+        on talent_private.info_id = talent_info.id
+        where talent_private.id = #{privateId}
+    </select>
+</mapper>

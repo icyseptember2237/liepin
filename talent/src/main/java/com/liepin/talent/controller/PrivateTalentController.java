@@ -120,8 +120,8 @@ public class PrivateTalentController {
         return privateTalentService.auditSend(reqVO);
     }
 
-    @GetMapping("/readyMatch")
-    @ApiOperation(value = "人才部-人才跟进完成进入可匹配状态")
+    @GetMapping("/match")
+    @ApiOperation(value = "人才部-匹配人才")
     @SaCheckRole(value = RoleType.TALENT.code)
     public Result readyMatch(@RequestParam @Parameter(description = "私库id") Long id){
         return privateTalentService.readyMatch(id);
