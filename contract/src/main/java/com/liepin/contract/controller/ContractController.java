@@ -87,11 +87,11 @@ public class ContractController {
         return contractService.getContractInfo(contractId);
     }
 
-    @GetMapping("/getSelfContract")
+    @PostMapping("/getSelfContract")
     @ApiOperation(value = "单位部-查看自己的合同")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
-    public Result<GetSelfContractRespVO> getSelfContract(){
-        return contractService.getSelfContract();
+    public Result<GetSelfContractRespVO> getSelfContract(GetSelfContractReqVO reqVO){
+        return contractService.getSelfContract(reqVO);
     }
 
     @PostMapping("/uploadContract")

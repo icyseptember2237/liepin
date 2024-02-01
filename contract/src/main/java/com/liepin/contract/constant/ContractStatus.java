@@ -9,7 +9,8 @@ public enum ContractStatus {
     READY("READY"),
     MATCHING("MATCHING"),
     WAIT("WAIT"),
-    PASS("PASS");
+    PASS("PASS"),
+    FAIL("FAIL");
     private String status;
 
 }

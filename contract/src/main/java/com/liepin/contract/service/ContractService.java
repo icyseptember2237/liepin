@@ -25,7 +25,7 @@ public interface ContractService {
 
     Result<GetContractInfoRespVO> getContractInfo(Long contractId);
 
-    Result<GetSelfContractRespVO> getSelfContract();
+    Result<GetSelfContractRespVO> getSelfContract(GetSelfContractReqVO reqVO);
 
     Result uploadContract(UploadContractReqVO reqVO);
 

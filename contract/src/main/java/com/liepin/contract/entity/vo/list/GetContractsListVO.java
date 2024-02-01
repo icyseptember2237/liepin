@@ -35,5 +35,5 @@ public class GetContractsListVO {
     @ApiModelProperty(notes = "备注")
     private String remark;
     @ApiModelProperty(notes = "已匹配人数")
-    private Integer matchNum;
+    private Long matchNum;
 }

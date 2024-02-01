@@ -8,6 +8,7 @@ import lombok.Data;
 public class ContractAuditHistory {
     private Long id;
     private Long contractId;
+    private Long userId;
     private String status;
     private Long auditId;
     private String auditTime;

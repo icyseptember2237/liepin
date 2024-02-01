@@ -2,6 +2,8 @@ package com.liepin.contract.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.service.base.UserService;
 import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
@@ -14,6 +16,7 @@ import com.liepin.contract.entity.base.ContractMatch;
 import com.liepin.contract.entity.base.EnterpriseContract;
 import com.liepin.contract.entity.vo.list.ContractMatchInfo;
 import com.liepin.contract.entity.vo.list.GetContractsByPrivateIdListVO;
+import com.liepin.contract.entity.vo.list.GetContractsListVO;
 import com.liepin.contract.entity.vo.list.NewContractListVO;
 import com.liepin.contract.entity.vo.reqvo.*;
 import com.liepin.contract.entity.vo.respvo.*;
@@ -93,6 +96,11 @@ public class ContractServiceImpl implements ContractService {
     public Result newContract(NewContractReqVO reqVO){
         for (NewContractListVO vo : reqVO.getList()){
             EnterpriseContract temp = new EnterpriseContract();
+            AssertUtils.isFalse(ObjectUtils.isNotEmpty(vo.getPrivateId())
+                    && ObjectUtils.isNotEmpty(vo.getContractPrice())
+                    && vo.getPrivateId() > 0
+                    && vo.getContractPrice().intValue() > 0,
+                    ExceptionsEnums.Common.FAIL);
             BeanUtils.copyProperties(vo,temp);
             temp.setUserId(StpUtil.getLoginIdAsLong());
             temp.setContractPrice(vo.getContractPrice().longValue() * 100L);
@@ -104,7 +112,7 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     @Transactional
-    public Result deleteContract( Long id){
+    public Result deleteContract(Long id){
         EnterpriseContract contract = enterpriseContractService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
             && contract.getStatus().equals(ContractStatus.READY.getStatus())
@@ -126,6 +134,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    @Transactional
     public Result SendAudit(Long id){
         EnterpriseContract enterpriseContract = enterpriseContractService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterpriseContract)
@@ -138,11 +147,29 @@ public class ContractServiceImpl implements ContractService {
 
         enterpriseContract.setStatus(ContractStatus.WAIT.getStatus());
         enterpriseContractService.updateById(enterpriseContract);
+        ContractAuditHistory auditHistory = new ContractAuditHistory();
+        auditHistory.setContractId(enterpriseContract.getId());
+        auditHistory.setStatus(ContractStatus.WAIT.getStatus());
+        auditHistory.setUserId(enterpriseContract.getUserId());
+        contractAuditHistoryService.save(auditHistory);
         return Result.success();
     }
 
     @Override
     public Result<GetAuditRespVO> getAudit(GetAuditReqVO reqVO){
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(reqVO.getStatus())
+                && ObjectUtils.isNotEmpty(reqVO.getPage())
+                && ObjectUtils.isNotEmpty(reqVO.getPageSize())
+                && (reqVO.getStatus().equals(ContractStatus.PASS.getStatus())
+                    || reqVO.getStatus().equals(ContractStatus.WAIT.getStatus())
+                    || reqVO.getStatus().equals(ContractStatus.FAIL.getStatus())),
+                ExceptionsEnums.Common.FAIL);
+        Page<ContractAuditHistory> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
+        LambdaQueryWrapper<ContractAuditHistory> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ContractAuditHistory::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
+                    .eq(ContractAuditHistory::getStatus,reqVO.getStatus());
+        if (StpUtil.getRoleList().contains(RoleType.ENTERPRISE.ENTERPRISE.code))
+            queryWrapper.eq(ContractAuditHistory::getUserId,StpUtil.getLoginIdAsLong());
         return null;
     }
 
@@ -157,24 +184,47 @@ public class ContractServiceImpl implements ContractService {
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contractId)
                 && ObjectUtils.isNotEmpty(status)
                 && ObjectUtils.isNotEmpty(contract)
+                && (status.equals(ContractStatus.PASS.getStatus()) || status.equals(ContractStatus.FAIL.getStatus()))
                 && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
                 && contract.getStatus().equals(ContractStatus.WAIT.getStatus()),
                 ExceptionsEnums.Common.FAIL);
 
-        ContractAuditHistory auditHistory  = new ContractAuditHistory();
+        ContractAuditHistory auditHistory = contractAuditHistoryService.getOne(new LambdaQueryWrapper<ContractAuditHistory>()
+                .eq(ContractAuditHistory::getDlt, ConstantsEnums.YESNOWAIT.WAIT.getValue())
+                .eq(ContractAuditHistory::getContractId,contractId));
         auditHistory.setAuditTime(TimeUtil.getNowWithSec());
         auditHistory.setContractId(contractId);
         auditHistory.setAuditId(StpUtil.getLoginIdAsLong());
         auditHistory.setRemark(remark);
+        auditHistory.setStatus(status);
         contractAuditHistoryService.save(auditHistory);
-        contract.setStatus(ContractStatus.PASS.getStatus());
+        contract.setStatus(status);
         enterpriseContractService.updateById(contract);
         return Result.success();
     }
 
     @Override
     public Result<GetContractsRespVO> getContracts(GetContractsReqVO reqVO){
-        return null;
+        List<GetContractsListVO> respList = new ArrayList<>();
+        Page<EnterpriseContract> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
+        LambdaQueryWrapper<EnterpriseContract> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(EnterpriseContract::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
+                    .eq(EnterpriseContract::getStatus,ContractStatus.READY.getStatus())
+                    .eq(ObjectUtils.isNotEmpty(reqVO.getPrivateId()),EnterpriseContract::getPrivateId,reqVO.getPrivateId())
+                    .eq(ObjectUtils.isNotEmpty(reqVO.getUserId()),EnterpriseContract::getUserId,reqVO.getUserId());
+        enterpriseContractService.page(page,queryWrapper);
+        page.getRecords().stream().forEach(contract -> {
+            GetContractsListVO temp = new GetContractsListVO();
+            BeanUtils.copyProperties(contract,temp);
+            temp.setMatchNum(contractMatchService.count(new LambdaQueryWrapper<ContractMatch>()
+                    .eq(ContractMatch::getContractId,contract.getId())
+                    .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())));
+            respList.add(temp);
+        });
+        GetContractsRespVO respVO = new GetContractsRespVO();
+        respVO.setList(respList);
+        respVO.setTotal(page.getTotal());
+        return Result.success(respVO);
     }
 
     @Override
@@ -205,7 +255,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public Result<GetSelfContractRespVO> getSelfContract(){
+    public Result<GetSelfContractRespVO> getSelfContract(GetSelfContractReqVO reqVO){
         GetSelfContractRespVO respVO = new GetSelfContractRespVO();
         List<GetContractInfoRespVO> list = new ArrayList<>();
         enterpriseContractService.list(
