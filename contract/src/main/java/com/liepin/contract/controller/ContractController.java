@@ -51,15 +51,15 @@ public class ContractController {
     }
 
     @GetMapping("/sendAudit")
-    @ApiOperation(value = "单位部-合同提交审批")
-    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    @ApiOperation(value = "人才部-合同提交审批")
+    @SaCheckRole(value = RoleType.TALENT.code)
     @LockContract
     public Result SendAudit(@RequestParam @Parameter(description = "合同id") Long contractId){
         return contractService.SendAudit(contractId);
     }
 
     @PostMapping("/getAudit")
-    @ApiOperation(value = "总经办、单位部-获取合同审核记录")
+    @ApiOperation(value = "总经办、单位部-根据状态获取合同")
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     public Result<GetAuditRespVO> getAudit(@RequestBody GetAuditReqVO reqVO){
         return contractService.getAudit(reqVO);
@@ -74,8 +74,8 @@ public class ContractController {
     }
 
     @PostMapping("/getContracts")
-    @ApiOperation(value = "人才部-获取匹配中合同")
-    @SaCheckRole(value = RoleType.TALENT.code)
+    @ApiOperation(value = "所有-获取匹配中合同")
+    @SaCheckLogin
     public Result<GetContractsRespVO> getContracts(@RequestBody GetContractsReqVO reqVO){
         return contractService.getContracts(reqVO);
     }
@@ -111,7 +111,7 @@ public class ContractController {
     }
 
     @PostMapping("/cancelMatch")
-    @ApiOperation(value = "单位部-取消人才匹配")
+    @ApiOperation(value = "人才部-取消人才匹配")
     @SaCheckRole(value = RoleType.TALENT.code)
     @LockContract
     public Result cancelMatch(@RequestBody CancelMatchReqVO reqVO){

@@ -25,6 +25,8 @@ import com.liepin.contract.service.ContractService;
 import com.liepin.contract.service.base.ContractAuditHistoryService;
 import com.liepin.contract.service.base.ContractMatchService;
 import com.liepin.contract.service.base.EnterpriseContractService;
+import com.liepin.enterprise.entity.base.EnterprisePrivate;
+import com.liepin.enterprise.service.base.EnterprisePrivateService;
 import com.liepin.talent.constant.TalentPrivateStatus;
 import com.liepin.talent.entity.base.TalentPrivate;
 import com.liepin.talent.service.base.TalentPrivateService;
@@ -49,11 +51,14 @@ public class ContractServiceImpl implements ContractService {
     private final TalentPrivateService talentPrivateService;
     private final ContractMapper contractMapper;
     private final ContractAuditHistoryService contractAuditHistoryService;
+    private final EnterprisePrivateService enterprisePrivateService;
 
     @Autowired
     public ContractServiceImpl(EnterpriseContractService enterpriseContractService,UserService userService,
                                ContractMatchService contractMatchService,TalentPrivateService talentPrivateService,
-                               ContractMapper contractMapper,ContractAuditHistoryService contractAuditHistoryService){
+                               ContractMapper contractMapper,ContractAuditHistoryService contractAuditHistoryService,
+                               EnterprisePrivateService enterprisePrivateService){
+        this.enterprisePrivateService = enterprisePrivateService;
         this.contractAuditHistoryService = contractAuditHistoryService;
         this.contractMapper = contractMapper;
         this.talentPrivateService = talentPrivateService;
@@ -216,6 +221,8 @@ public class ContractServiceImpl implements ContractService {
         page.getRecords().stream().forEach(contract -> {
             GetContractsListVO temp = new GetContractsListVO();
             BeanUtils.copyProperties(contract,temp);
+            temp.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(contract.getPrivateId()));
+            temp.setContractPrice(new BigDecimal(contract.getContractPrice()).divide(new BigDecimal(100L)));
             temp.setMatchNum(contractMatchService.count(new LambdaQueryWrapper<ContractMatch>()
                     .eq(ContractMatch::getContractId,contract.getId())
                     .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())));

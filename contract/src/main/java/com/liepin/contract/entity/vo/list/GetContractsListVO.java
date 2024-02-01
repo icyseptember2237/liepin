@@ -8,6 +8,10 @@ import java.math.BigDecimal;
 @Data
 public class GetContractsListVO {
     private Long id;
+    @ApiModelProperty(notes = "单位id")
+    private Long privateId;
+    @ApiModelProperty(notes = "单位名称")
+    private String enterpriseName;
     @ApiModelProperty(notes = "合同款项")
     private String priceType;
     @ApiModelProperty(notes = "合同单价")
@@ -31,7 +35,7 @@ public class GetContractsListVO {
     @ApiModelProperty(notes = "出场要求")
     private String appearanceRequire;
     @ApiModelProperty(notes = "需求数量")
-    private Integer requireNum;
+    private Long requireNum;
     @ApiModelProperty(notes = "备注")
     private String remark;
     @ApiModelProperty(notes = "已匹配人数")
