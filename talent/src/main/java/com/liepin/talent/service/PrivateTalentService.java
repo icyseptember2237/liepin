@@ -29,6 +29,8 @@ public interface PrivateTalentService {
 
     Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO);
 
+    Result<GetFollowupRespVO> getAllFollowup();
+
     Result sendTo(SendToReqVO reqVO);
 
     Result<GetSendHistoryRespVO> getSendHistory(GetSendHistoryReqVO reqVO);

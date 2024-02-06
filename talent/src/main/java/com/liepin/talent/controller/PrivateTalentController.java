@@ -92,6 +92,13 @@ public class PrivateTalentController {
         return privateTalentService.getFollowup(reqVO);
     }
 
+    @GetMapping("/getAllFollowup")
+    @ApiOperation(value = "人才部-获取所有跟进中人才")
+    @SaCheckRole(value = RoleType.TALENT.code)
+    public Result<GetFollowupRespVO> getAllFollowup(){
+        return privateTalentService.getAllFollowup();
+    }
+
     @PostMapping("/sendTo")
     @ApiOperation(value = "人才部-内推")
     @SaCheckRole(value = RoleType.TALENT.code)

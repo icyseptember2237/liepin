@@ -227,6 +227,14 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     }
 
     @Override
+    public Result<GetFollowupRespVO> getAllFollowup(){
+        GetFollowupRespVO respVO = new GetFollowupRespVO();
+        List<GetFollowupListVO> list = privateTalentMapper.selectAllFollowupList(StpUtil.getLoginIdAsLong());
+        respVO.setList(list);
+        return Result.success(respVO);
+    }
+
+    @Override
     public Result sendTo(SendToReqVO reqVO){
         AssertUtils.isFalse(StpUtil.getLoginIdAsLong() != reqVO.getUserId(),"不能内推给本人");
         AssertUtils.isFalse(sendToMapper.checkDept(RoleType.TALENT.code, reqVO.getUserId()) == 1,"只能内推至部门内部");

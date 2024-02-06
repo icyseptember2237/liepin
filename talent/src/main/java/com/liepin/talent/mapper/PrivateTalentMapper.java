@@ -25,4 +25,6 @@ public interface PrivateTalentMapper {
 
     Long selectFollowupListNum(@Param("req") GetFollowupReqVO reqVO,@Param("userId") Long userId);
 
+    List<GetFollowupListVO> selectAllFollowupList(@Param("userId") Long userId);
+
 }
