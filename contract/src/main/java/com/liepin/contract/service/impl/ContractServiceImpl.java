@@ -203,7 +203,10 @@ public class ContractServiceImpl implements ContractService {
         auditHistory.setRemark(remark);
         auditHistory.setStatus(status);
         contractAuditHistoryService.save(auditHistory);
-        contract.setStatus(status);
+        if (status.equals(ContractStatus.FAIL.getStatus()))
+            contract.setStatus(ContractStatus.READY.getStatus());
+        else
+            contract.setStatus(status);
         enterpriseContractService.updateById(contract);
         return Result.success();
     }
