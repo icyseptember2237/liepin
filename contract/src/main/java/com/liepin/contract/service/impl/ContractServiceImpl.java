@@ -14,10 +14,7 @@ import com.liepin.contract.constant.ContractStatus;
 import com.liepin.contract.entity.base.ContractAuditHistory;
 import com.liepin.contract.entity.base.ContractMatch;
 import com.liepin.contract.entity.base.EnterpriseContract;
-import com.liepin.contract.entity.vo.list.ContractMatchInfo;
-import com.liepin.contract.entity.vo.list.GetContractsByPrivateIdListVO;
-import com.liepin.contract.entity.vo.list.GetContractsListVO;
-import com.liepin.contract.entity.vo.list.NewContractListVO;
+import com.liepin.contract.entity.vo.list.*;
 import com.liepin.contract.entity.vo.reqvo.*;
 import com.liepin.contract.entity.vo.respvo.*;
 import com.liepin.contract.mapper.ContractMapper;
@@ -25,7 +22,6 @@ import com.liepin.contract.service.ContractService;
 import com.liepin.contract.service.base.ContractAuditHistoryService;
 import com.liepin.contract.service.base.ContractMatchService;
 import com.liepin.contract.service.base.EnterpriseContractService;
-import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.service.base.EnterprisePrivateService;
 import com.liepin.talent.constant.TalentPrivateStatus;
 import com.liepin.talent.entity.base.TalentPrivate;
@@ -35,7 +31,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -161,7 +156,7 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    public Result<GetAuditRespVO> getAudit(GetAuditReqVO reqVO){
+    public Result<GetContractAuditRespVO> getAudit(GetContractAuditReqVO reqVO){
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(reqVO.getStatus())
                 && ObjectUtils.isNotEmpty(reqVO.getPage())
                 && ObjectUtils.isNotEmpty(reqVO.getPageSize())
@@ -175,7 +170,49 @@ public class ContractServiceImpl implements ContractService {
                     .eq(ContractAuditHistory::getStatus,reqVO.getStatus());
         if (StpUtil.getRoleList().contains(RoleType.ENTERPRISE.ENTERPRISE.code))
             queryWrapper.eq(ContractAuditHistory::getUserId,StpUtil.getLoginIdAsLong());
-        return null;
+
+        contractAuditHistoryService.page(page,queryWrapper);
+        GetContractAuditRespVO respVO = new GetContractAuditRespVO();
+        List<ContractAuditHistory> contracts = page.getRecords().stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<GetAuditListVO> list = new ArrayList<>();
+        contracts.stream().forEach(contract -> {
+            GetAuditListVO temp = new GetAuditListVO();
+            BeanUtils.copyProperties(contract,temp,"id","dlt");
+            if (temp.getAuditId() != null && temp.getAuditId() > 0){
+                temp.setAuditName(userService.getById(temp.getAuditId()).getName());
+                temp.setUsername(userService.getById(temp.getUserId()).getName());
+            } else {
+                temp.setAuditId(null);
+            }
+            temp.setUsername(userService.getById(temp.getUserId()).getName());
+
+
+            List<ContractMatchInfo> infos = contractMatchService.list(new LambdaQueryWrapper<ContractMatch>()
+                            .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO)
+                            .eq(ContractMatch::getContractId,temp.getContractId()))
+                    .stream()
+                    .map(match -> {
+                        ContractMatchInfo info = new ContractMatchInfo();
+                        BeanUtils.copyProperties(match,info);
+                        info.setUsername(userService.getById(match.getUserId()).getName());
+                        info.setTalentName(contractMapper.selectTalentNameByPrivateId(match.getTalentId()));
+                        return info;
+                    }).collect(Collectors.toList());
+            temp.setMatchInfos(infos);
+
+            EnterpriseContract c = enterpriseContractService.getById(temp.getContractId());
+            temp.setPrivateId(c.getPrivateId());
+            temp.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(temp.getPrivateId()));
+            temp.setUploadContract(c.getUploadContract());
+            temp.setCreateTime(c.getCreateTime());
+            list.add(temp);
+        });
+        respVO.setTotal(new Long(contracts.size()));
+        respVO.setList(list);
+        return Result.success(respVO);
     }
 
     @Override

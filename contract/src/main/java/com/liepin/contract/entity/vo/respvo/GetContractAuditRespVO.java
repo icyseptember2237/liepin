@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GetAuditRespVO {
+public class GetContractAuditRespVO {
     private List<GetAuditListVO> list;
     private Long total;
 }

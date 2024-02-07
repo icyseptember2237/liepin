@@ -4,7 +4,6 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.annotation.SaMode;
 import com.liepin.auth.constant.RoleType;
-import com.liepin.common.config.exception.BusinessException;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.contract.aspect.LockContract;
 import com.liepin.contract.entity.vo.reqvo.*;
@@ -51,17 +50,17 @@ public class ContractController {
     }
 
     @GetMapping("/sendAudit")
-    @ApiOperation(value = "人才部-合同提交审批")
-    @SaCheckRole(value = RoleType.TALENT.code)
+    @ApiOperation(value = "人才部、单位部-合同提交审批")
+    @SaCheckRole(value = {RoleType.TALENT.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
     @LockContract
     public Result SendAudit(@RequestParam @Parameter(description = "合同id") Long contractId){
         return contractService.SendAudit(contractId);
     }
 
     @PostMapping("/getAudit")
-    @ApiOperation(value = "总经办、单位部-根据状态获取合同")
+    @ApiOperation(value = "总经办、单位部-根据审核状态获取合同")
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
-    public Result<GetAuditRespVO> getAudit(@RequestBody GetAuditReqVO reqVO){
+    public Result<GetContractAuditRespVO> getAudit(@RequestBody GetContractAuditReqVO reqVO){
         return contractService.getAudit(reqVO);
     }
 

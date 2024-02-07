@@ -6,7 +6,7 @@
         select user.*, role.role_code,role.role_name from liepin.user
         left join liepin.role on role.id = user.role_id
         where user.dlt = 'NO'
-        and user.username = #{username}
+        and binary user.username = #{username}
     </select>
 
     <select id="getUserRole" resultType="com.liepin.auth.entity.base.Role">
