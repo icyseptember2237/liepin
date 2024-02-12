@@ -115,7 +115,7 @@ public class PrivateTalentController {
 
     @PostMapping("/getSendAudit")
     @ApiOperation(value = "总经办-获取内推记录")
-    @SaCheckRole(value = RoleType.TALENT.code)
+    @SaCheckRole(value = RoleType.MANAGER.code)
     public Result<GetSendHistoryRespVO> getSendAudit(@RequestBody GetSendAuditReqVO reqVO){
         return privateTalentService.getSendAudit(reqVO);
     }

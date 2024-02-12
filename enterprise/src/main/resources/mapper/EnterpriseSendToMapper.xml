@@ -22,7 +22,7 @@
             remark,
             create_time,
             audit_status as status,
-            if(audit_status is not 'WAIT',audit_id,null) as auditId,
+            if(audit_status != 'WAIT',audit_id,null) as auditId,
             (select name from user where user.id = auditId) as auditName,
             audit_remark
         from send_to
@@ -82,7 +82,7 @@
             remark,
             create_time,
             audit_status as status,
-            if(audit_status is not 'WAIT',audit_id,null) as auditId,
+            if(audit_status != 'WAIT',audit_id,null) as auditId,
             (select name from user where user.id = auditId) as auditName,
             audit_remark
         from send_to
