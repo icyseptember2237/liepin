@@ -232,7 +232,8 @@ public class ContractServiceImpl implements ContractService {
                 ExceptionsEnums.Common.FAIL);
 
         ContractAuditHistory auditHistory = contractAuditHistoryService.getOne(new LambdaQueryWrapper<ContractAuditHistory>()
-                .eq(ContractAuditHistory::getDlt, ConstantsEnums.YESNOWAIT.WAIT.getValue())
+                .eq(ContractAuditHistory::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
+                .eq(ContractAuditHistory::getStatus, ConstantsEnums.YESNOWAIT.WAIT.getValue())
                 .eq(ContractAuditHistory::getContractId,contractId));
         auditHistory.setAuditTime(TimeUtil.getNowWithSec());
         auditHistory.setContractId(contractId);
