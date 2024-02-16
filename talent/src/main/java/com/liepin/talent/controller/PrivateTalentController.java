@@ -122,7 +122,7 @@ public class PrivateTalentController {
 
     @PostMapping("/auditSend")
     @ApiOperation(value = "总经办-审核内推")
-    @SaCheckRole(value = RoleType.TALENT.code)
+    @SaCheckRole(value = RoleType.MANAGER.code)
     public Result auditSend(@RequestBody AuditSendReqVO reqVO){
         return privateTalentService.auditSend(reqVO);
     }
