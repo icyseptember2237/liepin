@@ -101,7 +101,7 @@
             and audit_status = #{req.status}
         </if>
         <if test="req.pageSize != null and req.pageSize > 0">
-            <bind name="offset" value="(req.page + 1) * req.pageSize"/>
+            <bind name="offset" value="(req.page - 1) * req.pageSize"/>
             limit #{offset},#{req.pageSize}
         </if>
     </select>

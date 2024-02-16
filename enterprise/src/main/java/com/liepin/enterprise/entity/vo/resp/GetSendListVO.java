@@ -12,7 +12,7 @@ public class GetSendListVO {
     @ApiModelProperty(notes = "单位私库id")
     private Long privateId;
     @ApiModelProperty(notes = "单位名称")
-    private Long enterpriseName;
+    private String enterpriseName;
     @ApiModelProperty(notes = "送出人id")
     private Long fromId;
     @ApiModelProperty(notes = "送出人姓名")
