@@ -18,8 +18,9 @@
     <select id="commitWorkLog" resultType="java.lang.Boolean">
         select count(work_log.id) from work_log
         where dlt = 'NO'
-        and date(create_time) = date(date_sub(now(),interval 1 day))
-        and weekday(date(date_sub(now(),interval 1 day))) &lt; 5
+        and if(weekday(date(now())) < 5,
+        if(weekday(date(now())) = 0,date(create_time) = date(date_sub(now(),interval 3 day)),date(create_time) = date(date_sub(now(),interval 1 day))),
+        1 = 1)
         and user_id = #{userId}
     </select>
 </mapper>

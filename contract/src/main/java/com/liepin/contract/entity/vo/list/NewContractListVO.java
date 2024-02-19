@@ -24,7 +24,7 @@ public class NewContractListVO {
     @ApiModelProperty(notes = "聘用周期")
     private Integer hireTime;
     @ApiModelProperty(notes = "需求本数")
-    private Integer requireNum;
+    private Long requireNum;
     @ApiModelProperty(notes = "合同单价")
     private BigDecimal contractPrice;
     @ApiModelProperty(notes = "任职类型")
