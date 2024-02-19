@@ -61,7 +61,7 @@ public class CommonController {
 
 
     }
-    @SaCheckLogin
+
     @GetMapping("/getTalentBasicConfig")
     @ApiOperation(value = "获取人才基本配置")
     public Result<GetTalentBasicConfigResVO> getTalentBasicConfig(){
