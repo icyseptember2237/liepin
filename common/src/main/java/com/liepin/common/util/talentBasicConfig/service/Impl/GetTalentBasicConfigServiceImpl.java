@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class GetTalentBasicConfigServiceImpl extends ServiceImpl<TalentBasicConfigMapper, GetTalentBasicConfigResVO> implements GetTalentBasicConfigService {
+public class GetTalentBasicConfigServiceImpl implements GetTalentBasicConfigService {
     @Autowired
     TalentBasicConfigMapper talentBasicConfigMapper;
     @Override

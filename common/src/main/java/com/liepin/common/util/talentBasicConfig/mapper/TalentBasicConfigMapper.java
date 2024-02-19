@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 @Mapper
-public interface TalentBasicConfigMapper extends BaseMapper<GetTalentBasicConfigResVO> {
+public interface TalentBasicConfigMapper {
     CertificationDetail getCertificateMajor();
 
     List<String> getProfeesionCertificate();
