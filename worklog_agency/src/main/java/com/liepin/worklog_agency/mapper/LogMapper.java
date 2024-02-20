@@ -16,15 +16,15 @@ public interface LogMapper extends BaseMapper<WorkLog> {
 
     WorkLogRespVo getWorkLog(@Param("loginId") Long loginId,@Param("createTime") String createTime);
 
-    List<WorkLogProblem> getWorkLogProblem( Long loginId);
+    List<WorkLogProblem> getWorkLogProblem(@Param("loginId") Long loginId);
 
-    void insertWorkLog(WorkLog workLog);
+    void insertWorkLog(@Param("workLog") WorkLog workLog);
 
-    WorkLogRes getWorkLogRes(Long loginId,String dayTime);
+    WorkLogRes getWorkLogRes(@Param("loginId") Long loginId,@Param("dayTime") String dayTime);
 
-    List<WorkLogProblemRes> getWorkLogProblemList(Long loginId, String dayTime);
+    List<WorkLogProblemRes> getWorkLogProblemList(@Param("loginId") Long loginId, String dayTime);
 
-    WorkLogRes getWorkLogResByLogId(Long logId);
+    WorkLogRes getWorkLogResByLogId(@Param("loginId") Long logId);
 
-    List<WorkLogProblemRes> getWorkLogProblemListById(Long logId);
+    List<WorkLogProblemRes> getWorkLogProblemListById(@Param("loginId") Long logId);
 }
