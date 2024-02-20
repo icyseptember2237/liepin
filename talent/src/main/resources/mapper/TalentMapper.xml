@@ -11,8 +11,8 @@
              where agency.id = agencyId) as agencyName,
             talent_info.phone,
             talent_info.sex,
-            talent_info.certificate_type,
-            talent_info.certificate_major,
+            talent_info.certificate_type_1,
+            talent_info.certificate_major_1,
             talent_info.hire_type
         from talent_info
         inner join
@@ -32,10 +32,10 @@
                  and type = #{req.type}
              </if>
              <if test="req.certificateType != null and req.certificateType != ''">
-                 and certificate_type = #{req.certificateType}
+                 and (certificate_type_1 = #{req.certificateType} or certificate_type_2 = #{req.certificateType} or certificate_type_3 = #{req.certificateType})
              </if>
              <if test="req.certificateMajor != null and req.certificateMajor != ''">
-                 and certificate_major = #{req.certificateMajor}
+                 and (certificate_major_1 = #{req.certificateMajor} or certificate_major_2 = #{req.certificateMajor} or certificate_major_3 = #{req.certificateMajor})
              </if>
              order by id desc ) as temp
         on temp.id = talent_info.id
@@ -60,10 +60,10 @@
             and type = #{req.type}
         </if>
         <if test="req.certificateType != null and req.certificateType != ''">
-            and certificate_type = #{req.certificateType}
+            and (certificate_type_1 = #{req.certificateType} or certificate_type_2 = #{req.certificateType} or certificate_type_3 = #{req.certificateType})
         </if>
         <if test="req.certificateMajor != null and req.certificateMajor != ''">
-            and certificate_major = #{req.certificateMajor}
+            and (certificate_major_1 = #{req.certificateMajor} or certificate_major_2 = #{req.certificateMajor} or certificate_major_3 = #{req.certificateMajor})
         </if>
         order by id desc
     </select>
@@ -73,7 +73,7 @@
             into table talent_info
             fields terminated by ','
             lines terminated by '\n'
-            (name,phone,sex,create_time,certificate_type,certificate_major);
+            (name,phone,sex,create_time,certificate_type_1,certificate_major_1,certificate_type_2,certificate_major_2,certificate_type_3,certificate_major_3);
     </insert>
 
     <select id="getFollowupHistory" resultType="com.liepin.talent.entity.vo.resp.FollowupHistory">

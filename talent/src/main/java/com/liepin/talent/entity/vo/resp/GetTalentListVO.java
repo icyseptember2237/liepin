@@ -20,9 +20,9 @@ public class GetTalentListVO {
     @ApiModelProperty(notes = "性别")
     private String sex;
     @ApiModelProperty(notes = "证书类型")
-    private String certificateType;
+    private String certificateType1;
     @ApiModelProperty(notes = "证书专业")
-    private String certificateMajor;
+    private String certificateMajor1;
     @ApiModelProperty(notes = "任职类型")
     private String hireType;
 }
