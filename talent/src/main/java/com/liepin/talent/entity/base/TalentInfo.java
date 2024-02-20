@@ -59,7 +59,7 @@ public class TalentInfo implements Serializable {
     private String certificateType1;
 
     @ApiModelProperty(notes = "证书专业/等级1")
-    @ExcelProperty(value = "证书专业1",index = 5)
+    @ExcelProperty(value = "证书专业/等级1",index = 5)
     @TableField("certificate_major_1")
     private String certificateMajor1;
 
@@ -69,7 +69,7 @@ public class TalentInfo implements Serializable {
     private String certificateType2;
 
     @ApiModelProperty(notes = "证书专业/等级2")
-    @ExcelProperty(value = "证书专业2",index = 7)
+    @ExcelProperty(value = "证书专业/等级2",index = 7)
     @TableField("certificate_major_2")
     private String certificateMajor2;
 
@@ -79,7 +79,7 @@ public class TalentInfo implements Serializable {
     private String certificateType3;
 
     @ApiModelProperty(notes = "证书专业/等级3")
-    @ExcelProperty(value = "证书专业3",index = 9)
+    @ExcelProperty(value = "证书专业/等级3",index = 9)
     @TableField("certificate_major_3")
     private String certificateMajor3;
 
