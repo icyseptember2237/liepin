@@ -116,6 +116,7 @@ public class TalentImportListener extends AnalysisEventListener<TalentInfo> {
         joiner.add(StringUtils.isNotEmpty(info.getCertificateMajor2()) ? info.getCertificateMajor2() : "");
         joiner.add(StringUtils.isNotEmpty(info.getCertificateType3()) ? info.getCertificateType3() : "");
         joiner.add(StringUtils.isNotEmpty(info.getCertificateMajor3()) ? info.getCertificateMajor3() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getIdNum()) ? info.getIdNum() : "");
 
 
         try {

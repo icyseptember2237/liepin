@@ -40,6 +40,7 @@ public class TalentInfo implements Serializable {
     private String phone;
 
     @ApiModelProperty(notes = "身份证号")
+    @ExcelProperty(value = "身份证号",index = 3)
     private String idNum;
 
     @ApiModelProperty(notes = "社保地区")
@@ -53,32 +54,32 @@ public class TalentInfo implements Serializable {
     private String intention;
 
     @ApiModelProperty(notes = "证书类型1")
-    @ExcelProperty(value = "证书类型1",index = 3)
+    @ExcelProperty(value = "证书类型1",index = 4)
     @TableField("certificate_type_1")
     private String certificateType1;
 
     @ApiModelProperty(notes = "证书专业/等级1")
-    @ExcelProperty(value = "证书专业1",index = 4)
+    @ExcelProperty(value = "证书专业1",index = 5)
     @TableField("certificate_major_1")
     private String certificateMajor1;
 
     @ApiModelProperty(notes = "证书类型2")
-    @ExcelProperty(value = "证书类型2",index = 5)
+    @ExcelProperty(value = "证书类型2",index = 6)
     @TableField("certificate_type_2")
     private String certificateType2;
 
     @ApiModelProperty(notes = "证书专业/等级2")
-    @ExcelProperty(value = "证书专业2",index = 6)
+    @ExcelProperty(value = "证书专业2",index = 7)
     @TableField("certificate_major_2")
     private String certificateMajor2;
 
     @ApiModelProperty(notes = "证书类型3")
-    @ExcelProperty(value = "证书类型3",index = 7)
+    @ExcelProperty(value = "证书类型3",index = 8)
     @TableField("certificate_type_3")
     private String certificateType3;
 
     @ApiModelProperty(notes = "证书专业/等级3")
-    @ExcelProperty(value = "证书专业3",index = 8)
+    @ExcelProperty(value = "证书专业3",index = 9)
     @TableField("certificate_major_3")
     private String certificateMajor3;
 

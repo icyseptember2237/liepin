@@ -73,7 +73,7 @@
             into table talent_info
             fields terminated by ','
             lines terminated by '\n'
-            (name,phone,sex,create_time,certificate_type_1,certificate_major_1,certificate_type_2,certificate_major_2,certificate_type_3,certificate_major_3);
+            (name,phone,sex,create_time,certificate_type_1,certificate_major_1,certificate_type_2,certificate_major_2,certificate_type_3,certificate_major_3,id_num);
     </insert>
 
     <select id="getFollowupHistory" resultType="com.liepin.talent.entity.vo.resp.FollowupHistory">
