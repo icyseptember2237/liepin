@@ -26,5 +26,5 @@ public interface LogMapper extends BaseMapper<WorkLog> {
 
     WorkLogRes getWorkLogResByLogId(@Param("logId")Long logId);
 
-    List<WorkLogProblemRes> getWorkLogProblemListById(Long logId);
+    List<WorkLogProblemRes> getWorkLogProblemListById(@Param("logId") Long logId);
 }
