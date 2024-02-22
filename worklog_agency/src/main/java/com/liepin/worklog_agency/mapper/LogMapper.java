@@ -22,7 +22,7 @@ public interface LogMapper extends BaseMapper<WorkLog> {
 
     WorkLogRes getWorkLogRes(@Param("loginId") Long loginId,@Param("dayTime") String dayTime);
 
-    List<WorkLogProblemRes> getWorkLogProblemList(@Param("loginId") Long loginId, String dayTime);
+    List<WorkLogProblemRes> getWorkLogProblemList(@Param("loginId") Long loginId,@Param("dayTime") String dayTime);
 
     WorkLogRes getWorkLogResByLogId(@Param("loginId") Long logId);
 
