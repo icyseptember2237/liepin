@@ -1,6 +1,7 @@
 package com.liepin.common.util.talentBasicConfig.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.liepin.common.entity.BasicConfig;
 import com.liepin.common.util.talentBasicConfig.entity.CertificationDetail;
 import com.liepin.common.util.talentBasicConfig.entity.EntryPair;
 import com.liepin.common.util.talentBasicConfig.entity.GetTalentBasicConfigResVO;
@@ -9,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 @Mapper
-public interface TalentBasicConfigMapper {
+public interface TalentBasicConfigMapper extends BaseMapper<BasicConfig>{
     CertificationDetail getCertificateMajor();
 
     List<String> getProfeesionCertificate();
