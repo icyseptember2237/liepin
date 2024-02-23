@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 
 /**
@@ -40,7 +41,7 @@ public class TalentInfo implements Serializable {
     private String phone;
 
     @ApiModelProperty(notes = "身份证号")
-    @ExcelProperty(value = "身份证号",index = 3)
+    @ExcelProperty(value = "身份证号", index = 3)
     private String idNum;
 
     @ApiModelProperty(notes = "社保地区")
@@ -53,38 +54,27 @@ public class TalentInfo implements Serializable {
     @ApiModelProperty(notes = "意向度")
     private String intention;
 
-    @ApiModelProperty(notes = "证书类型1")
-    @ExcelProperty(value = "证书类型1",index = 4)
-    @TableField("certificate_type_1")
-    private String certificateType1;
+    @ApiModelProperty(notes = "证书类型")
+    @ExcelProperty(value = "证书类型",index = 4)
+    private String certificateType;
 
-    @ApiModelProperty(notes = "证书专业/等级1")
-    @ExcelProperty(value = "证书专业/等级1",index = 5)
-    @TableField("certificate_major_1")
-    private String certificateMajor1;
-
-    @ApiModelProperty(notes = "证书类型2")
-    @ExcelProperty(value = "证书类型2",index = 6)
-    @TableField("certificate_type_2")
-    private String certificateType2;
-
-    @ApiModelProperty(notes = "证书专业/等级2")
-    @ExcelProperty(value = "证书专业/等级2",index = 7)
-    @TableField("certificate_major_2")
-    private String certificateMajor2;
-
-    @ApiModelProperty(notes = "证书类型3")
-    @ExcelProperty(value = "证书类型3",index = 8)
-    @TableField("certificate_type_3")
-    private String certificateType3;
-
-    @ApiModelProperty(notes = "证书专业/等级3")
-    @ExcelProperty(value = "证书专业/等级3",index = 9)
-    @TableField("certificate_major_3")
-    private String certificateMajor3;
+    @ApiModelProperty(notes = "证书专业")
+    @ExcelProperty(value = "证书专业",index = 5)
+    private String certificateMajor;
 
     @ApiModelProperty(notes = "聘用到期时间")
     private String hireEndtime;
+
+    @ApiModelProperty(notes = "职称证书")
+    @ExcelProperty(value = "职称证书", index = 6)
+    private String professionCertificate;
+
+    @ApiModelProperty(notes = "职称等级")
+    @ExcelProperty(value = "职称等级", index = 7)
+    private String professionLevel;
+
+    @ApiModelProperty(notes = "九大员")
+    private String nineMember;
 
     @ApiModelProperty(notes = "任职类型（项目/资质）")
     private String hireType;

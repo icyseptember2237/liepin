@@ -1,6 +1,5 @@
 package com.liepin.talent.entity.vo.req;
 
-import com.alibaba.excel.annotation.ExcelProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -24,31 +23,18 @@ public class FollowupTalentReqVO {
     private String sex;
     @ApiModelProperty(notes = "意向度")
     private String intention;
-    @ApiModelProperty(notes = "证书类型1")
-    @ExcelProperty(value = "证书类型1",index = 3)
-    private String certificateType1;
-
-    @ApiModelProperty(notes = "证书专业/等级1")
-    @ExcelProperty(value = "证书专业1",index = 4)
-    private String certificateMajor1;
-
-    @ApiModelProperty(notes = "证书类型2")
-    @ExcelProperty(value = "证书类型2",index = 5)
-    private String certificateType2;
-
-    @ApiModelProperty(notes = "证书专业/等级2")
-    @ExcelProperty(value = "证书专业2",index = 6)
-    private String certificateMajor2;
-
-    @ApiModelProperty(notes = "证书类型3")
-    @ExcelProperty(value = "证书类型3",index = 7)
-    private String certificateType3;
-
-    @ApiModelProperty(notes = "证书专业/等级3")
-    @ExcelProperty(value = "证书专业3",index = 8)
-    private String certificateMajor3;
+    @ApiModelProperty(notes = "证书类型")
+    private String certificateType;
+    @ApiModelProperty(notes = "证书专业")
+    private String certificateMajor;
     @ApiModelProperty(notes = "聘用到期时间")
     private String hireEndtime;
+    @ApiModelProperty(notes = "职称证书")
+    private String professionCertificate;
+    @ApiModelProperty(notes = "职称等级")
+    private String professionLevel;
+    @ApiModelProperty(notes = "九大员")
+    private String nineMember;
     @ApiModelProperty(notes = "任职类型（项目/资质）")
     private String hireType;
     @ApiModelProperty(notes = "三类证书(A/B/C)")

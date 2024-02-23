@@ -110,13 +110,12 @@ public class TalentImportListener extends AnalysisEventListener<TalentInfo> {
         joiner.add(StringUtils.isNotEmpty(info.getPhone()) ? info.getPhone() : "");
         joiner.add(StringUtils.isNotEmpty(info.getSex()) ? info.getSex() : "");
         joiner.add(TimeUtil.getNowWithSec());
-        joiner.add(StringUtils.isNotEmpty(info.getCertificateType1()) ? info.getCertificateType1() : "");
-        joiner.add(StringUtils.isNotEmpty(info.getCertificateMajor1()) ? info.getCertificateMajor1() : "");
-        joiner.add(StringUtils.isNotEmpty(info.getCertificateType2()) ? info.getCertificateType2() : "");
-        joiner.add(StringUtils.isNotEmpty(info.getCertificateMajor2()) ? info.getCertificateMajor2() : "");
-        joiner.add(StringUtils.isNotEmpty(info.getCertificateType3()) ? info.getCertificateType3() : "");
-        joiner.add(StringUtils.isNotEmpty(info.getCertificateMajor3()) ? info.getCertificateMajor3() : "");
         joiner.add(StringUtils.isNotEmpty(info.getIdNum()) ? info.getIdNum() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getCertificateType()) ? info.getCertificateType() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getCertificateMajor()) ? info.getCertificateMajor() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getProfessionCertificate()) ? info.getProfessionCertificate() : "");
+        joiner.add(StringUtils.isNotEmpty(info.getProfessionLevel()) ? info.getProfessionLevel() : "");
+
 
 
         try {

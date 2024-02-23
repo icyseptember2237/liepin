@@ -3,41 +3,41 @@
 <mapper namespace="com.liepin.talent.mapper.TalentMapper">
     <select id="getTalentList" resultType="com.liepin.talent.entity.vo.resp.GetTalentListVO">
         select
-            talent_info.id,
-            talent_info.name,
-            talent_info.type,
-            talent_info.agency_id as agencyId,
-            (select agency.enterprise_name from agency
-             where agency.id = agencyId) as agencyName,
-            talent_info.phone,
-            talent_info.sex,
-            talent_info.certificate_type_1,
-            talent_info.certificate_major_1,
-            talent_info.hire_type
+        talent_info.id,
+        talent_info.name,
+        talent_info.type,
+        talent_info.agency_id as agencyId,
+        (select agency.enterprise_name from agency
+        where agency.id = agencyId) as agencyName,
+        talent_info.phone,
+        talent_info.sex,
+        talent_info.certificate_type,
+        talent_info.certificate_major,
+        talent_info.hire_type
         from talent_info
         inner join
-            (select id from talent_info
-             where dlt = 'NO'
-                and is_private = 'NO'
-             <if test="req.name != null and req.name != ''">
-                 and name = #{req.name}
-             </if>
-             <if test="req.phone != null and req.phone != ''">
-                 and phone = #{req.phone}
-             </if>
-             <if test="req.sex != null and req.sex != ''">
-                 and sex = #{req.sex}
-             </if>
-             <if test="req.type != null and req.type != ''">
-                 and type = #{req.type}
-             </if>
-             <if test="req.certificateType != null and req.certificateType != ''">
-                 and (certificate_type_1 = #{req.certificateType} or certificate_type_2 = #{req.certificateType} or certificate_type_3 = #{req.certificateType})
-             </if>
-             <if test="req.certificateMajor != null and req.certificateMajor != ''">
-                 and (certificate_major_1 = #{req.certificateMajor} or certificate_major_2 = #{req.certificateMajor} or certificate_major_3 = #{req.certificateMajor})
-             </if>
-             order by id desc ) as temp
+        (select id from talent_info
+        where dlt = 'NO'
+        and is_private = 'NO'
+        <if test="req.name != null and req.name != ''">
+            and name = #{req.name}
+        </if>
+        <if test="req.phone != null and req.phone != ''">
+            and phone = #{req.phone}
+        </if>
+        <if test="req.sex != null and req.sex != ''">
+            and sex = #{req.sex}
+        </if>
+        <if test="req.type != null and req.type != ''">
+            and type = #{req.type}
+        </if>
+        <if test="req.certificateType != null and req.certificateType != ''">
+            and certificate_type = #{req.certificateType}
+        </if>
+        <if test="req.certificateMajor != null and req.certificateMajor != ''">
+            and certificate_major = #{req.certificateMajor}
+        </if>
+        order by id desc ) as temp
         on temp.id = talent_info.id
         <bind name="offset" value="(req.page-1)*req.pageSize"/>
         limit #{offset},#{req.pageSize}
@@ -60,10 +60,10 @@
             and type = #{req.type}
         </if>
         <if test="req.certificateType != null and req.certificateType != ''">
-            and (certificate_type_1 = #{req.certificateType} or certificate_type_2 = #{req.certificateType} or certificate_type_3 = #{req.certificateType})
+            and certificate_type = #{req.certificateType}
         </if>
         <if test="req.certificateMajor != null and req.certificateMajor != ''">
-            and (certificate_major_1 = #{req.certificateMajor} or certificate_major_2 = #{req.certificateMajor} or certificate_major_3 = #{req.certificateMajor})
+            and certificate_major = #{req.certificateMajor}
         </if>
         order by id desc
     </select>
@@ -73,7 +73,7 @@
             into table talent_info
             fields terminated by ','
             lines terminated by '\n'
-            (name,phone,sex,create_time,certificate_type_1,certificate_major_1,certificate_type_2,certificate_major_2,certificate_type_3,certificate_major_3,id_num);
+            (name,phone,sex,create_time,id_num,certificate_type,certificate_major,profession_certificate,profession_level);
     </insert>
 
     <select id="getFollowupHistory" resultType="com.liepin.talent.entity.vo.resp.FollowupHistory">
