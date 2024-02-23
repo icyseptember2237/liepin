@@ -183,7 +183,7 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
         TalentInfo info = talentInfoService.getById(talentPrivateService.getById(id).getInfoId());
 
         BeanUtils.copyProperties(info,respVO);
-        respVO.setList(talentMapper.getFollowupHistory(id,1,5));
+        respVO.setList(talentMapper.getFollowupHistory(info.getId(),1,5));
         return Result.success(respVO);
     }
 
