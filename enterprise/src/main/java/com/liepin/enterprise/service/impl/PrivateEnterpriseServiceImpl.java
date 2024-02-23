@@ -185,7 +185,7 @@ public class PrivateEnterpriseServiceImpl implements PrivateEnterpriseService {
         EnterpriseInfo info = enterpriseInfoService.getById(enterprisePrivateService.getById(id).getInfoId());
 
         BeanUtils.copyProperties(info,respVO);
-        respVO.setList(enterpriseMapper.getFollowupHistory(id,1,5));
+        respVO.setList(enterpriseMapper.getFollowupHistory(info.getId(),1,5));
         return Result.success(respVO);
     }
 
