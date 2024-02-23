@@ -102,34 +102,80 @@ public class GetTalentBasicConfigServiceImpl implements GetTalentBasicConfigServ
         return Result.success(resVO);
     }
 
-//    void generate(HashMap<String,Object> res,List<BasicConfig> configs,Long parentId){
-//        List<BasicConfig> children = configs
-//                .stream()
-//                .filter(basicConfig -> basicConfig.getParentId() == parentId)
+//    void buildTree(Object res,List<BasicConfig> configs, Long parentId,Object parent) {
+//        List<BasicConfig> children = configs.parallelStream()
+//                .filter(basicConfig -> basicConfig.getParentId().equals(parentId))
 //                .collect(Collectors.toList());
+////        System.out.println(configs.size());
+////        System.out.println("parentId: "+parentId+" children: "+ children);
+//
 //        if (children.isEmpty()){
-//            res.add()
+//            if (parent instanceof List)
+//                ((List<Object>)parent).add(configs.stream()
+//                    .filter(basicConfig -> basicConfig.getId().equals(parentId))
+//                    .collect(Collectors.toList())
+//                    .get(0)
+//                    .getValueName());
+//            else{
+//                ((HashMap<String,Object>) parent).remove(configs.stream()
+//                    .filter(basicConfig -> basicConfig.getId().equals(parentId))
+//                    .collect(Collectors.toList())
+//                    .get(0)
+//                    .getValueName());
+//                ((HashMap<String,Object>) parent).put(configs.stream()
+//                    .filter(basicConfig -> basicConfig.getId().equals(parentId))
+//                    .collect(Collectors.toList())
+//                    .get(0)
+//                    .getValueName(),null);
+//            }
+//
 //            return;
 //        }
 //
+//        for (BasicConfig config : children){
+//            Object temp;
+//            if (checkGrandChildEmpty(configs,children)){
+//                temp = new ArrayList<Object>();
+//            } else {
+//                temp = new HashMap<String,Object>();
+//            }
 //
-//        List<Object> temp
+//            buildTree(temp,configs, config.getId(),res);
+//            if (res instanceof HashMap){
+//                ((HashMap<String,Object>)res).put(config.getValueName(),temp);
+//            } else {
+//                ((List<Object>)res).add(temp);
+//            }
+//
+//        }
+//    }
+//
+//    boolean checkGrandChildEmpty(List<BasicConfig> configs,List<BasicConfig> children){
+//        for (BasicConfig config : children){
+//            if (configs.parallelStream()
+//                    .filter(config1 -> config1.getParentId().equals(config.getId()))
+//                    .collect(Collectors.toList())
+//                    .isEmpty())
+//                return true;
+//        }
+//        return false;
 //    }
 
     void buildTree(HashMap<String,Object> res,List<BasicConfig> configs, Long parentId,HashMap<String,Object> parent) {
-        List<BasicConfig> children = configs.stream()
-                .filter(basicConfig -> basicConfig.getParentId() == parentId)
+        List<BasicConfig> children = configs.parallelStream()
+                .filter(basicConfig -> basicConfig.getParentId().equals(parentId))
                 .collect(Collectors.toList());
-        System.out.println("parentId: "+parentId+" children: "+ children);
+//        System.out.println(configs.size());
+//        System.out.println("parentId: "+parentId+" children: "+ children);
 
         if (children.isEmpty()){
             parent.remove(configs.stream()
-                    .filter(basicConfig -> basicConfig.getId() == parentId)
+                    .filter(basicConfig -> basicConfig.getId().equals(parentId))
                     .collect(Collectors.toList())
                     .get(0)
                     .getValueName());
             parent.put(configs.stream()
-                    .filter(basicConfig -> basicConfig.getId() == parentId)
+                    .filter(basicConfig -> basicConfig.getId().equals(parentId))
                     .collect(Collectors.toList())
                     .get(0)
                     .getValueName(),null);
@@ -143,4 +189,5 @@ public class GetTalentBasicConfigServiceImpl implements GetTalentBasicConfigServ
                 res.put(config.getValueName(),temp);
         }
     }
+
 }
