@@ -154,10 +154,9 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
 
     @Override
     public Result addTalent(@RequestBody AddTalentReqVO reqVO){
-        AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getName()),
-                "人才名称不能为空");
-        AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getPhone()),
-                "联系方式不能为空");
+        if (ObjectUtils.isEmpty(reqVO.getName()) || ObjectUtils.isEmpty(reqVO.getSex())
+                || ObjectUtils.isEmpty(reqVO.getPhone()) || ObjectUtils.isEmpty(reqVO.getIdNum()))
+            AssertUtils.throwException(400,"必填参数缺失");
 
         try {
             TalentInfo info = new TalentInfo();
@@ -185,7 +184,7 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
         FollowupInfoRespVO respVO = new FollowupInfoRespVO();
         TalentPrivate talentPrivate = talentPrivateService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(talentPrivate) && talentPrivate.getThrowback().equals(ConstantsEnums.YESNOWAIT.NO.getValue()),ExceptionsEnums.Talent.NO_DATA);
-        TalentInfo info = talentInfoService.getById(talentPrivateService.getById(id).getInfoId());
+        TalentInfo info = talentInfoService.getById(talentPrivate.getInfoId());
 
         BeanUtils.copyProperties(info,respVO);
         if (info.getAgencyId() != 0){
@@ -197,6 +196,10 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
 
     @Override
     public Result followupTalent(FollowupTalentReqVO reqVO){
+        if (ObjectUtils.isEmpty(reqVO.getName()) || ObjectUtils.isEmpty(reqVO.getSex())
+                || ObjectUtils.isEmpty(reqVO.getPhone()) || ObjectUtils.isEmpty(reqVO.getIdNum())
+                || ObjectUtils.isEmpty(reqVO.getId()))
+            AssertUtils.throwException(400,"必填参数缺失");
         TalentPrivate talentPrivate = talentPrivateService.getOne(new LambdaQueryWrapper<TalentPrivate>().eq(TalentPrivate::getId,reqVO.getId())
                 .eq(TalentPrivate::getThrowback,ConstantsEnums.YESNOWAIT.NO));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(talentPrivate),ExceptionsEnums.Talent.NO_DATA);

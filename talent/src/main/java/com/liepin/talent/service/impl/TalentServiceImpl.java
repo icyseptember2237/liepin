@@ -113,6 +113,9 @@ public class TalentServiceImpl implements TalentService {
 
     @Override
     public Result addTalent(AddTalentReqVO reqVO) {
+        if (ObjectUtils.isEmpty(reqVO.getName()) || ObjectUtils.isEmpty(reqVO.getSex())
+        || ObjectUtils.isEmpty(reqVO.getPhone()) || ObjectUtils.isEmpty(reqVO.getIdNum()))
+            AssertUtils.throwException(400,"必填参数缺失");
         TalentInfo info = new TalentInfo();
         BeanUtils.copyProperties(reqVO, info);
         info.setCreateTime(TimeUtil.getNowWithSec());
@@ -122,6 +125,10 @@ public class TalentServiceImpl implements TalentService {
 
     @Override
     public Result alterTalent(AlterTalentReqVO reqVO) {
+        if (ObjectUtils.isEmpty(reqVO.getName()) || ObjectUtils.isEmpty(reqVO.getSex())
+                || ObjectUtils.isEmpty(reqVO.getPhone()) || ObjectUtils.isEmpty(reqVO.getIdNum())
+                ||ObjectUtils.isEmpty(reqVO.getId()))
+            AssertUtils.throwException(400,"必填参数缺失");
         TalentInfo info = talentInfoService.getById(reqVO.getId());
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(info)
                         && ConstantsEnums.YESNOWAIT.NO.getValue().equals(info.getIsPrivate())
