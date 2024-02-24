@@ -11,6 +11,7 @@ import com.liepin.common.entity.UploadRespVO;
 import com.liepin.common.util.operationLog.entity.OperationLogResp;
 import com.liepin.common.util.operationLog.service.OperationLogService;
 import com.liepin.common.util.talentBasicConfig.entity.GetTalentBasicConfigResVO;
+import com.liepin.common.util.talentBasicConfig.entity.Node;
 import com.liepin.common.util.talentBasicConfig.service.GetTalentBasicConfigService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -66,7 +67,7 @@ public class CommonController {
 
     @GetMapping("/getTalentBasicConfig")
     @ApiOperation(value = "获取人才基本配置")
-    public Result<HashMap<String,Object>> getTalentBasicConfig(){
+    public Result<Node> getTalentBasicConfig(){
             return basicConfigService.getTalentBasicConfig();
     }
 
