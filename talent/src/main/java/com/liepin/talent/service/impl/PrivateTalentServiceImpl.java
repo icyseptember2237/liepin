@@ -23,6 +23,7 @@ import com.liepin.talent.mapper.TalentMapper;
 import com.liepin.talent.mapper.base.TalentSendToMapper;
 import com.liepin.talent.service.PrivateTalentService;
 import com.liepin.talent.service.base.*;
+import com.liepin.worklog_agency.service.Impl.AgencyServiceImpl;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -46,11 +47,15 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     private final TalentMapper talentMapper;
     private final TalentMatchService talentMatchService;
 
+    private final AgencyServiceImpl agencyService;
+
     @Autowired
     public PrivateTalentServiceImpl(PrivateTalentMapper privateTalentMapper, TalentThrowbackHistoryService talentThrowbackHistoryService,
                                     TalentPrivateService talentPrivateService, TalentInfoService talentInfoService,
                                     TalentPrivateFollowupService talentPrivateFollowupService, TalentSendToService sendToService,
-                                    TalentSendToMapper sendToMapper, TalentMapper talentMapper,TalentMatchService talentMatchService){
+                                    TalentSendToMapper sendToMapper, TalentMapper talentMapper,TalentMatchService talentMatchService,
+                                    AgencyServiceImpl agencyService){
+        this.agencyService = agencyService;
         this.talentMatchService = talentMatchService;
         this.talentMapper = talentMapper;
         this.sendToMapper = sendToMapper;
@@ -183,6 +188,9 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
         TalentInfo info = talentInfoService.getById(talentPrivateService.getById(id).getInfoId());
 
         BeanUtils.copyProperties(info,respVO);
+        if (info.getAgencyId() != 0){
+            respVO.setAgencyName(agencyService.getById(info.getAgencyId()).getEnterpriseName());
+        }
         respVO.setList(talentMapper.getFollowupHistory(info.getId(),1,5));
         return Result.success(respVO);
     }

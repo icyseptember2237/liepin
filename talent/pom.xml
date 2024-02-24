@@ -30,6 +30,11 @@
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.liepin</groupId>
+            <artifactId>worklog_agency</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -23,6 +23,7 @@ import com.liepin.talent.mapper.TalentMapper;
 import com.liepin.talent.service.TalentService;
 import com.liepin.talent.service.base.impl.TalentInfoServiceImpl;
 import com.liepin.talent.service.base.impl.TalentPrivateServiceImpl;
+import com.liepin.worklog_agency.service.Impl.AgencyServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
@@ -48,9 +49,13 @@ public class TalentServiceImpl implements TalentService {
     private final TalentPrivateServiceImpl talentPrivateService;
     private final RedisTemplate redisTemplate;
 
+    private final AgencyServiceImpl agencyService;
+
     @Autowired
     public TalentServiceImpl(TalentMapper talentMapper, TalentInfoServiceImpl talentInfoService,
-                             TalentPrivateServiceImpl talentPrivateService, RedisTemplate redisTemplate) {
+                             TalentPrivateServiceImpl talentPrivateService, RedisTemplate redisTemplate,
+                             AgencyServiceImpl agencyService) {
+        this.agencyService = agencyService;
         this.redisTemplate = redisTemplate;
         this.talentPrivateService = talentPrivateService;
         this.talentInfoService = talentInfoService;
@@ -72,6 +77,9 @@ public class TalentServiceImpl implements TalentService {
 
         GetTalentInfoRespVO respVO = new GetTalentInfoRespVO();
         BeanUtils.copyProperties(info, respVO);
+        if (info.getAgencyId() != 0){
+            respVO.setAgencyName(agencyService.getById(info.getAgencyId()).getEnterpriseName());
+        }
         respVO.setList(talentMapper.getFollowupHistory(id, 1, 5));
         return Result.success(respVO);
     }
