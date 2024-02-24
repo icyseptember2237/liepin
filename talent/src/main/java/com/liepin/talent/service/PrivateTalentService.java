@@ -2,10 +2,7 @@ package com.liepin.talent.service;
 
 import com.liepin.common.constant.classes.Result;
 import com.liepin.talent.entity.vo.req.*;
-import com.liepin.talent.entity.vo.resp.FollowupInfoRespVO;
-import com.liepin.talent.entity.vo.resp.GetFollowupRespVO;
-import com.liepin.talent.entity.vo.resp.GetNotContactRespVO;
-import com.liepin.talent.entity.vo.resp.GetSendHistoryRespVO;
+import com.liepin.talent.entity.vo.resp.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +28,7 @@ public interface PrivateTalentService {
 
     Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO);
 
-    Result<GetFollowupRespVO> getAllFollowup();
+    Result<GetAllFollowupRespVO> getAllFollowup();
 
     Result sendTo(SendToReqVO reqVO);
 

@@ -12,12 +12,10 @@ import com.liepin.talent.constant.SendStatus;
 import com.liepin.talent.constant.TalentMatchStatus;
 import com.liepin.talent.constant.TalentPrivateStatus;
 import com.liepin.talent.entity.base.*;
+import com.liepin.talent.entity.vo.list.GetAllFollowupListVO;
 import com.liepin.talent.entity.vo.list.GetFollowupListVO;
 import com.liepin.talent.entity.vo.req.*;
-import com.liepin.talent.entity.vo.resp.FollowupInfoRespVO;
-import com.liepin.talent.entity.vo.resp.GetFollowupRespVO;
-import com.liepin.talent.entity.vo.resp.GetNotContactRespVO;
-import com.liepin.talent.entity.vo.resp.GetSendHistoryRespVO;
+import com.liepin.talent.entity.vo.resp.*;
 import com.liepin.talent.mapper.PrivateTalentMapper;
 import com.liepin.talent.mapper.TalentMapper;
 import com.liepin.talent.mapper.base.TalentSendToMapper;
@@ -255,9 +253,9 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     }
 
     @Override
-    public Result<GetFollowupRespVO> getAllFollowup(){
-        GetFollowupRespVO respVO = new GetFollowupRespVO();
-        List<GetFollowupListVO> list = privateTalentMapper.selectAllFollowupList(StpUtil.getLoginIdAsLong());
+    public Result<GetAllFollowupRespVO> getAllFollowup(){
+        GetAllFollowupRespVO respVO = new GetAllFollowupRespVO();
+        List<GetAllFollowupListVO> list = privateTalentMapper.selectAllFollowupList(StpUtil.getLoginIdAsLong());
         respVO.setList(list);
         return Result.success(respVO);
     }

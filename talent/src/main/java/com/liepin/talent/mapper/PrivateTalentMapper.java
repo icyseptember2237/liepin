@@ -1,6 +1,7 @@
 package com.liepin.talent.mapper;
 
 import com.liepin.talent.entity.vo.list.AuditList;
+import com.liepin.talent.entity.vo.list.GetAllFollowupListVO;
 import com.liepin.talent.entity.vo.list.GetFollowupListVO;
 import com.liepin.talent.entity.vo.list.GetNotContactList;
 import com.liepin.talent.entity.vo.req.GetAuditReqVO;
@@ -25,6 +26,6 @@ public interface PrivateTalentMapper {
 
     Long selectFollowupListNum(@Param("req") GetFollowupReqVO reqVO,@Param("userId") Long userId);
 
-    List<GetFollowupListVO> selectAllFollowupList(@Param("userId") Long userId);
+    List<GetAllFollowupListVO> selectAllFollowupList(@Param("userId") Long userId);
 
 }

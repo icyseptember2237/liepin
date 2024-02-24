@@ -4,10 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.talent.entity.vo.req.*;
-import com.liepin.talent.entity.vo.resp.FollowupInfoRespVO;
-import com.liepin.talent.entity.vo.resp.GetFollowupRespVO;
-import com.liepin.talent.entity.vo.resp.GetNotContactRespVO;
-import com.liepin.talent.entity.vo.resp.GetSendHistoryRespVO;
+import com.liepin.talent.entity.vo.resp.*;
 import com.liepin.talent.service.PrivateTalentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -102,7 +99,7 @@ public class PrivateTalentController {
     @GetMapping("/getAllFollowup")
     @ApiOperation(value = "人才部-获取所有跟进中人才")
     @SaCheckRole(value = RoleType.TALENT.code)
-    public Result<GetFollowupRespVO> getAllFollowup(){
+    public Result<GetAllFollowupRespVO> getAllFollowup(){
         return privateTalentService.getAllFollowup();
     }
 
