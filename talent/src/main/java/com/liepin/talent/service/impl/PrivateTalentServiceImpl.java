@@ -196,8 +196,7 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
 
     @Override
     public Result followupTalent(FollowupTalentReqVO reqVO){
-        if (ObjectUtils.isEmpty(reqVO.getName()) || ObjectUtils.isEmpty(reqVO.getSex())
-                || ObjectUtils.isEmpty(reqVO.getPhone()) || ObjectUtils.isEmpty(reqVO.getIdNum())
+        if (ObjectUtils.isEmpty(reqVO.getSex()) || ObjectUtils.isEmpty(reqVO.getPhone())
                 || ObjectUtils.isEmpty(reqVO.getId()))
             AssertUtils.throwException(400,"必填参数缺失");
         TalentPrivate talentPrivate = talentPrivateService.getOne(new LambdaQueryWrapper<TalentPrivate>().eq(TalentPrivate::getId,reqVO.getId())
@@ -211,7 +210,7 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
         }
 
         TalentInfo talentInfo = new TalentInfo();
-        BeanUtils.copyProperties(reqVO, talentInfo,"id");
+        BeanUtils.copyProperties(reqVO, talentInfo,"id","idNum","name");
         talentInfo.setId(talentPrivate.getInfoId());
         talentInfoService.updateById(talentInfo);
 

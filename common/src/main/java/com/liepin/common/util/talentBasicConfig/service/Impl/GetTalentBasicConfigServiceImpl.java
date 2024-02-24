@@ -165,8 +165,6 @@ public class GetTalentBasicConfigServiceImpl implements GetTalentBasicConfigServ
         List<BasicConfig> children = configs.parallelStream()
                 .filter(basicConfig -> basicConfig.getParentId().equals(parentId))
                 .collect(Collectors.toList());
-//        System.out.println(configs.size());
-//        System.out.println("parentId: "+parentId+" children: "+ children);
 
         if (children.isEmpty()){
             parent.remove(configs.stream()

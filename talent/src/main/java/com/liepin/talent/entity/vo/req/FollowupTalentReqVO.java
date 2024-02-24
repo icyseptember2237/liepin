@@ -7,16 +7,12 @@ import lombok.Data;
 public class FollowupTalentReqVO {
     @ApiModelProperty(notes = "私库id")
     private Long id;
-    @ApiModelProperty(notes = "人才姓名")
-    private String name;
     @ApiModelProperty(notes = "客户类型（直接/中介）")
     private String type;
     @ApiModelProperty(notes = "中介表id")
     private Long agencyId;
     @ApiModelProperty(notes = "联系电话")
     private String phone;
-    @ApiModelProperty(notes = "身份证号")
-    private String idNum;
     @ApiModelProperty(notes = "社保地区")
     private String socialInsurance;
     @ApiModelProperty(notes = "性别")
