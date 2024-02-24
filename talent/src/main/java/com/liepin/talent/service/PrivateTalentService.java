@@ -27,6 +27,8 @@ public interface PrivateTalentService {
 
     Result followupTalent(FollowupTalentReqVO reqVO);
 
+    Result uploadIdPic(UploadIdPicReqVO reqVO);
+
     Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO);
 
     Result<GetFollowupRespVO> getAllFollowup();

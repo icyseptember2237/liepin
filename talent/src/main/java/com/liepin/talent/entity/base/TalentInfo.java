@@ -44,6 +44,12 @@ public class TalentInfo implements Serializable {
     @ExcelProperty(value = "身份证号", index = 3)
     private String idNum;
 
+    @ApiModelProperty(notes = "身份证正面")
+    private String idFront;
+
+    @ApiModelProperty(notes = "身份证背面")
+    private String idBack;
+
     @ApiModelProperty(notes = "社保地区")
     private String socialInsurance;
 

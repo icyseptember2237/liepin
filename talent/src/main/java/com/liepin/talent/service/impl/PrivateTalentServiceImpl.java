@@ -226,6 +226,24 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     }
 
     @Override
+    public Result uploadIdPic(@RequestBody UploadIdPicReqVO reqVO){
+        if (ObjectUtils.isEmpty(reqVO.getId()) || ObjectUtils.isEmpty(reqVO.getFrontUrl()) || ObjectUtils.isEmpty(reqVO.getBackUrl()))
+            AssertUtils.throwException(400,"参数缺失");
+        TalentPrivate talentPrivate = talentPrivateService.getOne(new LambdaQueryWrapper<TalentPrivate>()
+                .eq(TalentPrivate::getId,reqVO.getId())
+                .eq(TalentPrivate::getThrowback, ConstantsEnums.YESNOWAIT.NO.getValue()));
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(talentPrivate),ExceptionsEnums.Talent.NO_DATA);
+
+        TalentInfo info = talentInfoService.getById(talentPrivate.getInfoId());
+        info.setIdFront(reqVO.getFrontUrl());
+        info.setIdBack(reqVO.getBackUrl());
+
+        talentInfoService.updateById(info);
+
+        return Result.success();
+    }
+
+    @Override
     public Result<GetFollowupRespVO> getFollowup(GetFollowupReqVO reqVO){
         if (ObjectUtils.isNotEmpty(reqVO.getPageSize()))
             reqVO.setPageSize(Math.min(15,reqVO.getPageSize()));

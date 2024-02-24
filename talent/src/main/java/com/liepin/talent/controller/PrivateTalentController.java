@@ -85,6 +85,13 @@ public class PrivateTalentController {
         return privateTalentService.followupTalent(reqVO);
     }
 
+    @PostMapping("/uploadIdPic")
+    @ApiOperation(value = "人才部-上传身份证照片")
+    @SaCheckRole(value = RoleType.TALENT.code)
+    public Result uploadIdPic(@RequestBody UploadIdPicReqVO reqVO){
+        return privateTalentService.uploadIdPic(reqVO);
+    }
+
     @PostMapping("/getFollowup")
     @ApiOperation(value = "人才部-获取跟进中人才列表")
     @SaCheckRole(value = RoleType.TALENT.code)
