@@ -10,6 +10,7 @@ public interface ExceptionsEnums extends Exceptions{
     enum Common implements ExceptionsEnums {
         DATA_IS_ERROR(500, "数据错误!"),
         PARAMTER_IS_ERROR(500, "参数不正确！"),
+        PARAM_LACK(400,"参数缺失"),
         NO_RESOURCE(500, "请求资源不存在！"),
         DATETIME_BEFORE(500, "开始日期不能小于当前日期！"),
         NO_PERMISSION(500,"权限不足"),
