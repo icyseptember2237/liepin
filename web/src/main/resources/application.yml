@@ -107,7 +107,7 @@ logging:
 sa-token:
   token-name: Authorization
   timeout: 2592000
-  active-timeout: 18000
+  active-timeout: 7200
   is-concurrent: false #是否允许同一账号并发登录 （为 true 时允许一起登录，为 false 时新登录挤掉旧登录）
   is-share: false #多人同时登录时不共用token
   max-login-count: 1 #最大同时登录数
