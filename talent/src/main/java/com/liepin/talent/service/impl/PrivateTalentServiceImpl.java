@@ -161,6 +161,10 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
             BeanUtils.copyProperties(reqVO,info);
             info.setIsPrivate(ConstantsEnums.YESNOWAIT.YES.getValue());
             info.setCreateTime(TimeUtil.getNowWithSec());
+            if (StringUtils.isEmpty(info.getHireEndtime()))
+                info.setHireEndtime(null);
+            if (StringUtils.isEmpty(info.getCertificateDeadline()))
+                info.setCertificateDeadline(null);
             talentInfoService.save(info);
 
             TalentPrivate talentPrivate = new TalentPrivate();
@@ -170,7 +174,7 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
             talentPrivate.setStatus(TalentPrivateStatus.NOT_CONTACT.getStatus());
             talentPrivateService.save(talentPrivate);
         } catch (Exception e){
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            System.out.println(e);
             AssertUtils.throwException(ExceptionsEnums.Talent.INSERT_FAIL);
         }
 
