@@ -13,6 +13,8 @@ public class FollowupTalentReqVO {
     private Long agencyId;
     @ApiModelProperty(notes = "联系电话")
     private String phone;
+    @ApiModelProperty(notes = "身份证号")
+    private String idNum;
     @ApiModelProperty(notes = "社保地区")
     private String socialInsurance;
     @ApiModelProperty(notes = "性别")

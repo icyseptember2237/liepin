@@ -207,8 +207,10 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
             talentPrivateService.updateById(talentPrivate);
         }
 
-        TalentInfo talentInfo = new TalentInfo();
+        TalentInfo talentInfo = talentInfoService.getById(talentPrivate.getInfoId());
         BeanUtils.copyProperties(reqVO, talentInfo,"id","idNum","name");
+        if (StringUtils.isEmpty(talentInfo.getIdNum()))
+            talentInfo.setIdNum(reqVO.getIdNum());
         talentInfo.setId(talentPrivate.getInfoId());
         talentInfoService.updateById(talentInfo);
 
