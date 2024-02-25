@@ -81,6 +81,7 @@ public class AuthController {
 
     @PostMapping("/updateUserPassword")
     @ApiOperation(value = "用户-修改密码")
+    @SaCheckLogin
     public Result updateUserPassWord(@RequestBody UpdateUserPasswordReqVO reqVO){
         return authService.updateUserPassWord(reqVO);
     }

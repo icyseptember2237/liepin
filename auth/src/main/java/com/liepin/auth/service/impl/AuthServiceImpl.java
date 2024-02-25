@@ -145,6 +145,8 @@ public class AuthServiceImpl implements AuthService {
     public Result updateUserPassWord(UpdateUserPasswordReqVO reqVO){
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getUsername()));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(user),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
+        if (user.getId() != StpUtil.getLoginIdAsLong())
+            return Result.fail();
         if (!user.getPassword().equals(Crypto.md5(reqVO.getOldPassword())))
             return Result.fail("原密码错误,请联系管理员重置密码");
         user.setPassword(Crypto.md5(reqVO.getNewPassword()));
