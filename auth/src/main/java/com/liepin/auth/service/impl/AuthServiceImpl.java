@@ -143,7 +143,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Result updateUserPassWord(UpdateUserPasswordReqVO reqVO){
-        User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername,reqVO.getUsername()));
+        User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getId,StpUtil.getLoginIdAsLong()));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(user),ExceptionsEnums.UserEX.ACCOUNT_NOT_FIND);
         if (user.getId() != StpUtil.getLoginIdAsLong())
             return Result.fail();

@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class UpdateUserPasswordReqVO {
-    @ApiModelProperty(notes = "username")
-    private String username;
     @ApiModelProperty(notes = "原密码")
     private String oldPassword;
     @ApiModelProperty(notes = "新密码")
