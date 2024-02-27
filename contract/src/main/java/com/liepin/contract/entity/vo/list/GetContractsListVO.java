@@ -19,7 +19,7 @@ public class GetContractsListVO {
     @ApiModelProperty(notes = "聘用类型")
     private String hireType;
     @ApiModelProperty(notes = "聘用时间")
-    private Long hireTime;
+    private Integer hireTime;
     @ApiModelProperty(notes = "社保地区")
     private String socialInsurance;
     @ApiModelProperty(notes = "三类证书")
@@ -39,5 +39,5 @@ public class GetContractsListVO {
     @ApiModelProperty(notes = "备注")
     private String remark;
     @ApiModelProperty(notes = "已匹配人数")
-    private Long matchNum;
+    private Long matchedNum;
 }

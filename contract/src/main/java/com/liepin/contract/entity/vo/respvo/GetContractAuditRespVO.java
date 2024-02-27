@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 public class GetContractAuditRespVO {
-    private List<GetAuditListVO> list;
+    private List<GetContractInfoRespVO> list;
     private Long total;
 }

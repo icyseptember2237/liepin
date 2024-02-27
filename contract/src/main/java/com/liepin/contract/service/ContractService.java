@@ -1,8 +1,12 @@
 package com.liepin.contract.service;
 
 import com.liepin.common.constant.classes.Result;
+import com.liepin.contract.entity.vo.list.ContractRequireListVO;
 import com.liepin.contract.entity.vo.reqvo.*;
 import com.liepin.contract.entity.vo.respvo.*;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 public interface ContractService {
 
@@ -21,6 +25,8 @@ public interface ContractService {
     Result<GetContractsRespVO> getContracts(GetContractsReqVO reqVO);
 
     Result<GetContractInfoRespVO> getContractInfo(Long contractId);
+
+    Result<ContractRequireListVO> getRequireInfo(Long requireId);
 
     Result<GetSelfContractRespVO> getSelfContract(GetSelfContractReqVO reqVO);
 

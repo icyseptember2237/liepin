@@ -6,14 +6,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.service.base.UserService;
 import com.liepin.common.config.exception.AssertUtils;
+import com.liepin.common.config.exception.BusinessException;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
+import com.liepin.contract.cache.RequireCache;
 import com.liepin.contract.constant.ContractStatus;
 import com.liepin.contract.entity.base.ContractAuditHistory;
 import com.liepin.contract.entity.base.ContractMatch;
 import com.liepin.contract.entity.base.EnterpriseContract;
+import com.liepin.contract.entity.base.EnterpriseContractRequire;
 import com.liepin.contract.entity.vo.list.*;
 import com.liepin.contract.entity.vo.reqvo.*;
 import com.liepin.contract.entity.vo.respvo.*;
@@ -22,15 +25,21 @@ import com.liepin.contract.service.ContractService;
 import com.liepin.contract.service.base.ContractAuditHistoryService;
 import com.liepin.contract.service.base.ContractMatchService;
 import com.liepin.contract.service.base.EnterpriseContractService;
+import com.liepin.contract.service.base.impl.EnterpriseContractRequireServiceImpl;
 import com.liepin.enterprise.service.base.EnterprisePrivateService;
 import com.liepin.talent.constant.TalentPrivateStatus;
+import com.liepin.talent.entity.base.TalentInfo;
 import com.liepin.talent.entity.base.TalentPrivate;
+import com.liepin.talent.service.base.TalentInfoService;
 import com.liepin.talent.service.base.TalentPrivateService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,21 +47,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ContractServiceImpl implements ContractService {
 
     private final EnterpriseContractService enterpriseContractService;
     private final UserService userService;
     private final ContractMatchService contractMatchService;
     private final TalentPrivateService talentPrivateService;
+    private final TalentInfoService talentInfoService;
     private final ContractMapper contractMapper;
     private final ContractAuditHistoryService contractAuditHistoryService;
     private final EnterprisePrivateService enterprisePrivateService;
+    private final EnterpriseContractRequireServiceImpl enterpriseContractRequireService;
+    private final RequireCache requireCache;
 
     @Autowired
     public ContractServiceImpl(EnterpriseContractService enterpriseContractService,UserService userService,
-                               ContractMatchService contractMatchService,TalentPrivateService talentPrivateService,
-                               ContractMapper contractMapper,ContractAuditHistoryService contractAuditHistoryService,
-                               EnterprisePrivateService enterprisePrivateService){
+                               ContractMatchService contractMatchService,TalentPrivateService talentPrivateService,RequireCache requireCache,
+                               ContractMapper contractMapper,ContractAuditHistoryService contractAuditHistoryService,TalentInfoService talentInfoService,
+                               EnterprisePrivateService enterprisePrivateService,EnterpriseContractRequireServiceImpl enterpriseContractRequireService){
+        this.requireCache = requireCache;
+        this.talentInfoService = talentInfoService;
+        this.enterpriseContractRequireService = enterpriseContractRequireService;
         this.enterprisePrivateService = enterprisePrivateService;
         this.contractAuditHistoryService = contractAuditHistoryService;
         this.contractMapper = contractMapper;
@@ -75,7 +91,7 @@ public class ContractServiceImpl implements ContractService {
                 .eq(EnterpriseContract::getUserId, StpUtil.getLoginIdAsLong());
         for (EnterpriseContract r : enterpriseContractService.list(queryWrapper)){
             GetContractsByPrivateIdListVO temp = new GetContractsByPrivateIdListVO();
-            temp.setContractPrice(new BigDecimal(r.getContractPrice()).divide(new BigDecimal(100)));
+            //temp.setContractPrice(new BigDecimal(r.getContractPrice()).divide(new BigDecimal(100)));
             temp.setId(r.getId());
             temp.setUserId(r.getUserId());
             temp.setName(userService.getById(r.getUserId()).getName());
@@ -94,31 +110,69 @@ public class ContractServiceImpl implements ContractService {
     @Override
     @Transactional
     public Result newContract(NewContractReqVO reqVO){
-        for (NewContractListVO vo : reqVO.getList()){
-            EnterpriseContract temp = new EnterpriseContract();
-            AssertUtils.isFalse(ObjectUtils.isNotEmpty(vo.getPrivateId())
-                    && ObjectUtils.isNotEmpty(vo.getContractPrice())
-                    && vo.getPrivateId() > 0
-                    && vo.getContractPrice().intValue() > 0,
-                    ExceptionsEnums.Common.FAIL);
-            BeanUtils.copyProperties(vo,temp);
-            temp.setUserId(StpUtil.getLoginIdAsLong());
-            temp.setContractPrice(vo.getContractPrice().longValue() * 100L);
-            temp.setCreateTime(TimeUtil.getNowWithSec());
-            enterpriseContractService.save(temp);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(reqVO.getPrivateId()) && ObjectUtils.isNotEmpty(reqVO.getPriceType())
+            && ObjectUtils.isNotEmpty(reqVO.getTotalPrice()) && ObjectUtils.isNotEmpty(reqVO.getTotalRequireNum())
+            && ObjectUtils.isNotEmpty(reqVO.getRequires()),
+                ExceptionsEnums.Common.PARAM_LACK);
+        Long total = 0L;
+        Long totalNum = 0L;
+        for (NewContractRequireListVO require : reqVO.getRequires()){
+            AssertUtils.isFalse(ObjectUtils.isNotEmpty(require.getPrice())
+                    && ObjectUtils.isNotEmpty(require.getRequireNum())
+                    && ObjectUtils.isNotEmpty(require.getOtherPrice()),
+                    ExceptionsEnums.Common.PARAM_LACK);
+            total += require.getPrice().add(require.getOtherPrice()).multiply(new BigDecimal(100)).longValue();
+            totalNum += require.getRequireNum();
         }
+        if (reqVO.getTotalPrice().multiply(new BigDecimal(100)).longValue() != total)
+            return Result.fail("合同价格不一致");
+        if (!reqVO.getTotalRequireNum().equals(totalNum)){
+            return Result.fail("证书需求数量不一致");
+        }
+
+        EnterpriseContract contract = new EnterpriseContract();
+        BeanUtils.copyProperties(reqVO,contract);
+        contract.setTotalPrice(total);
+        contract.setTotalRequireNum(totalNum);
+        Long userId  = StpUtil.getLoginIdAsLong();
+        contract.setUserId(userId);
+        contract.setCreateTime(TimeUtil.getNowWithSec());
+        enterpriseContractService.save(contract);
+
+        List<EnterpriseContractRequire> requires = new ArrayList<>();
+        for (NewContractRequireListVO require : reqVO.getRequires()){
+            EnterpriseContractRequire temp = new EnterpriseContractRequire();
+            BeanUtils.copyProperties(require,temp);
+            temp.setPrivateId(contract.getPrivateId());
+            temp.setUserId(userId);
+            temp.setContractId(contract.getId());
+            temp.setPrice(require.getPrice().multiply(new BigDecimal(100)).longValue());
+            temp.setOtherPrice(require.getOtherPrice().multiply(new BigDecimal(100)).longValue());
+            requires.add(temp);
+        }
+
+        enterpriseContractRequireService.saveBatch(requires);
         return Result.success();
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result deleteContract(Long id){
         EnterpriseContract contract = enterpriseContractService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
             && contract.getStatus().equals(ContractStatus.READY.getStatus())
-            && contract.getUserId().equals(StpUtil.getLoginIdAsLong())
-            && contract.getStatus().equals(ConstantsEnums.YESNOWAIT.NO.getValue()),
+            && (!StpUtil.getRoleList().contains(RoleType.ENTERPRISE.code) || contract.getUserId().equals(StpUtil.getLoginIdAsLong()))
+            && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue()),
             ExceptionsEnums.Common.FAIL);
+
+        contract.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
+        enterpriseContractService.updateById(contract);
+        List<EnterpriseContractRequire> requires = enterpriseContractRequireService.list(
+                new LambdaQueryWrapper<EnterpriseContractRequire>()
+                        .eq(EnterpriseContractRequire::getContractId,id)
+                        .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
+        requires.forEach(require -> require.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue()));
+        enterpriseContractRequireService.updateBatchById(requires);
 
         LambdaQueryWrapper<ContractMatch> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ContractMatch::getContractId,id)
@@ -134,16 +188,27 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result SendAudit(Long id){
         EnterpriseContract enterpriseContract = enterpriseContractService.getById(id);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(enterpriseContract)
                 && enterpriseContract.getDlt().equals("NO")
-                && enterpriseContract.getStatus().equals(ContractStatus.READY.getStatus()), ExceptionsEnums.Common.NO_DATA);
-        Long matchedNum = contractMatchService.count(new LambdaQueryWrapper<ContractMatch>()
-                .eq(ContractMatch::getContractId,id)
-                .eq(ContractMatch::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue()));
-        AssertUtils.isFalse(matchedNum == enterpriseContract.getRequireNum(),ExceptionsEnums.Contract.LESS_NUM);
+                && enterpriseContract.getStatus().equals(ContractStatus.READY.getStatus())
+                ,ExceptionsEnums.Common.NO_DATA);
+
+        List<EnterpriseContractRequire> requires = enterpriseContractRequireService
+                .list(new LambdaQueryWrapper<EnterpriseContractRequire>()
+                        .eq(EnterpriseContractRequire::getContractId,enterpriseContract.getId())
+                        .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
+
+        for (EnterpriseContractRequire require : requires){
+            if (!require.getRequireNum().equals(require.getMatchedNum())){
+                AssertUtils.throwException(ExceptionsEnums.Contract.LESS_NUM);
+            }
+            require.setStatus(ContractStatus.WAIT.getStatus());
+            enterpriseContractRequireService.updateById(require);
+            requireCache.Remove(require.getId());
+        }
 
         enterpriseContract.setStatus(ContractStatus.WAIT.getStatus());
         enterpriseContractService.updateById(enterpriseContract);
@@ -173,45 +238,21 @@ public class ContractServiceImpl implements ContractService {
 
         contractAuditHistoryService.page(page,queryWrapper);
         GetContractAuditRespVO respVO = new GetContractAuditRespVO();
-        List<ContractAuditHistory> contracts = page.getRecords().stream()
+        List<GetContractInfoRespVO> list = new ArrayList<>();
+        page.getRecords()
+                .stream()
                 .distinct()
-                .collect(Collectors.toList());
+                .map(ContractAuditHistory::getContractId)
+                .forEach(contractId -> {
+                    Result<GetContractInfoRespVO> res = getContractInfo(contractId);
+                    if (res.getCode() == 200)
+                        list.add(res.getData());
+                    else
+                        AssertUtils.throwException(contractId + "号合同需求获取失败");
+                });
 
-        List<GetAuditListVO> list = new ArrayList<>();
-        contracts.stream().forEach(contract -> {
-            GetAuditListVO temp = new GetAuditListVO();
-            BeanUtils.copyProperties(contract,temp,"id","dlt");
-            if (temp.getAuditId() != null && temp.getAuditId() > 0){
-                temp.setAuditName(userService.getById(temp.getAuditId()).getName());
-                temp.setUsername(userService.getById(temp.getUserId()).getName());
-            } else {
-                temp.setAuditId(null);
-            }
-            temp.setUsername(userService.getById(temp.getUserId()).getName());
-
-
-            List<ContractMatchInfo> infos = contractMatchService.list(new LambdaQueryWrapper<ContractMatch>()
-                            .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO)
-                            .eq(ContractMatch::getContractId,temp.getContractId()))
-                    .stream()
-                    .map(match -> {
-                        ContractMatchInfo info = new ContractMatchInfo();
-                        BeanUtils.copyProperties(match,info);
-                        info.setUsername(userService.getById(match.getUserId()).getName());
-                        info.setTalentName(contractMapper.selectTalentNameByPrivateId(match.getTalentId()));
-                        return info;
-                    }).collect(Collectors.toList());
-            temp.setMatchInfos(infos);
-
-            EnterpriseContract c = enterpriseContractService.getById(temp.getContractId());
-            temp.setPrivateId(c.getPrivateId());
-            temp.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(temp.getPrivateId()));
-            temp.setUploadContract(c.getUploadContract());
-            temp.setCreateTime(c.getCreateTime());
-            list.add(temp);
-        });
-        respVO.setTotal(new Long(contracts.size()));
         respVO.setList(list);
+        respVO.setTotal(page.getTotal());
         return Result.success(respVO);
     }
 
@@ -232,45 +273,62 @@ public class ContractServiceImpl implements ContractService {
                 ExceptionsEnums.Common.FAIL);
 
         ContractAuditHistory auditHistory = contractAuditHistoryService.getOne(new LambdaQueryWrapper<ContractAuditHistory>()
+                .eq(ContractAuditHistory::getContractId,contractId)
                 .eq(ContractAuditHistory::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
-                .eq(ContractAuditHistory::getStatus, ConstantsEnums.YESNOWAIT.WAIT.getValue())
-                .eq(ContractAuditHistory::getContractId,contractId));
+                .eq(ContractAuditHistory::getStatus, ConstantsEnums.YESNOWAIT.WAIT.getValue()));
         auditHistory.setAuditTime(TimeUtil.getNowWithSec());
         auditHistory.setContractId(contractId);
         auditHistory.setAuditId(StpUtil.getLoginIdAsLong());
         auditHistory.setRemark(remark);
         auditHistory.setStatus(status);
         contractAuditHistoryService.save(auditHistory);
-        if (status.equals(ContractStatus.FAIL.getStatus()))
+
+        if (status.equals(ContractStatus.FAIL.getStatus())){
             contract.setStatus(ContractStatus.READY.getStatus());
-        else
-            contract.setStatus(status);
+            enterpriseContractRequireService.list(new LambdaQueryWrapper<EnterpriseContractRequire>()
+                            .eq(EnterpriseContractRequire::getContractId,contractId)
+                            .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()))
+                    .forEach(require -> {
+                        require.setStatus(ContractStatus.READY.getStatus());
+                        enterpriseContractRequireService.updateById(require);
+                        requireCache.Remove(require.getId());
+                    });
+        } else{
+            contract.setStatus(ContractStatus.MATCHING.getStatus());
+            enterpriseContractRequireService.list(new LambdaQueryWrapper<EnterpriseContractRequire>()
+                    .eq(EnterpriseContractRequire::getContractId,contractId)
+                    .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()))
+                    .forEach(require -> {
+                        require.setStatus(ContractStatus.MATCHING.getStatus());
+                        enterpriseContractRequireService.updateById(require);
+                        requireCache.Remove(require.getId());
+                    });
+        }
         enterpriseContractService.updateById(contract);
         return Result.success();
     }
 
     @Override
     public Result<GetContractsRespVO> getContracts(GetContractsReqVO reqVO){
-        List<GetContractsListVO> respList = new ArrayList<>();
-        Page<EnterpriseContract> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
-        LambdaQueryWrapper<EnterpriseContract> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(EnterpriseContract::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
-                    .eq(EnterpriseContract::getStatus,ContractStatus.READY.getStatus())
-                    .eq(ObjectUtils.isNotEmpty(reqVO.getPrivateId()),EnterpriseContract::getPrivateId,reqVO.getPrivateId())
-                    .eq(ObjectUtils.isNotEmpty(reqVO.getUserId()),EnterpriseContract::getUserId,reqVO.getUserId());
-        enterpriseContractService.page(page,queryWrapper);
-        page.getRecords().stream().forEach(contract -> {
-            GetContractsListVO temp = new GetContractsListVO();
-            BeanUtils.copyProperties(contract,temp);
-            temp.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(contract.getPrivateId()));
-            temp.setContractPrice(new BigDecimal(contract.getContractPrice()).divide(new BigDecimal(100L)));
-            temp.setMatchNum(contractMatchService.count(new LambdaQueryWrapper<ContractMatch>()
-                    .eq(ContractMatch::getContractId,contract.getId())
-                    .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())));
-            respList.add(temp);
-        });
         GetContractsRespVO respVO = new GetContractsRespVO();
-        respVO.setList(respList);
+        Page<EnterpriseContractRequire> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
+        LambdaQueryWrapper<EnterpriseContractRequire> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(EnterpriseContractRequire::getStatus,ContractStatus.READY.getStatus())
+                    .eq(ObjectUtils.isNotEmpty(reqVO.getPrivateId()),EnterpriseContractRequire::getPrivateId,reqVO.getPrivateId())
+                    .eq(ObjectUtils.isNotEmpty(reqVO.getUserId()),EnterpriseContractRequire::getUserId,reqVO.getUserId())
+                    .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue());
+        enterpriseContractRequireService.page(page,queryWrapper);
+
+        List<ContractRequireListVO> list = new ArrayList<>();
+        page.getRecords().stream().forEach(require -> {
+            Result<ContractRequireListVO> res = getRequireInfo(require.getId());
+            if (res.getCode() == 200){
+                list.add(res.getData());
+            } else {
+                AssertUtils.throwException(require.getId() + "号需求获取失败");
+            }
+        });
+        respVO.setList(list);
         respVO.setTotal(page.getTotal());
         return Result.success(respVO);
     }
@@ -279,43 +337,105 @@ public class ContractServiceImpl implements ContractService {
     public Result<GetContractInfoRespVO> getContractInfo(Long contractId){
         GetContractInfoRespVO respVO = new GetContractInfoRespVO();
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract),ExceptionsEnums.Common.NO_DATA);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract) && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                ,ExceptionsEnums.Common.NO_DATA);
 
         BeanUtils.copyProperties(contract,respVO);
-        respVO.setContractPrice(new BigDecimal((contract.getContractPrice())).divide(new BigDecimal(100L)));
-        respVO.setUsername(userService.getById(respVO.getUserId()).getUsername());
-        System.out.println(respVO);
-        respVO.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(respVO.getPrivateId()));
-        LambdaQueryWrapper<ContractMatch> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO)
-                .eq(ContractMatch::getContractId,contractId);
+        respVO.setTotalPrice(new BigDecimal((contract.getTotalPrice())).divide(new BigDecimal(100L)));
+        if (ObjectUtils.isNotEmpty(respVO.getUserId()))
+            respVO.setUsername(userService.getById(respVO.getUserId()).getUsername());
+        if (ObjectUtils.isNotEmpty(respVO.getPrivateId()))
+            respVO.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(respVO.getPrivateId()));
 
-        List<ContractMatchInfo> list = contractMatchService.list(queryWrapper).stream()
-                .map(match -> {
-                   ContractMatchInfo info = new ContractMatchInfo();
-                   BeanUtils.copyProperties(match,info);
-                   info.setUsername(userService.getById(match.getUserId()).getName());
-                   info.setTalentName(contractMapper.selectTalentNameByPrivateId(match.getTalentId()));
-                   return info;
-                }).collect(Collectors.toList());
-        respVO.setMatches(list);
+        LambdaQueryWrapper<EnterpriseContractRequire> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(EnterpriseContractRequire::getContractId,contractId)
+                .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO);
+        List<ContractRequireListVO> requires = new ArrayList<>();
+        enterpriseContractRequireService.list(queryWrapper)
+                .stream()
+                .map(EnterpriseContractRequire::getId)
+                .collect(Collectors.toList())
+                .forEach(requireId -> {
+                    Result<ContractRequireListVO> res = getRequireInfo(requireId);
+                    if (res.getCode() == 200){
+                        requires.add(res.getData());
+                    } else {
+                        log.info(res.getMsg());
+                        AssertUtils.throwException(requireId + "号需求查询失败");
+                    }
+                });
+
+        respVO.setRequires(requires);
         return Result.success(respVO);
+    }
+
+    @Override
+    public Result<ContractRequireListVO> getRequireInfo(Long requireId){
+        if (ObjectUtils.isEmpty(requireId) || requireId <= 0)
+            return Result.fail();
+
+        ContractRequireListVO cache = requireCache.Get(requireId);
+        if (ObjectUtils.isNotEmpty(cache))
+            return Result.success(cache);
+
+        ContractRequireListVO res = new ContractRequireListVO();
+        EnterpriseContractRequire require = enterpriseContractRequireService.getOne(new LambdaQueryWrapper<EnterpriseContractRequire>()
+                .eq(EnterpriseContractRequire::getId,requireId)
+                .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
+        if (ObjectUtils.isEmpty(requireId))
+            return Result.fail();
+
+        BeanUtils.copyProperties(require,res);
+        if (ObjectUtils.isNotEmpty(require.getPrivateId()))
+            res.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(require.getPrivateId()));
+        if (ObjectUtils.isNotEmpty(require.getUserId()))
+            res.setUsername(contractMapper.selectTalentNameByPrivateId(require.getUserId()));
+        res.setPrice(new BigDecimal(require.getPrice()).divide(new BigDecimal(100)));
+
+        List<ContractMatchInfo> matchInfo = new ArrayList<>();
+        List<ContractMatch> matches = contractMatchService.list(new LambdaQueryWrapper<ContractMatch>()
+                .eq(ContractMatch::getRequireId,requireId)
+                .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
+        for (ContractMatch match : matches){
+            ContractMatchInfo info = new ContractMatchInfo();
+            BeanUtils.copyProperties(match,info);
+            info.setUsername(userService.getById(info.getUserId()).getUsername());
+            if (ObjectUtils.isNotEmpty(info.getTalentId()))
+                info.setTalentName(contractMapper.selectTalentNameByPrivateId(info.getTalentId()));
+            info.setTalentPrice(new BigDecimal(match.getTalentPrice()).divide(new BigDecimal(100)));
+            TalentPrivate talentPrivate = talentPrivateService.getById(match.getTalentId());
+            TalentInfo talentInfo = talentInfoService.getById(talentPrivate.getInfoId());
+            BeanUtils.copyProperties(talentInfo,info,"createTime");
+            matchInfo.add(info);
+        }
+
+        res.setMatches(matchInfo);
+        requireCache.Set(requireId,res);
+        return Result.success(res);
     }
 
     @Override
     public Result<GetSelfContractRespVO> getSelfContract(GetSelfContractReqVO reqVO){
         GetSelfContractRespVO respVO = new GetSelfContractRespVO();
         List<GetContractInfoRespVO> list = new ArrayList<>();
-        enterpriseContractService.list(
+        Page<EnterpriseContract> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
+        enterpriseContractService.page(page,
                 new LambdaQueryWrapper<EnterpriseContract>()
-                .eq(EnterpriseContract::getDlt, ConstantsEnums.YESNOWAIT.NO)
-                .eq(EnterpriseContract::getUserId,StpUtil.getLoginIdAsLong()))
-                .stream().map(EnterpriseContract::getId)
-                .collect(Collectors.toList()).stream()
-                .forEach(contractId -> {
-                    list.add(getContractInfo(contractId).getData());
+                .eq(EnterpriseContract::getUserId,StpUtil.getLoginIdAsLong())
+                .eq(StringUtils.isNotEmpty(reqVO.getStatus()),EnterpriseContract::getStatus,reqVO.getStatus())
+                .eq(EnterpriseContract::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
+
+        page.getRecords()
+                .stream()
+                .map(EnterpriseContract::getId)
+                .forEach(id -> {
+                    Result<GetContractInfoRespVO> res = getContractInfo(id);
+                    if (res.getCode() == 200)
+                        list.add(res.getData());
                 });
+
         respVO.setList(list);
+        respVO.setTotal(page.getTotal());
         return Result.success(respVO);
     }
 
@@ -341,30 +461,37 @@ public class ContractServiceImpl implements ContractService {
     @Transactional(rollbackFor = Exception.class)
     public Result match(MatchReqVO reqVO){
         Long contractId = reqVO.getContractId();
+        Long requireId = reqVO.getRequireId();
 
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        EnterpriseContractRequire require = enterpriseContractRequireService.getById(requireId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                    && ObjectUtils.isNotEmpty(require)
                     && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                    && require.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
                     && contract.getStatus().equals(ContractStatus.READY.getStatus()),
                     ExceptionsEnums.Common.NO_DATA);
-        Long matchedNum = contractMatchService.count(new LambdaQueryWrapper<ContractMatch>()
-                .eq(ContractMatch::getContractId,contractId)
-                .eq(ContractMatch::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue()));
-        Long needNum = contract.getRequireNum() - matchedNum;
-        if (needNum < reqVO.getTalentIds().size())
-            return Result.fail("匹配人数过多, 需求人数: " + needNum);
 
-        for (Long talentId : reqVO.getTalentIds()){
-            TalentPrivate talentPrivate = talentPrivateService.getById(talentId);
+        Long matchedNum = require.getMatchedNum();
+        Long requireNum = require.getRequireNum();
+        if (requireNum - matchedNum < reqVO.getTalents().size())
+            return Result.fail("匹配人数过多");
+        require.setMatchedNum(matchedNum + reqVO.getTalents().size());
+        enterpriseContractRequireService.updateById(require);
+
+        for (MatchTalent talent : reqVO.getTalents()){
+            if (ObjectUtils.isEmpty(talent.getPrice()) || talent.getPrice().equals(new BigDecimal(0)))
+                AssertUtils.throwException("人才费用不能为空");
+            TalentPrivate talentPrivate = talentPrivateService.getById(talent.getId());
             ContractMatch match = contractMatchService.getOne(new LambdaQueryWrapper<ContractMatch>()
-                    .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
                     .eq(ContractMatch::getContractId,contractId)
-                    .eq(ContractMatch::getTalentId,talentId));
+                    .eq(ContractMatch::getRequireId,requireId)
+                    .eq(ContractMatch::getTalentId,talent.getId()));
             AssertUtils.isFalse(ObjectUtils.isNotEmpty(talentPrivate)
                     && talentPrivate.getStatus().equals(TalentPrivateStatus.FOLLOWUP.getStatus())
                     && talentPrivate.getThrowback().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
                     && talentPrivate.getUserId() == StpUtil.getLoginIdAsLong()
-                    && ObjectUtils.isEmpty(match),
+                    && (ObjectUtils.isEmpty(match) || match.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())),
                     ExceptionsEnums.Common.FAIL);
 
             talentPrivate.setStatus(TalentPrivateStatus.MATCHING.getStatus());
@@ -372,11 +499,15 @@ public class ContractServiceImpl implements ContractService {
 
             ContractMatch contractMatch = new ContractMatch();
             contractMatch.setContractId(contractId);
+            contractMatch.setRequireId(requireId);
             contractMatch.setUserId(StpUtil.getLoginIdAsLong());
-            contractMatch.setTalentId(talentId);
+            contractMatch.setTalentId(talent.getId());
+            contractMatch.setTalentPrice(talent.getPrice().multiply(new BigDecimal(100)).longValue());
             contractMatch.setCreateTime(TimeUtil.getNowWithSec());
             contractMatchService.save(contractMatch);
         }
+
+        requireCache.Remove(reqVO.getRequireId());
         return Result.success();
     }
 
@@ -384,14 +515,23 @@ public class ContractServiceImpl implements ContractService {
     @Transactional(rollbackFor = Exception.class)
     public Result cancelMatch(CancelMatchReqVO reqVO){
         Long contractId = reqVO.getContractId();
+        Long requireId = reqVO.getRequireId();
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        EnterpriseContractRequire require = enterpriseContractRequireService.getById(requireId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                        && ObjectUtils.isNotEmpty(require)
                         && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                        && require.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
                         && contract.getStatus().equals(ContractStatus.READY.getStatus()),
                 ExceptionsEnums.Common.NO_DATA);
+
+        require.setMatchedNum(require.getMatchedNum() - reqVO.getTalentIds().size());
+        enterpriseContractRequireService.updateById(require);
+
         for (Long talentId : reqVO.getTalentIds()){
             ContractMatch match = contractMatchService.getOne(new LambdaQueryWrapper<ContractMatch>()
                     .eq(ContractMatch::getContractId,contractId)
+                    .eq(ContractMatch::getRequireId,require)
                     .eq(ContractMatch::getTalentId,talentId));
             if (ObjectUtils.isEmpty(match))
                 continue;
@@ -401,6 +541,7 @@ public class ContractServiceImpl implements ContractService {
             talentPrivate.setStatus(TalentPrivateStatus.FOLLOWUP.getStatus());
             talentPrivateService.updateById(talentPrivate);
         }
+        requireCache.Remove(reqVO.getRequireId());
         return Result.success();
     }
 }

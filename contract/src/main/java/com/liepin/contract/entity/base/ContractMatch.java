@@ -8,9 +8,9 @@ import lombok.Data;
 public class ContractMatch {
     private Long id;
     private Long contractId;
+    private Long requireId;
     private Long talentId;
     private Long talentPrice;
-    private Long servicePrice;
     private Long userId;
     private String createTime;
     private String dlt;

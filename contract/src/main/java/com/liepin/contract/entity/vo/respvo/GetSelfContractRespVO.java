@@ -7,4 +7,5 @@ import java.util.List;
 @Data
 public class GetSelfContractRespVO {
     private List<GetContractInfoRespVO> list;
+    private Long total;
 }
