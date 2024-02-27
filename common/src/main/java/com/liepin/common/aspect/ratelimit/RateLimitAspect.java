@@ -10,6 +10,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Aspect
 @Component
+@Order(0)
 public class RateLimitAspect {
 
     private static final String KEY_PREFIX = "Count";
@@ -36,14 +38,20 @@ public class RateLimitAspect {
     @Around(value = "limit()")
     public Object rateCheck(ProceedingJoinPoint point) throws Throwable{
         MethodSignature signature = (MethodSignature) point.getSignature();
+        System.out.println(signature.getMethod());
         RateLimit annotation = signature.getMethod().getAnnotation(RateLimit.class);
         int times = annotation.times();
         long withinTime = annotation.withinTime();
         long loginId = StpUtil.getLoginIdAsLong();
         long blockTime = annotation.blockTime();
+        boolean byId = annotation.byId();
         TimeUnit timeUnit = annotation.timeunit();
-        String key = signature.getMethod().getName() + loginId + KEY_PREFIX;
-        String key1 = signature.getMethod().getName() + loginId + OVER_RATE_PREFIX;
+        String key = signature.getMethod().getName() + KEY_PREFIX + loginId;
+        String key1 = signature.getMethod().getName() + OVER_RATE_PREFIX + loginId;
+        if (!byId){
+            key = signature.getMethod().getName() + KEY_PREFIX;
+            key1 = signature.getMethod().getName() + OVER_RATE_PREFIX;
+        }
 
         // 每次访问设置次数+1
         redisTemplate.opsForValue().setIfAbsent(key,0);
@@ -53,8 +61,9 @@ public class RateLimitAspect {
         }
 
         Integer ban = (Integer) redisTemplate.opsForValue().get(key1);
-        if (ban != null && ban >= 10){
-            return Result.fail("操作过于频繁, 请半小时后重试!");
+        if (ban != null && ban >= 10 && byId){
+            redisTemplate.expire(key1,30,TimeUnit.MINUTES);
+            return Result.fail("操作过于频繁, 请多等几分钟后重试!");
         }
 
         // 超过限制禁止访问
@@ -65,7 +74,7 @@ public class RateLimitAspect {
             if (overRateCount == 1){
                 redisTemplate.expire(key1,1,TimeUnit.DAYS);
             }
-            // 超限10次封禁半小时
+            // 超限10次封禁
             if (overRateCount != null && overRateCount >= 10){
                 redisTemplate.expire(key1,blockTime,TimeUnit.SECONDS);
             }

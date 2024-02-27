@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public @interface RateLimit {
     int times() default 10;
     long withinTime() default 60;
-    long blockTime() default 120;
+    long blockTime() default 300;
     TimeUnit timeunit() default TimeUnit.SECONDS;
-
+    boolean byId() default true;
 }
