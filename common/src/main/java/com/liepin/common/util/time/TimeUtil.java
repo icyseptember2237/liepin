@@ -38,14 +38,16 @@ public class TimeUtil {
     public static String getLastWorkDay(){
         //1是假期
         Integer result = 1;
+        LocalDateTime timeSec = LocalDateTime.now();
         LocalDate time = LocalDate.now();
         while (result == 1){
             time = time.minus(1, ChronoUnit.DAYS);
+            timeSec = timeSec.minus(1,ChronoUnit.DAYS);
             RestTemplate restTemplate = new RestTemplate();
             String httpUrl = "http://tool.bitefu.net/jiari/?d=" + time;
             result = restTemplate.getForObject(httpUrl, Integer.class);
 
         }
-        return String.valueOf(time);
+        return String.valueOf(timeSec.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 }
