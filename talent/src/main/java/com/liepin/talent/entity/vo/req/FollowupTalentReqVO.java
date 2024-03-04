@@ -7,6 +7,8 @@ import lombok.Data;
 public class FollowupTalentReqVO {
     @ApiModelProperty(notes = "私库id")
     private Long id;
+    @ApiModelProperty(notes = "人才姓名")
+    private String name;
     @ApiModelProperty(notes = "客户类型（直接/中介）")
     private String type;
     @ApiModelProperty(notes = "中介表id")

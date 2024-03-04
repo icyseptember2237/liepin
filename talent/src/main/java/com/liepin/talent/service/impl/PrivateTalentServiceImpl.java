@@ -197,10 +197,15 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
     }
 
     @Override
+    @Transactional
     public Result followupTalent(FollowupTalentReqVO reqVO){
-        if (ObjectUtils.isEmpty(reqVO.getSex()) || ObjectUtils.isEmpty(reqVO.getPhone())
-                || ObjectUtils.isEmpty(reqVO.getId()))
+        if (ObjectUtils.isEmpty(reqVO.getPhone()))
+            AssertUtils.throwException(400,"电话为空");
+        if (ObjectUtils.isEmpty(reqVO.getId()))
             AssertUtils.throwException(400,"必填参数缺失");
+        if (ObjectUtils.isEmpty(reqVO.getName()))
+            AssertUtils.throwException(400,"姓名为空");
+
         TalentPrivate talentPrivate = talentPrivateService.getOne(new LambdaQueryWrapper<TalentPrivate>().eq(TalentPrivate::getId,reqVO.getId())
                 .eq(TalentPrivate::getThrowback,ConstantsEnums.YESNOWAIT.NO));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(talentPrivate),ExceptionsEnums.Talent.NO_DATA);
@@ -212,7 +217,7 @@ public class PrivateTalentServiceImpl implements PrivateTalentService {
         }
 
         TalentInfo talentInfo = talentInfoService.getById(talentPrivate.getInfoId());
-        BeanUtils.copyProperties(reqVO, talentInfo,"id","idNum","name");
+        BeanUtils.copyProperties(reqVO, talentInfo,"id","idNum");
         if (StringUtils.isEmpty(talentInfo.getIdNum()))
             talentInfo.setIdNum(reqVO.getIdNum());
         talentInfo.setId(talentPrivate.getInfoId());
