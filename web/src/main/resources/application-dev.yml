@@ -2,14 +2,14 @@ config:
   file:
     winPath: D:\liepin\file\
     linuxPath: /home/liepin/file/
-    url: http://101.43.76.84/
+    url: http://115.159.88.234/
     allowType: png,jpg,jpeg,gif,bmp,xlsx,xls,doc,docx
 
 spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://101.43.76.84/liepin?allowLoadLocalInfile=true
+      url: jdbc:mysql://115.159.88.234/liepin?allowLoadLocalInfile=true
       username: root
       password: mysql123
   redis:
