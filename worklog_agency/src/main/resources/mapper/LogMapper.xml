@@ -29,6 +29,7 @@
             from work_log_detail , work_log
             where work_log_detail.id = work_log.id
             and   liepin.work_log.user_id = #{loginId}
+            and liepin.work_log.dlt = "NO"
             and work_log.create_time like CONCAT(#{dayTime},'%')
     </select>
     <select id="getWorkLogProblemList"
