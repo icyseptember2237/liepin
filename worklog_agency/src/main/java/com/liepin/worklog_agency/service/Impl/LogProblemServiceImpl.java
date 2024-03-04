@@ -15,10 +15,16 @@ import com.liepin.worklog_agency.mapper.LogProblemMapper;
 import com.liepin.worklog_agency.service.LogProblemService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -29,11 +35,16 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
     private LogProblemMapper logProblemMapper;
     @Autowired
     private LogMapper logMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Override
     public Result insertWorkLogProblem(WorkLogRespVo workLogRespVo) {
         // 得到日志id
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong()).like(WorkLog::getCreateTime, TimeUtil.getToday());
+        lambdaQueryWrapper.select(WorkLog::getId)
+                .eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong())
+                .like(WorkLog::getCreateTime, TimeUtil.getToday())
+                .last("limit 1");
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
         // 全覆盖更新
@@ -95,15 +106,19 @@ public class LogProblemServiceImpl extends ServiceImpl<LogProblemMapper,WorkLogP
     @Override
     public Result insertLastWorkLogProblem(WorkLogRespVo workLogRespVo) {
 
-        //昨天的日期
-        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
-        Calendar calendar= Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,-24);
-        String yesterdayDate=dateFormat.format(calendar.getTime());
+        Object lastWorkDay = redisTemplate.opsForValue().get("lastWorkDay");
 
         // 得到日志id
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong()).like(WorkLog::getCreateTime, yesterdayDate);
+        lambdaQueryWrapper.select(WorkLog::getId)
+                .eq(WorkLog::getUserId,StpUtil.getLoginIdAsLong())
+                .eq(WorkLog::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue())
+                .like(WorkLog::getCreateTime, lastWorkDay)
+                .orderByDesc(WorkLog::getCreateTime)
+                .last("limit 1");
+
+
+
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
         // 全覆盖更新

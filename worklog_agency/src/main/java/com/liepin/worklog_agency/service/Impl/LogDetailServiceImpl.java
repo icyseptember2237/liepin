@@ -15,16 +15,22 @@ import com.liepin.worklog_agency.mapper.LogProblemMapper;
 import com.liepin.worklog_agency.service.LogDetailService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 
 @Service
 public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDetail> implements LogDetailService {
     @Autowired
     private LogMapper logMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Override
     public Result insertWorkLogDetail(WorkLogRespVo workLogRespVo) {
         WorkLogDetail workLogDetail = new WorkLogDetail();
@@ -38,7 +44,7 @@ public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDe
         }
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,userId).
-                like(WorkLog::getCreateTime, TimeUtil.getToday());
+                like(WorkLog::getCreateTime, TimeUtil.getToday()).last("limit 1");
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
 
@@ -73,22 +79,22 @@ public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDe
     public Result insertLastWorkLogDetail(WorkLogRespVo workLogRespVo) {
         WorkLogDetail workLogDetail = new WorkLogDetail();
         BeanUtils.copyProperties(workLogRespVo,workLogDetail);
-        Long userId;
-        if (null!=workLogRespVo.getId()){
-            userId = StpUtil.getLoginIdAsLong();
-//            userId = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getId, workLogRespVo.getId())).getUserId();
-        }else{
-            userId = StpUtil.getLoginIdAsLong();
-        }
-//      昨天的日期
-        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
-        Calendar calendar= Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,-24);
-        String yesterdayDate=dateFormat.format(calendar.getTime());
+        Long userId = StpUtil.getLoginIdAsLong();
+//        if (null!=workLogRespVo.getId()){
+//            userId = StpUtil.getLoginIdAsLong();
+//        }else{
+//            userId = StpUtil.getLoginIdAsLong();
+//        }
+
+//        String lastWorkDay = TimeUtil.getLastWorkDay();
+        Object lastWorkDay = redisTemplate.opsForValue().get("lastWorkDay");
 
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.select(WorkLog::getId).eq(WorkLog::getUserId,userId).
-                like(WorkLog::getCreateTime, yesterdayDate);
+        lambdaQueryWrapper.select(WorkLog::getId)
+                .eq(WorkLog::getUserId,userId)
+                .eq(WorkLog::getDlt,"NO")
+                .like(WorkLog::getCreateTime, lastWorkDay)
+                .last("limit 1");
         WorkLog workLog = logMapper.selectOne(lambdaQueryWrapper);
         Long id = workLog.getId();
 

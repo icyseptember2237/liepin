@@ -15,6 +15,8 @@ import com.liepin.worklog_agency.service.LogService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
@@ -26,6 +28,8 @@ import java.util.Calendar;
 public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements LogService {
     @Autowired
     private LogMapper logMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public Result<WorkLogRes> getWorkLog(Long loginId) {
@@ -81,7 +85,11 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     public Result<WorkLogRes> getLastWorkLog(long loginId) {
 
 
-        WorkLog workLog = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>().eq(WorkLog::getUserId, loginId).orderByDesc(WorkLog::getUpdateTime).last("limit 1"));
+        WorkLog workLog = logMapper.selectOne(new LambdaQueryWrapper<WorkLog>()
+                .eq(WorkLog::getUserId, loginId)
+                .orderByDesc(WorkLog::getUpdateTime)
+                        .eq(WorkLog::getDlt,"NO")
+                .last("limit 1"));
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLog), ExceptionsEnums.WorkLog.WORK_LOG_EMPTY);
         Long logId = workLog.getId();
 
@@ -95,24 +103,11 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     @Override
     public Result<Object> insertLastWorkLog(WorkLogRespVo workLogRespVo) {
         WorkLog workLog = new WorkLog();
-        WorkLogRespVo workLog1 = logMapper.getWorkLog(StpUtil.getLoginIdAsLong(),TimeUtil.getToday());
-//        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLog1.getId()));
-        if (null!=workLog1){
-            Long id = workLog1.getId();
-            workLog.setId(id);
-            workLog.setUserId(StpUtil.getLoginIdAsLong());
-            workLog.setUpdateTime(TimeUtil.getNowWithMin());
-            saveOrUpdate(workLog);
-            return Result.success();
-        }
 
-        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        Calendar calendar= Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,-24);
-        String yesterdayDate=dateFormat.format(calendar.getTime());
-
+        String lastWorkDay = TimeUtil.getLastWorkDay();
+        redisTemplate.opsForValue().set("lastWorkDay", lastWorkDay);
         workLog.setUserId(StpUtil.getLoginIdAsLong());
-        workLog.setCreateTime(yesterdayDate);
+        workLog.setCreateTime(lastWorkDay);
         workLog.setUpdateTime(TimeUtil.getNowWithMin());
         saveOrUpdate(workLog);
         return Result.success();
