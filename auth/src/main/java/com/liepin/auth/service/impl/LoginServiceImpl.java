@@ -2,6 +2,7 @@ package com.liepin.auth.service.impl;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.entity.dto.LoginUser;
 import com.liepin.auth.entity.vo.req.UserLoginReqVO;
@@ -13,20 +14,28 @@ import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
+import com.liepin.common.util.time.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService {
     private final LoginMapper loginMapper;
 
+    private final RedisTemplate redisTemplate;
+
     @Autowired
-    public LoginServiceImpl(LoginMapper loginMapper){
+    public LoginServiceImpl(LoginMapper loginMapper,RedisTemplate redisTemplate){
         this.loginMapper = loginMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -54,9 +63,24 @@ public class LoginServiceImpl implements LoginService {
         respVO.setName(user.getName());
         respVO.setUsername(user.getUsername());
         respVO.setRole(user.getRoleCode());
-        respVO.setCommitWorkLog(RoleType.MANAGER.code.equals(user.getRoleCode()) || loginMapper.commitWorkLog(user.getId()));
+        respVO.setCommitWorkLog(RoleType.MANAGER.code.equals(user.getRoleCode()) || checkWorkLog());
 
         return Result.success(respVO);
+    }
+
+    private boolean checkWorkLog(){
+        return loginMapper.getCommitLog(StpUtil.getLoginIdAsLong())
+                .stream()
+                .anyMatch(log -> log.getCreateTime().contains(getLastWorkDay()));
+    }
+
+    private synchronized String getLastWorkDay(){
+        Object res = redisTemplate.opsForValue().get("lastWorkDay");
+        if (ObjectUtils.isNotEmpty(res))
+            return String.valueOf(res);
+        String day = TimeUtil.getLastWorkDayAsDay();
+        redisTemplate.opsForValue().set("lastWorkDay",day,1, TimeUnit.HOURS);
+        return day;
     }
 
     @Override

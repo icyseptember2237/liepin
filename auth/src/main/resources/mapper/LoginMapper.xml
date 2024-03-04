@@ -15,12 +15,10 @@
         where user.id = #{userId}
     </select>
 
-    <select id="commitWorkLog" resultType="java.lang.Boolean">
-        select count(work_log.id) from work_log
-        where dlt = 'NO'
-        and if(weekday(date(now())) &lt; 5,
-        if(weekday(date(now())) = 0,date(create_time) = date(date_sub(now(),interval 3 day)),date(create_time) = date(date_sub(now(),interval 1 day))),
-        1 = 1)
-        and user_id = #{userId}
+    <select id="getCommitLog" resultType="com.liepin.auth.entity.base.WorkLog">
+        select * from work_log
+        where user_id = #{userId}
+        and dlt = 'NO'
+        and create_time between date(date_sub(now(),interval 20 day)) and date(now())
     </select>
 </mapper>
