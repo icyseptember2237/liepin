@@ -15,13 +15,8 @@ import com.liepin.worklog_agency.service.LogService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 @Service
 @Slf4j
@@ -104,7 +99,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
     public Result<Object> insertLastWorkLog(WorkLogRespVo workLogRespVo) {
         WorkLog workLog = new WorkLog();
 
-        String lastWorkDay = TimeUtil.getLastWorkDay();
+        String lastWorkDay = TimeUtil.getLastWorkDayAsSec();
         redisTemplate.opsForValue().set("lastWorkDay", lastWorkDay);
         workLog.setUserId(StpUtil.getLoginIdAsLong());
         workLog.setCreateTime(lastWorkDay);

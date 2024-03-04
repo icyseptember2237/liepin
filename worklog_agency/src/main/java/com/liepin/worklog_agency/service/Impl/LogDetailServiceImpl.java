@@ -86,7 +86,7 @@ public class LogDetailServiceImpl extends ServiceImpl<LogDetailMapper, WorkLogDe
 //            userId = StpUtil.getLoginIdAsLong();
 //        }
 
-//        String lastWorkDay = TimeUtil.getLastWorkDay();
+//        String lastWorkDay = TimeUtil.getLastWorkDayAsSec();
         Object lastWorkDay = redisTemplate.opsForValue().get("lastWorkDay");
 
         LambdaQueryWrapper<WorkLog> lambdaQueryWrapper = new LambdaQueryWrapper<>();
