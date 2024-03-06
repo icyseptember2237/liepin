@@ -10,7 +10,7 @@ public enum EnterprisePrivateStatus {
     NOT_CONTACT("NOT_CONTACT"),
     // 跟进中
     FOLLOWUP("FOLLOWUP"),
-    // 合同需求
+    // 已有合同需求
     CONTRACT("CONTRACT"),
     // 待匹配
     WAIT_MATCH("WAIT_MATCH"),
