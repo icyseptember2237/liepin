@@ -3,6 +3,7 @@ package com.liepin.talent.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.liepin.auth.constant.RoleType;
+import com.liepin.common.aspect.ratelimit.RateLimit;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.talent.entity.vo.req.AddTalentReqVO;
 import com.liepin.talent.entity.vo.req.AlterTalentReqVO;
@@ -34,6 +35,7 @@ public class TalentController {
     @PostMapping("/getTalentList")
     @ApiOperation(value = "获取人才列表")
     @SaCheckLogin
+    @RateLimit(times = 15,withinTime = 60,blockTime = 120)
     public Result<GetTalentListRespVO> getTalentList(@RequestBody GetTalentListReqVO reqVO){
         return talentService.getTalentList(reqVO);
     }
@@ -76,6 +78,7 @@ public class TalentController {
     @PostMapping("/pullTalent")
     @ApiOperation(value = "拉入私人人才库")
     @SaCheckRole(value = RoleType.TALENT.code)
+    @RateLimit(times = 15,withinTime = 60,blockTime = 120)
     public Result pullTalent(@RequestBody PullTalentReqVO reqVO){
         return talentService.pullTalent(reqVO);
     }

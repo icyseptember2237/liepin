@@ -30,7 +30,7 @@ public class EnterpriseController {
     @PostMapping("/getEnterpriseList")
     @ApiOperation(value = "查询公海页面")
     @SaCheckLogin
-    @RateLimit
+    @RateLimit(times = 15,withinTime = 60,blockTime = 120)
     public Result<GetEnterpriseListRespVO> getEnterpriseList(@RequestBody GetEnterpriseListReqVO reqVO){
         reqVO.setPageSize(Math.min(15, reqVO.getPageSize()));
         return enterpriseService.getEnterpriseList(reqVO);
@@ -74,6 +74,7 @@ public class EnterpriseController {
     @PostMapping("/pullEnterprise")
     @ApiOperation(value = "拉入私人单位库")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    @RateLimit(times = 15,withinTime = 60,blockTime = 120)
     public Result pullEnterprise(@RequestBody EnterpriseListVO reqVO){
         return enterpriseService.pullEnterprise(reqVO);
     }

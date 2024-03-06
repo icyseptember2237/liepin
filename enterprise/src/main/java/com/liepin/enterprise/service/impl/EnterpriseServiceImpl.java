@@ -173,6 +173,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     @Override
     public Result pullEnterprise(EnterpriseListVO reqVO){
         AssertUtils.isFalse(!reqVO.getList().isEmpty(),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+        AssertUtils.isFalse(reqVO.getList().size() < 30,ExceptionsEnums.Enterprise.TOO_MANY);
         ArrayList<Long> res = new ArrayList<>();
         for (Long id : reqVO.getList()){
             EnterpriseInfo info = enterpriseInfoService.getById(id);

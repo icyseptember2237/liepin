@@ -156,6 +156,7 @@ public class TalentServiceImpl implements TalentService {
 
     public Result pullTalent(PullTalentReqVO reqVO) {
         AssertUtils.isFalse(!reqVO.getList().isEmpty(), ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+        AssertUtils.isFalse(reqVO.getList().size() < 30,ExceptionsEnums.Talent.TOO_MANY);
         ArrayList<Long> res = new ArrayList<>();
         for (Long id : reqVO.getList()) {
             TalentInfo info = talentInfoService.getById(id);
