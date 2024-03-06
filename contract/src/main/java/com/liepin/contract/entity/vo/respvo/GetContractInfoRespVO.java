@@ -24,7 +24,7 @@ public class GetContractInfoRespVO {
     @ApiModelProperty(notes = "合同总价")
     private BigDecimal totalPrice;
     @ApiModelProperty(notes = "总需求数")
-    private Integer totalRequireNum;
+    private Long totalRequireNum;
     @ApiModelProperty(notes = "合同款项")
     private String priceType;
     @ApiModelProperty(notes = "备注")

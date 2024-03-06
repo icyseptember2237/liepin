@@ -195,6 +195,7 @@ public class ContractServiceImpl implements ContractService {
             talentPrivate.setStatus(TalentPrivateStatus.FOLLOWUP.getStatus());
             talentPrivateService.updateById(talentPrivate);
         }
+        requireCache.RemoveContractCache(id);
         return Result.success();
     }
 
@@ -228,6 +229,7 @@ public class ContractServiceImpl implements ContractService {
         auditHistory.setStatus(ContractStatus.WAIT.getStatus());
         auditHistory.setUserId(enterpriseContract.getUserId());
         contractAuditHistoryService.save(auditHistory);
+        requireCache.RemoveContractCache(id);
         return Result.success();
     }
 
@@ -316,6 +318,7 @@ public class ContractServiceImpl implements ContractService {
                     });
         }
         enterpriseContractService.updateById(contract);
+        requireCache.RemoveContractCache(contractId);
         return Result.success();
     }
 
@@ -346,6 +349,10 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public Result<GetContractInfoRespVO> getContractInfo(Long contractId){
+        GetContractInfoRespVO cache = requireCache.GetContract(contractId);
+        if (ObjectUtils.isNotEmpty(cache))
+            return Result.success(cache);
+
         GetContractInfoRespVO respVO = new GetContractInfoRespVO();
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract) && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
@@ -377,6 +384,7 @@ public class ContractServiceImpl implements ContractService {
                 });
 
         respVO.setRequires(requires);
+        requireCache.SetContract(contractId,respVO);
         return Result.success(respVO);
     }
 
@@ -468,6 +476,7 @@ public class ContractServiceImpl implements ContractService {
         contract.setContractLink(contractLink);
         contract.setUploadContract(ConstantsEnums.YESNOWAIT.YES.getValue());
         enterpriseContractService.updateById(contract);
+        requireCache.RemoveContractCache(reqVO.getContractId());
         return Result.success();
     }
 
@@ -522,6 +531,7 @@ public class ContractServiceImpl implements ContractService {
         }
 
         requireCache.Remove(reqVO.getRequireId());
+        requireCache.RemoveContractCache(contractId);
         return Result.success();
     }
 
@@ -556,6 +566,7 @@ public class ContractServiceImpl implements ContractService {
             talentPrivateService.updateById(talentPrivate);
         }
         requireCache.Remove(reqVO.getRequireId());
+        requireCache.RemoveContractCache(reqVO.getContractId());
         return Result.success();
     }
 }
