@@ -427,13 +427,14 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public Result<GetSelfContractRespVO> getSelfContract(GetSelfContractReqVO reqVO){
+        AssertUtils.isFalse(StringUtils.isNotEmpty(reqVO.getStatus()),"状态不能为空");
         GetSelfContractRespVO respVO = new GetSelfContractRespVO();
         List<GetContractInfoRespVO> list = new ArrayList<>();
         Page<EnterpriseContract> page = new Page<>(reqVO.getPage(), reqVO.getPageSize());
         enterpriseContractService.page(page,
                 new LambdaQueryWrapper<EnterpriseContract>()
                 .eq(EnterpriseContract::getUserId,StpUtil.getLoginIdAsLong())
-                .eq(StringUtils.isNotEmpty(reqVO.getStatus()),EnterpriseContract::getStatus,reqVO.getStatus())
+                .eq(EnterpriseContract::getStatus,reqVO.getStatus())
                 .eq(EnterpriseContract::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
 
         page.getRecords()
