@@ -80,7 +80,8 @@ public interface ExceptionsEnums extends Exceptions{
     enum Enterprise implements ExceptionsEnums{
         NO_DATA(500,"单位不存在"),
         INSERT_FAIL(500,"单位新增失败"),
-        ALTER_FAIL(500,"单位修改失败");
+        ALTER_FAIL(500,"单位修改失败"),
+        TOO_MANY(500,"拉入单位过多, 单次拉入上限30个");
         private final int code;
         private final String msg;
     }
@@ -90,7 +91,8 @@ public interface ExceptionsEnums extends Exceptions{
     enum Talent implements ExceptionsEnums {
         NO_DATA(500,"人才不存在"),
         INSERT_FAIL(500,"人才新增失败"),
-        ALTER_FAIL(500,"人才修改失败");
+        ALTER_FAIL(500,"人才修改失败"),
+        TOO_MANY(500,"拉入单位过多, 单次拉入上限30个");
         private final int code;
         private final String msg;
     }
