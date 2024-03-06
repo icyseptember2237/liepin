@@ -26,6 +26,8 @@ import com.liepin.contract.service.base.ContractAuditHistoryService;
 import com.liepin.contract.service.base.ContractMatchService;
 import com.liepin.contract.service.base.EnterpriseContractService;
 import com.liepin.contract.service.base.impl.EnterpriseContractRequireServiceImpl;
+import com.liepin.enterprise.constant.EnterprisePrivateStatus;
+import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.service.base.EnterprisePrivateService;
 import com.liepin.talent.constant.TalentPrivateStatus;
 import com.liepin.talent.entity.base.TalentInfo;
@@ -114,6 +116,15 @@ public class ContractServiceImpl implements ContractService {
             && ObjectUtils.isNotEmpty(reqVO.getTotalPrice()) && ObjectUtils.isNotEmpty(reqVO.getTotalRequireNum())
             && ObjectUtils.isNotEmpty(reqVO.getRequires()),
                 ExceptionsEnums.Common.PARAM_LACK);
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(reqVO.getPrivateId());
+        if (ObjectUtils.isEmpty(enterprisePrivate)
+                || !enterprisePrivate.getThrowback().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                || enterprisePrivate.getStatus().equals(EnterprisePrivateStatus.CONTRACT.getStatus())){
+            AssertUtils.throwException(ExceptionsEnums.Common.FAIL);
+        }
+        enterprisePrivate.setStatus(EnterprisePrivateStatus.CONTRACT.getStatus());
+        enterprisePrivateService.updateById(enterprisePrivate);
+
         Long total = 0L;
         Long totalNum = 0L;
         for (NewContractRequireListVO require : reqVO.getRequires()){
