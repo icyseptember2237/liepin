@@ -97,7 +97,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
 
         } catch (Exception ie){
             ie.printStackTrace();
-            AssertUtils.throwException(ExceptionsEnums.File.IMPORT_FAIL);
+            AssertUtils.throwException(ie.getMessage());
         }
         ImportEnterpriseRespVO respVO = new ImportEnterpriseRespVO();
         respVO.setTotal(listener.getDataNum());
