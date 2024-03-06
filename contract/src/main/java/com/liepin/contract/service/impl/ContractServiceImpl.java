@@ -400,7 +400,7 @@ public class ContractServiceImpl implements ContractService {
         if (ObjectUtils.isNotEmpty(require.getPrivateId()))
             res.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(require.getPrivateId()));
         if (ObjectUtils.isNotEmpty(require.getUserId()))
-            res.setUsername(contractMapper.selectTalentNameByPrivateId(require.getUserId()));
+            res.setUsername(userService.getById(require.getUserId()).getName());
         res.setPrice(new BigDecimal(require.getPrice()).divide(new BigDecimal(100)));
 
         List<ContractMatchInfo> matchInfo = new ArrayList<>();
@@ -443,6 +443,8 @@ public class ContractServiceImpl implements ContractService {
                     Result<GetContractInfoRespVO> res = getContractInfo(id);
                     if (res.getCode() == 200)
                         list.add(res.getData());
+                    else
+                        AssertUtils.throwException("获取"+ id +"号合同失败");
                 });
 
         respVO.setList(list);
