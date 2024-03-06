@@ -62,13 +62,13 @@ public class RateLimitAspect {
 
         Integer ban = (Integer) redisTemplate.opsForValue().get(key1);
         if (ban != null && ban >= 10 && byId){
-            redisTemplate.expire(key1,30,TimeUnit.MINUTES);
-            return Result.fail("操作过于频繁, 请多等几分钟后重试!");
+            redisTemplate.expire(key1,10,TimeUnit.MINUTES);
+            return Result.fail("操作过于频繁, 请10分钟后重试!");
         }
 
         // 超过限制禁止访问
         if (count != null && count >= times){
-            // 一天内每次超过限制都将次数+1, 次数超过10次则封禁接口访问半小时
+            // 一天内每次超过限制都将次数+1, 次数超过10次则封禁接口10分钟
             redisTemplate.opsForValue().setIfAbsent(key1,0);
             Long overRateCount = redisTemplate.opsForValue().increment(key1,1);
             if (overRateCount == 1){
@@ -81,7 +81,7 @@ public class RateLimitAspect {
 
             // 禁止期间再次访问重置时间
             redisTemplate.expire(key,withinTime,timeUnit);
-            return Result.fail("操作频繁, 请稍后重试");
+            return Result.fail("操作频繁, 请"+ blockTime +"秒后重试");
         }
 
         return point.proceed();
