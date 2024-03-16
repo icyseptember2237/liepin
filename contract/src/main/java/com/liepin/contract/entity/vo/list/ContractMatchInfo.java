@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 
 @Data
 public class ContractMatchInfo {
+    @ApiModelProperty(notes = "匹配id")
+    private Long matchId;
     @ApiModelProperty(notes = "合同id")
     private Long contractId;
     @ApiModelProperty(notes = "需求id")
@@ -18,6 +20,8 @@ public class ContractMatchInfo {
     private String username;
     @ApiModelProperty(notes = "人才价格")
     private BigDecimal talentPrice;
+    @ApiModelProperty(notes = "已付金额")
+    private BigDecimal paidPrice;
     @ApiModelProperty(notes = "人才id")
     private Long talentId;
     @ApiModelProperty(notes = "人才姓名")

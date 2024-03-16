@@ -53,7 +53,7 @@ public class ContractController {
 
     @GetMapping("/sendAudit")
     @ApiOperation(value = "单位部-合同提交审批")
-    @SaCheckRole(value = {RoleType.MANAGER.code})
+    @SaCheckRole(value = {RoleType.ENTERPRISE.code})
     @LockContract
     @RateLimit(times = 60,byId = false)
     public Result SendAudit(@RequestParam @Parameter(description = "合同id") Long contractId){
@@ -99,7 +99,7 @@ public class ContractController {
     @PostMapping("/getSelfContract")
     @ApiOperation(value = "单位部-查看自己的合同")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
-    public Result<GetSelfContractRespVO> getSelfContract(GetSelfContractReqVO reqVO){
+    public Result<GetSelfContractRespVO> getSelfContract(@RequestBody GetSelfContractReqVO reqVO){
         return contractService.getSelfContract(reqVO);
     }
 
@@ -109,6 +109,13 @@ public class ContractController {
     @LockContract
     public Result uploadContract(@RequestBody UploadContractReqVO reqVO){
         return contractService.uploadContract(reqVO);
+    }
+
+    @PostMapping("/getSelfMatches")
+    @ApiOperation(value = "人才部-按状态获取自己匹配的人才信息")
+    @SaCheckRole(value = RoleType.TALENT.code)
+    public Result<GetSelfMatchesRespVO> getSelfMatches(@RequestBody GetSelfMatchesReqVO reqVO){
+        return contractService.getSelfMatches(reqVO);
     }
 
     @PostMapping("/match")
@@ -126,4 +133,49 @@ public class ContractController {
     public Result cancelMatch(@RequestBody CancelMatchReqVO reqVO){
         return contractService.cancelMatch(reqVO);
     }
+
+    @PostMapping("/registerMoney")
+    @ApiOperation(value = "单位部-认款")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result registerMoney(@RequestBody RegisterMoneyReqVO reqVO){
+        return contractService.registerMoney(reqVO);
+    }
+
+    @PostMapping("/auditMoney")
+    @ApiOperation(value = "总经办-审核认款")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @LockContract
+    public Result auditMoney(@RequestBody AuditMoneyReqVO reqVO){
+        return contractService.auditMoney(reqVO);
+    }
+
+    @PostMapping("/enterpriseApplyMoney")
+    @ApiOperation(value = "单位部-从合同申请资金")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    public Result enterpriseApplyMoney(@RequestBody ApplyMoneyReqVO reqVO){
+        return contractService.enterpriseApplyMoney(reqVO);
+    }
+    @PostMapping("/talentApplyMoney")
+    @ApiOperation(value = "人才部-从合同申请资金给人才")
+    @SaCheckRole(value = RoleType.TALENT.code)
+    public Result talentApplyMoney(@RequestBody TalentApplyMoneyReqVO reqVO){
+        return contractService.talentApplyMoney(reqVO);
+    }
+
+    @PostMapping("/auditEnterpriseApply")
+    @ApiOperation(value = "总经办-审核单位部申请资金")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @LockContract
+    public Result auditEnterpriseApply(@RequestBody AuditApplyReqVO reqVO){
+        return contractService.auditEnterpriseApply(reqVO);
+    }
+
+    @PostMapping("/auditTalentApply")
+    @ApiOperation(value = "总经办-审核人才部申请资金")
+    @SaCheckRole(value = RoleType.MANAGER.code)
+    @LockContract
+    public Result auditTalentApply(@RequestBody AuditApplyReqVO reqVO){
+        return contractService.auditTalentApply(reqVO);
+    }
+
 }

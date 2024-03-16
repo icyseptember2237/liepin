@@ -13,10 +13,7 @@ import com.liepin.common.constant.enums.ConstantsEnums;
 import com.liepin.common.util.time.TimeUtil;
 import com.liepin.contract.cache.RequireCache;
 import com.liepin.contract.constant.ContractStatus;
-import com.liepin.contract.entity.base.ContractAuditHistory;
-import com.liepin.contract.entity.base.ContractMatch;
-import com.liepin.contract.entity.base.EnterpriseContract;
-import com.liepin.contract.entity.base.EnterpriseContractRequire;
+import com.liepin.contract.entity.base.*;
 import com.liepin.contract.entity.vo.list.*;
 import com.liepin.contract.entity.vo.reqvo.*;
 import com.liepin.contract.entity.vo.respvo.*;
@@ -25,7 +22,10 @@ import com.liepin.contract.service.ContractService;
 import com.liepin.contract.service.base.ContractAuditHistoryService;
 import com.liepin.contract.service.base.ContractMatchService;
 import com.liepin.contract.service.base.EnterpriseContractService;
+import com.liepin.contract.service.base.impl.EnterpriseContractMoneyApplyServiceImpl;
 import com.liepin.contract.service.base.impl.EnterpriseContractRequireServiceImpl;
+import com.liepin.contract.service.base.impl.RegisterMoneyHistoryServiceImpl;
+import com.liepin.contract.service.base.impl.TalentContractMoneyApplyServiceImpl;
 import com.liepin.enterprise.constant.EnterprisePrivateStatus;
 import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.service.base.EnterprisePrivateService;
@@ -37,6 +37,7 @@ import com.liepin.talent.service.base.TalentPrivateService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,13 +62,21 @@ public class ContractServiceImpl implements ContractService {
     private final ContractAuditHistoryService contractAuditHistoryService;
     private final EnterprisePrivateService enterprisePrivateService;
     private final EnterpriseContractRequireServiceImpl enterpriseContractRequireService;
+    private final RegisterMoneyHistoryServiceImpl registerMoneyHistoryService;
+    private final EnterpriseContractMoneyApplyServiceImpl enterpriseContractMoneyApplyService;
+    private final TalentContractMoneyApplyServiceImpl talentContractMoneyApplyService;
     private final RequireCache requireCache;
 
     @Autowired
     public ContractServiceImpl(EnterpriseContractService enterpriseContractService,UserService userService,
                                ContractMatchService contractMatchService,TalentPrivateService talentPrivateService,RequireCache requireCache,
                                ContractMapper contractMapper,ContractAuditHistoryService contractAuditHistoryService,TalentInfoService talentInfoService,
-                               EnterprisePrivateService enterprisePrivateService,EnterpriseContractRequireServiceImpl enterpriseContractRequireService){
+                               EnterprisePrivateService enterprisePrivateService,EnterpriseContractRequireServiceImpl enterpriseContractRequireService,
+                               RegisterMoneyHistoryServiceImpl registerMoneyHistoryService,EnterpriseContractMoneyApplyServiceImpl enterpriseContractMoneyApplyService,
+                               TalentContractMoneyApplyServiceImpl talentContractMoneyApplyService){
+        this.talentContractMoneyApplyService = talentContractMoneyApplyService;
+        this.enterpriseContractMoneyApplyService = enterpriseContractMoneyApplyService;
+        this.registerMoneyHistoryService = registerMoneyHistoryService;
         this.requireCache = requireCache;
         this.talentInfoService = talentInfoService;
         this.enterpriseContractRequireService = enterpriseContractRequireService;
@@ -127,6 +136,7 @@ public class ContractServiceImpl implements ContractService {
 
         Long total = 0L;
         Long totalNum = 0L;
+        Long totalOtherPrice = 0L;
         for (NewContractRequireListVO require : reqVO.getRequires()){
             AssertUtils.isFalse(ObjectUtils.isNotEmpty(require.getPrice())
                     && ObjectUtils.isNotEmpty(require.getRequireNum())
@@ -134,6 +144,9 @@ public class ContractServiceImpl implements ContractService {
                     ExceptionsEnums.Common.PARAM_LACK);
             total += require.getPrice().add(require.getOtherPrice()).multiply(new BigDecimal(100)).longValue();
             totalNum += require.getRequireNum();
+            if (ObjectUtils.isNotEmpty(require.getOtherPrice())){
+                totalOtherPrice += require.getOtherPrice().multiply(new BigDecimal(100)).longValue();
+            }
         }
         if (reqVO.getTotalPrice().multiply(new BigDecimal(100)).longValue() != total)
             return Result.fail("合同价格不一致");
@@ -148,6 +161,7 @@ public class ContractServiceImpl implements ContractService {
         Long userId  = StpUtil.getLoginIdAsLong();
         contract.setUserId(userId);
         contract.setCreateTime(TimeUtil.getNowWithSec());
+        contract.setProfit(total - totalOtherPrice);
         enterpriseContractService.save(contract);
 
         List<EnterpriseContractRequire> requires = new ArrayList<>();
@@ -178,6 +192,10 @@ public class ContractServiceImpl implements ContractService {
 
         contract.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
         enterpriseContractService.updateById(contract);
+        EnterprisePrivate enterprisePrivate = enterprisePrivateService.getById(contract.getPrivateId());
+        enterprisePrivate.setStatus(EnterprisePrivateStatus.FOLLOWUP.getStatus());
+        enterprisePrivateService.updateById(enterprisePrivate);
+        
         List<EnterpriseContractRequire> requires = enterpriseContractRequireService.list(
                 new LambdaQueryWrapper<EnterpriseContractRequire>()
                         .eq(EnterpriseContractRequire::getContractId,id)
@@ -254,7 +272,6 @@ public class ContractServiceImpl implements ContractService {
         List<GetContractInfoRespVO> list = new ArrayList<>();
         page.getRecords()
                 .stream()
-                .distinct()
                 .map(ContractAuditHistory::getContractId)
                 .forEach(contractId -> {
                     Result<GetContractInfoRespVO> res = getContractInfo(contractId);
@@ -294,29 +311,53 @@ public class ContractServiceImpl implements ContractService {
         auditHistory.setAuditId(StpUtil.getLoginIdAsLong());
         auditHistory.setRemark(remark);
         auditHistory.setStatus(status);
-        contractAuditHistoryService.save(auditHistory);
+        contractAuditHistoryService.updateById(auditHistory);
 
+        Long profit = 0L;
+        Long totalTalentPrice = 0L;
+        Long totalOtherPrice = 0L;
         if (status.equals(ContractStatus.FAIL.getStatus())){
             contract.setStatus(ContractStatus.READY.getStatus());
-            enterpriseContractRequireService.list(new LambdaQueryWrapper<EnterpriseContractRequire>()
+            List<Long> ids = enterpriseContractRequireService.list(new LambdaQueryWrapper<EnterpriseContractRequire>()
                             .eq(EnterpriseContractRequire::getContractId,contractId)
                             .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()))
-                    .forEach(require -> {
-                        require.setStatus(ContractStatus.READY.getStatus());
-                        enterpriseContractRequireService.updateById(require);
-                        requireCache.Remove(require.getId());
-                    });
+                    .stream()
+                    .map(EnterpriseContractRequire::getId)
+                    .collect(Collectors.toList());
+            contractMapper.updateRequireStatusBatch(ids,ContractStatus.READY.getStatus());
         } else{
             contract.setStatus(ContractStatus.MATCHING.getStatus());
-            enterpriseContractRequireService.list(new LambdaQueryWrapper<EnterpriseContractRequire>()
+            List<EnterpriseContractRequire> requires = enterpriseContractRequireService.list(new LambdaQueryWrapper<EnterpriseContractRequire>()
                     .eq(EnterpriseContractRequire::getContractId,contractId)
-                    .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()))
-                    .forEach(require -> {
-                        require.setStatus(ContractStatus.MATCHING.getStatus());
-                        enterpriseContractRequireService.updateById(require);
-                        requireCache.Remove(require.getId());
-                    });
+                    .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
+            List<Long> ids = requires
+                    .stream()
+                    .map(EnterpriseContractRequire::getId)
+                    .collect(Collectors.toList());
+            contractMapper.updateRequireStatusBatch(ids,ContractStatus.MATCHING.getStatus());
+            List<Long> matches = contractMatchService.list(new LambdaQueryWrapper<ContractMatch>()
+                            .eq(ContractMatch::getContractId,contractId)
+                            .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()))
+                    .stream()
+                    .map(ContractMatch::getId)
+                    .collect(Collectors.toList());
+            contractMapper.updateMatchStatusBatch(matches,ContractStatus.MATCHING.getStatus());
+
+            totalOtherPrice = requires
+                    .stream()
+                    .mapToLong(EnterpriseContractRequire::getOtherPrice)
+                    .sum();
+            totalTalentPrice = contractMatchService.list(new LambdaQueryWrapper<ContractMatch>()
+                            .eq(ContractMatch::getContractId, contractId)
+                            .eq(ContractMatch::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()))
+                    .stream()
+                    .mapToLong(ContractMatch::getTalentPrice)
+                    .sum();
         }
+        profit = contract.getTotalPrice() - totalTalentPrice - totalOtherPrice;
+        AssertUtils.isFalse(profit > 0,"利润小于零");
+        AssertUtils.isFalse(contract.getProfit().equals(profit),"利润错误");
+        contract.setProfit(profit);
         enterpriseContractService.updateById(contract);
         requireCache.RemoveContractCache(contractId);
         return Result.success();
@@ -360,8 +401,12 @@ public class ContractServiceImpl implements ContractService {
 
         BeanUtils.copyProperties(contract,respVO);
         respVO.setTotalPrice(new BigDecimal((contract.getTotalPrice())).divide(new BigDecimal(100L)));
+        respVO.setProfit(new BigDecimal(contract.getProfit()).divide(new BigDecimal(100L)));
+        respVO.setRegisteredAmount(new BigDecimal(contract.getRegisteredAmount()).divide(new BigDecimal(100L)));
+        respVO.setAmountOnContract(new BigDecimal(contract.getAmountOnContract()).divide(new BigDecimal(100L)));
+        respVO.setUsedAmount(new BigDecimal(contract.getUsedAmount()).divide(new BigDecimal(100L)));
         if (ObjectUtils.isNotEmpty(respVO.getUserId()))
-            respVO.setUsername(userService.getById(respVO.getUserId()).getUsername());
+            respVO.setUsername(userService.getById(respVO.getUserId()).getName());
         if (ObjectUtils.isNotEmpty(respVO.getPrivateId()))
             respVO.setEnterpriseName(contractMapper.selectEnterpriseNameByPrivateId(respVO.getPrivateId()));
 
@@ -418,10 +463,12 @@ public class ContractServiceImpl implements ContractService {
         for (ContractMatch match : matches){
             ContractMatchInfo info = new ContractMatchInfo();
             BeanUtils.copyProperties(match,info);
+            info.setMatchId(match.getId());
             info.setUsername(userService.getById(info.getUserId()).getUsername());
             if (ObjectUtils.isNotEmpty(info.getTalentId()))
                 info.setTalentName(contractMapper.selectTalentNameByPrivateId(info.getTalentId()));
             info.setTalentPrice(new BigDecimal(match.getTalentPrice()).divide(new BigDecimal(100)));
+            info.setPaidPrice(new BigDecimal(match.getPaidPrice()).divide(new BigDecimal(100)));
             TalentPrivate talentPrivate = talentPrivateService.getById(match.getTalentId());
             TalentInfo talentInfo = talentInfoService.getById(talentPrivate.getInfoId());
             BeanUtils.copyProperties(talentInfo,info,"createTime");
@@ -481,6 +528,39 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    public Result<GetSelfMatchesRespVO> getSelfMatches(GetSelfMatchesReqVO reqVO){
+        Long page = reqVO.getPage();
+        Long pageSize = reqVO.getPageSize();
+        String status = reqVO.getStatus();
+        AssertUtils.isFalse(ObjectUtils.isEmpty(status) && ObjectUtils.isEmpty(page) && ObjectUtils.isEmpty(pageSize),ExceptionsEnums.Common.PARAM_LACK);
+        GetSelfMatchesRespVO respVO = new GetSelfMatchesRespVO();
+        List<GetSelfMatchesListVO> list = new ArrayList<>();
+        Page<ContractMatch> matchPage = new Page<>(page,pageSize);
+        contractMatchService.page(matchPage,new LambdaQueryWrapper<ContractMatch>()
+                .eq(ContractMatch::getUserId,StpUtil.getLoginIdAsLong())
+                .eq(ContractMatch::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue())
+                .eq(ContractMatch::getStatus,status));
+
+        matchPage.getRecords()
+                .forEach(match -> {
+                    Result<GetContractInfoRespVO> res = getContractInfo(match.getContractId());
+                    if (res.getCode() == 200){
+                        GetSelfMatchesListVO temp = new GetSelfMatchesListVO();
+                        temp.setContract(res.getData());
+                        temp.setContractId(match.getContractId());
+                        temp.setMatchId(match.getId());
+                        temp.setRequireId(match.getRequireId());
+                        list.add(temp);
+                    } else {
+                        AssertUtils.throwException("获取"+ match.getContractId() +"号合同失败");
+                    }
+                });
+        respVO.setList(list);
+        respVO.setTotal(matchPage.getTotal());
+        return Result.success(respVO);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Result match(MatchReqVO reqVO){
         Long contractId = reqVO.getContractId();
@@ -528,8 +608,10 @@ public class ContractServiceImpl implements ContractService {
             contractMatch.setTalentPrice(talent.getPrice().multiply(new BigDecimal(100)).longValue());
             contractMatch.setCreateTime(TimeUtil.getNowWithSec());
             contractMatchService.save(contractMatch);
+            contract.setProfit(contract.getProfit() - talent.getPrice().multiply(new BigDecimal(100)).longValue());
+            AssertUtils.isFalse(contract.getProfit() > 0, "合同利润小于零");
         }
-
+        enterpriseContractService.updateById(contract);
         requireCache.Remove(reqVO.getRequireId());
         requireCache.RemoveContractCache(contractId);
         return Result.success();
@@ -564,9 +646,289 @@ public class ContractServiceImpl implements ContractService {
             TalentPrivate talentPrivate = talentPrivateService.getById(talentId);
             talentPrivate.setStatus(TalentPrivateStatus.FOLLOWUP.getStatus());
             talentPrivateService.updateById(talentPrivate);
+            contract.setProfit(contract.getProfit() + match.getTalentPrice());
         }
+        enterpriseContractService.updateById(contract);
         requireCache.Remove(reqVO.getRequireId());
         requireCache.RemoveContractCache(reqVO.getContractId());
         return Result.success();
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result registerMoney(RegisterMoneyReqVO reqVO){
+        Long contractId = reqVO.getContractId();
+        BigDecimal money = reqVO.getMoney();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contractId) && ObjectUtils.isNotEmpty(money),
+                ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+        EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract) && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+            && contract.getStatus().equals(ContractStatus.MATCHING.getStatus()),
+                ExceptionsEnums.Common.FAIL);
+        Long moneyLong = money.multiply(new BigDecimal(100)).longValue();
+        AssertUtils.isFalse(moneyLong >= 0,"认款金额不能为负");
+
+        RegisterMoneyHistory mostRecent = registerMoneyHistoryService.getOne(new LambdaQueryWrapper<RegisterMoneyHistory>()
+                .eq(RegisterMoneyHistory::getContractId,contractId)
+                .eq(RegisterMoneyHistory::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
+                .in(RegisterMoneyHistory::getStatus,"YES","WAIT")
+                .orderByDesc(RegisterMoneyHistory::getCreateTime));
+
+        if (ObjectUtils.isNotEmpty(mostRecent)){
+            // 后续认款
+            AssertUtils.isFalse(!mostRecent.getStatus().equals("WAIT"),"您的上一笔认款尚未审核完成");
+            AssertUtils.isFalse(moneyLong <= mostRecent.getRestFromTotal(),"认款金额不能大于合同总款");
+
+            RegisterMoneyHistory register = new RegisterMoneyHistory();
+            register.setContractId(contractId);
+            register.setUserId(StpUtil.getLoginIdAsLong());
+            register.setAmount(moneyLong);
+            register.setRestFromTotal(register.getRestFromTotal() - moneyLong);
+            register.setCreateTime(TimeUtil.getNowWithSec());
+            registerMoneyHistoryService.save(register);
+        } else {
+            // 首次认款
+            Long contractProfit = contract.getProfit();
+            AssertUtils.isFalse(moneyLong >= contractProfit,"首次认款金额必须大于合同利润");
+            AssertUtils.isFalse(moneyLong <= contract.getTotalPrice(),"认款金额不能大于合同总款");
+
+            RegisterMoneyHistory register = new RegisterMoneyHistory();
+            register.setContractId(contractId);
+            register.setUserId(StpUtil.getLoginIdAsLong());
+            register.setAmount(moneyLong);
+            register.setRestFromTotal(contract.getTotalPrice() - moneyLong);
+            register.setCreateTime(TimeUtil.getNowWithSec());
+            registerMoneyHistoryService.save(register);
+        }
+        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result auditMoney(AuditMoneyReqVO reqVO){
+        Long registerId = reqVO.getRegisterId();
+        String status = reqVO.getStatus();
+        RegisterMoneyHistory register = registerMoneyHistoryService.getById(registerId);
+
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(registerId) && ObjectUtils.isNotEmpty(status)
+            && ObjectUtils.isNotEmpty(register) && register.getStatus().equals("WAIT") && (status.equals("PASS") || status.equals("FAIL")),
+                ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+
+        EnterpriseContract contract = enterpriseContractService.getById(register.getContractId());
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                        && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                        && contract.getId().equals(reqVO.getContractId())
+                        && (contract.getStatus().equals(ContractStatus.MATCHING.getStatus()) || contract.getStatus().equals(ContractStatus.UNFINISHED.getStatus())),
+                ExceptionsEnums.Common.FAIL);
+
+        if (status.equals("PASS")){
+            register.setStatus("PASS");
+            register.setAuditId(StpUtil.getLoginIdAsLong());
+            register.setAuditTime(TimeUtil.getNowWithSec());
+            register.setRemark(reqVO.getRemark());
+            registerMoneyHistoryService.updateById(register);
+
+            if (contract.getRegisteredAmount() == 0){
+                contract.setAmountOnContract(register.getAmount() - contract.getProfit());
+            } else {
+                contract.setAmountOnContract(contract.getAmountOnContract() + register.getAmount());
+            }
+            contract.setRegisteredAmount(contract.getRegisteredAmount() + register.getAmount());
+            if (contract.getTotalPrice().equals(contract.getRegisteredAmount())){
+                contract.setStatus(ContractStatus.FINISHED.getStatus());
+            } else {
+                contract.setStatus(ContractStatus.UNFINISHED.getStatus());
+            }
+            enterpriseContractService.updateById(contract);
+        } else {
+            register.setStatus("FAIL");
+            register.setAuditId(StpUtil.getLoginIdAsLong());
+            register.setAuditTime(TimeUtil.getNowWithSec());
+            register.setRemark(reqVO.getRemark());
+            registerMoneyHistoryService.updateById(register);
+        }
+        requireCache.RemoveContractCache(register.getContractId());
+        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result enterpriseApplyMoney(ApplyMoneyReqVO reqVO){
+        Long contractId = reqVO.getContractId();
+        BigDecimal money = reqVO.getMoney();
+        String usage = reqVO.getUsage();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contractId) && ObjectUtils.isNotEmpty(money)
+                && ObjectUtils.isNotEmpty(usage) && money.compareTo(BigDecimal.ZERO) > 0,
+                ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+
+        EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        AssertUtils.isFalse(contract.getUserId().equals(StpUtil.getLoginIdAsLong()),ExceptionsEnums.Common.NO_PERMISSION);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                && !contract.getStatus().equals(ContractStatus.READY.getStatus())
+                && !contract.getStatus().equals(ContractStatus.WAIT.getStatus()),
+                ExceptionsEnums.Common.FAIL);
+        EnterpriseContractMoneyApply mostRecent = enterpriseContractMoneyApplyService.getOne(new LambdaQueryWrapper<EnterpriseContractMoneyApply>()
+                .eq(EnterpriseContractMoneyApply::getContractId,contractId)
+                .eq(EnterpriseContractMoneyApply::getUserId,StpUtil.getLoginIdAsLong())
+                .eq(EnterpriseContractMoneyApply::getStatus,"WAIT")
+                .eq(EnterpriseContractMoneyApply::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue()));
+        AssertUtils.isFalse(ObjectUtils.isEmpty(mostRecent),"等待上次申请审核完成");
+
+        Long moneyLong = money.longValue();
+        AssertUtils.isFalse(contract.getAmountOnContract() >= moneyLong,"申请金额大于合同剩余金额");
+
+        EnterpriseContractMoneyApply apply = new EnterpriseContractMoneyApply();
+        apply.setContractId(contractId);
+        apply.setUserId(StpUtil.getLoginIdAsLong());
+        apply.setApplyNum(moneyLong);
+        apply.setUsage(usage);
+        apply.setCreateTime(TimeUtil.getNowWithSec());
+        enterpriseContractMoneyApplyService.save(apply);
+
+        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result talentApplyMoney(TalentApplyMoneyReqVO reqVO){
+        Long contractId = reqVO.getContractId();
+        Long matchId = reqVO.getMatchId();
+        BigDecimal money = reqVO.getMoney();
+        String usage = reqVO.getUsage();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contractId) && ObjectUtils.isNotEmpty(matchId)
+                && ObjectUtils.isNotEmpty(money) && ObjectUtils.isNotEmpty(usage) && money.compareTo(BigDecimal.ZERO) > 0,
+                ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+
+        ContractMatch match = contractMatchService.getById(matchId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(match)
+                && match.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && match.getUserId().equals(StpUtil.getLoginIdAsLong())
+                && match.getContractId().equals(contractId),
+            ExceptionsEnums.Common.FAIL);
+
+        EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && !contract.getStatus().equals(ContractStatus.READY.getStatus())
+                && !contract.getStatus().equals(ContractStatus.WAIT.getStatus()),
+                ExceptionsEnums.Common.FAIL);
+
+        TalentContractMoneyApply mostRecent = talentContractMoneyApplyService.getOne(new LambdaQueryWrapper<TalentContractMoneyApply>()
+                .eq(TalentContractMoneyApply::getContractId,contractId)
+                .eq(TalentContractMoneyApply::getMatchId,matchId)
+                .eq(TalentContractMoneyApply::getUserId,StpUtil.getLoginIdAsLong())
+                .eq(TalentContractMoneyApply::getStatus,"WAIT")
+                .eq(TalentContractMoneyApply::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue()));
+        AssertUtils.isFalse(ObjectUtils.isEmpty(mostRecent),"等待上次申请审核完成");
+
+        Long moneyLong = money.longValue();
+        AssertUtils.isFalse(contract.getAmountOnContract() >= moneyLong,"申请金额大于合同剩余金额");
+        AssertUtils.isFalse(match.getPaidPrice() + moneyLong <= match.getTalentPrice(),"申请金额大于人才价格");
+        TalentContractMoneyApply apply = new TalentContractMoneyApply();
+        apply.setContractId(contractId);
+        apply.setMatchId(matchId);
+        apply.setUserId(StpUtil.getLoginIdAsLong());
+        apply.setApplyNum(moneyLong);
+        apply.setUsage(usage);
+        apply.setCreateTime(TimeUtil.getNowWithSec());
+        talentContractMoneyApplyService.save(apply);
+
+        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result auditEnterpriseApply(AuditApplyReqVO reqVO){
+        Long contractId = reqVO.getContractId();
+        Long applyId = reqVO.getApplyId();
+        String status = reqVO.getStatus();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contractId) && ObjectUtils.isNotEmpty(applyId)
+                && ObjectUtils.isNotEmpty(status) && ObjectUtils.isNotEmpty(reqVO.getContractId())
+                && (status.equals("PASS") || status.equals("FAIL")),
+                ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+
+        EnterpriseContractMoneyApply apply = enterpriseContractMoneyApplyService.getById(applyId);
+        EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && ObjectUtils.isNotEmpty(apply)
+                && apply.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && apply.getContractId().equals(contractId),
+                ExceptionsEnums.Common.FAIL);
+
+        if (status.equals("PASS")){
+            apply.setAuditId(StpUtil.getLoginIdAsLong());
+            apply.setAuditTime(TimeUtil.getNowWithSec());
+            apply.setStatus("PASS");
+            enterpriseContractMoneyApplyService.updateById(apply);
+            AssertUtils.isFalse(contract.getAmountOnContract() >= apply.getApplyNum(),"申请金额大于合同剩余金额");
+            contract.setAmountOnContract(contract.getAmountOnContract() - apply.getApplyNum());
+            contract.setUsedAmount(contract.getUsedAmount() + apply.getApplyNum());
+            enterpriseContractService.updateById(contract);
+        } else {
+            apply.setAuditId(StpUtil.getLoginIdAsLong());
+            apply.setAuditTime(TimeUtil.getNowWithSec());
+            apply.setStatus("FAIL");
+            enterpriseContractMoneyApplyService.updateById(apply);
+        }
+        requireCache.RemoveContractCache(contractId);
+        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result auditTalentApply(AuditApplyReqVO reqVO){
+        Long contractId = reqVO.getContractId();
+        Long applyId = reqVO.getApplyId();
+        String status = reqVO.getStatus();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contractId) && ObjectUtils.isNotEmpty(applyId)
+                && ObjectUtils.isNotEmpty(status) && ObjectUtils.isNotEmpty(reqVO.getContractId())
+                && (status.equals("PASS") || status.equals("FAIL")),
+                ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+
+        TalentContractMoneyApply apply = talentContractMoneyApplyService.getById(applyId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(apply) && apply.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && apply.getContractId().equals(contractId),
+                ExceptionsEnums.Common.FAIL);
+
+        ContractMatch match = contractMatchService.getById(apply.getMatchId());
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(match) && match.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue()),
+                ExceptionsEnums.Common.FAIL);
+
+        EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && apply.getContractId().equals(contractId),
+                ExceptionsEnums.Common.FAIL);
+
+        if (status.equals("PASS")){
+            AssertUtils.isFalse(contract.getAmountOnContract() >= apply.getApplyNum(),"申请金额大于合同剩余金额");
+            apply.setAuditId(StpUtil.getLoginIdAsLong());
+            apply.setAuditTime(TimeUtil.getNowWithSec());
+            apply.setStatus("PASS");
+            talentContractMoneyApplyService.updateById(apply);
+
+            AssertUtils.isFalse(match.getPaidPrice() + apply.getApplyNum() <= match.getTalentPrice(),"申请金额大于人才价格");
+            match.setPaidPrice(match.getPaidPrice() + apply.getApplyNum());
+            if (match.getPaidPrice().equals(match.getTalentPrice())) {
+                match.setStatus(ContractStatus.FINISHED.getStatus());
+            } else {
+                match.setStatus(ContractStatus.UNFINISHED.getStatus());
+            }
+            contractMatchService.updateById(match);
+
+            contract.setAmountOnContract(contract.getAmountOnContract() - apply.getApplyNum());
+            contract.setUsedAmount(contract.getUsedAmount() + apply.getApplyNum());
+            enterpriseContractService.updateById(contract);
+        } else {
+            apply.setAuditId(StpUtil.getLoginIdAsLong());
+            apply.setAuditTime(TimeUtil.getNowWithSec());
+            apply.setStatus("FAIL");
+            talentContractMoneyApplyService.updateById(apply);
+        }
+        requireCache.RemoveContractCache(contractId);
+        requireCache.Remove(match.getRequireId());
+        return Result.success();
+    }
+
 }

@@ -14,4 +14,22 @@
         on talent_private.info_id = talent_info.id
         where talent_private.id = #{privateId}
     </select>
+
+    <update id="updateRequireStatusBatch">
+        update enterprise_contract_require
+        set status = #{status}
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateMatchStatusBatch">
+        update contract_match
+        set status = #{status}
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

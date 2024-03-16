@@ -87,7 +87,7 @@ public class LockAspect {
     synchronized private boolean getLock(Long contractId){
         try {
             for (int i = 0;i < 20;i++){
-                if (redisTemplate.opsForValue().setIfAbsent("Contract:" + contractId,"lock",30, TimeUnit.SECONDS))
+                if (redisTemplate.opsForValue().setIfAbsent("Contract:lock:" + contractId,"lock",60, TimeUnit.SECONDS))
                     return true;
                 else {
                     Thread.sleep(50);
@@ -99,6 +99,6 @@ public class LockAspect {
     }
 
     synchronized private void freeLock(Long contractId){
-        redisTemplate.delete("Contract:" + contractId);
+        redisTemplate.delete("Contract:lock:" + contractId);
     }
 }

@@ -4,6 +4,7 @@ import com.liepin.common.constant.classes.Result;
 import com.liepin.contract.entity.vo.list.ContractRequireListVO;
 import com.liepin.contract.entity.vo.reqvo.*;
 import com.liepin.contract.entity.vo.respvo.*;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -32,8 +33,22 @@ public interface ContractService {
 
     Result uploadContract(UploadContractReqVO reqVO);
 
+    Result<GetSelfMatchesRespVO> getSelfMatches(GetSelfMatchesReqVO reqVO);
+
     Result match(MatchReqVO reqVO);
 
     Result cancelMatch(CancelMatchReqVO reqVO);
+
+    Result registerMoney(RegisterMoneyReqVO reqVO);
+
+    Result auditMoney(AuditMoneyReqVO reqVO);
+
+    Result enterpriseApplyMoney(ApplyMoneyReqVO reqVO);
+
+    Result talentApplyMoney(TalentApplyMoneyReqVO reqVO);
+
+    Result auditEnterpriseApply(AuditApplyReqVO reqVO);
+
+    Result auditTalentApply(AuditApplyReqVO reqVO);
 
 }

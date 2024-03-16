@@ -23,6 +23,14 @@ public class GetContractInfoRespVO {
     private String username;
     @ApiModelProperty(notes = "合同总价")
     private BigDecimal totalPrice;
+    @ApiModelProperty(notes = "利润")
+    private BigDecimal profit;
+    @ApiModelProperty(notes = "已认款金额")
+    private BigDecimal registeredAmount;
+    @ApiModelProperty(notes = "合同上金额")
+    private BigDecimal amountOnContract;
+    @ApiModelProperty(notes = "已申请金额")
+    private BigDecimal usedAmount;
     @ApiModelProperty(notes = "总需求数")
     private Long totalRequireNum;
     @ApiModelProperty(notes = "合同款项")

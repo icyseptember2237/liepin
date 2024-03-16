@@ -11,6 +11,10 @@ public class EnterpriseContract {
     private Long userId;
     private String priceType;
     private Long totalPrice;
+    private Long profit;
+    private Long registeredAmount;
+    private Long amountOnContract;
+    private Long usedAmount;
     private Long totalRequireNum;
     private String remark;
     private String uploadContract;
