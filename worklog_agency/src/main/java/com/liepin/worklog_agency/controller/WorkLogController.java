@@ -49,7 +49,6 @@ public class WorkLogController {
     @OperationAspect(detail = "更新or上传日志", type = OperationType.INSERT.value, module = OperationModule.WORKLOG.value)
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
 
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getId()),"日志id不能为空");
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWechatNum()),"日志微信不能为空");
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getPhoneNum()),"日志电话不能为空");
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getIntentionalCustomer()),"日志意向不能为空");
@@ -68,7 +67,6 @@ public class WorkLogController {
     @ApiOperation(value = "上传昨天的日志")
     @OperationAspect(detail = "上传昨天的日志",type = OperationType.INSERT.value,module = OperationModule.WORKLOG.value)
     public Result postLastWorkLog(@RequestBody WorkLogRespVo workLogRespVo){
-        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getId()),"日志id不能为空");
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWechatNum()),"日志微信不能为空");
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getPhoneNum()),"日志电话不能为空");
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getIntentionalCustomer()),"日志意向不能为空");
