@@ -6,6 +6,7 @@ import cn.dev33.satoken.annotation.SaMode;
 import cn.dev33.satoken.stp.StpUtil;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.common.aspect.operationAspect.OperationAspect;
+import com.liepin.common.config.exception.AssertUtils;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.OperationModule;
 import com.liepin.common.constant.enums.OperationType;
@@ -17,6 +18,7 @@ import com.liepin.worklog_agency.service.LogProblemService;
 import com.liepin.worklog_agency.service.LogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +48,16 @@ public class WorkLogController {
     @ApiOperation(value = "更新or上传日志")
     @OperationAspect(detail = "更新or上传日志", type = OperationType.INSERT.value, module = OperationModule.WORKLOG.value)
         public Result postLog(@RequestBody WorkLogRespVo workLogRespVo){
+
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getId()),"日志id不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWechatNum()),"日志微信不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getPhoneNum()),"日志电话不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getIntentionalCustomer()),"日志意向不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWorkSituation()),"日志情况不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWorkSummary()),"日志总结不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWorkPlan()),"日志计划不能为空");
+
+
         logService.insertWorkLog(workLogRespVo);
         logDetailService.insertWorkLogDetail(workLogRespVo);
         logProblemService.insertWorkLogProblem(workLogRespVo);
@@ -56,6 +68,14 @@ public class WorkLogController {
     @ApiOperation(value = "上传昨天的日志")
     @OperationAspect(detail = "上传昨天的日志",type = OperationType.INSERT.value,module = OperationModule.WORKLOG.value)
     public Result postLastWorkLog(@RequestBody WorkLogRespVo workLogRespVo){
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getId()),"日志id不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWechatNum()),"日志微信不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getPhoneNum()),"日志电话不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getIntentionalCustomer()),"日志意向不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWorkSituation()),"日志情况不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWorkSummary()),"日志总结不能为空");
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(workLogRespVo.getWorkPlan()),"日志计划不能为空");
+
         logService.insertLastWorkLog(workLogRespVo);
         logDetailService.insertLastWorkLogDetail(workLogRespVo);
         logProblemService.insertLastWorkLogProblem(workLogRespVo);
