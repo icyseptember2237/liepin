@@ -149,6 +149,13 @@ public class ContractController {
         return contractService.auditMoney(reqVO);
     }
 
+    @PostMapping("/getRegisterMoneyAudit")
+    @ApiOperation(value = "总经办、单位部-根据审核状态获取单位部认款信息(单位部调用只获取本人的)")
+    @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
+    public Result<GetRegisterMoneyAuditRespVO> getRegisterMoneyAudit(@RequestBody GetRegisterMoneyAuditReqVO reqVO){
+        return contractService.getRegisterMoneyAudit(reqVO);
+    }
+
     @PostMapping("/enterpriseApplyMoney")
     @ApiOperation(value = "单位部-从合同申请资金")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
@@ -160,6 +167,20 @@ public class ContractController {
     @SaCheckRole(value = RoleType.TALENT.code)
     public Result talentApplyMoney(@RequestBody TalentApplyMoneyReqVO reqVO){
         return contractService.talentApplyMoney(reqVO);
+    }
+
+    @PostMapping("/getEnterpriseApplyMoneyAudit")
+    @ApiOperation(value = "总经办、单位部-根据审核状态获取单位部申请资金")
+    @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
+    public Result<GetEnterpriseApplyMoneyAuditRespVO> getEnterpriseApplyMoneyAudit(@RequestBody GetApplyMoneyAuditReqVO reqVO){
+        return contractService.getEnterpriseApplyMoneyAudit(reqVO);
+    }
+
+    @PostMapping("/getTalentApplyMoneyAudit")
+    @ApiOperation(value = "总经办、人才部-根据审核状态获取单位部申请资金")
+    @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code},mode = SaMode.OR)
+    public Result<GetTalentApplyMoneyAuditRespVO> getTalentApplyMoneyAudit(@RequestBody GetApplyMoneyAuditReqVO reqVO){
+        return contractService.getTalentApplyMoneyAudit(reqVO);
     }
 
     @PostMapping("/auditEnterpriseApply")
@@ -178,4 +199,18 @@ public class ContractController {
         return contractService.auditTalentApply(reqVO);
     }
 
+    @PostMapping("/reDoEnterprise")
+    @ApiOperation(value = "单位部-将完结状态的合同对应的单位重新移至跟进中")
+    @SaCheckRole(value = RoleType.ENTERPRISE.code)
+    @LockContract
+    public Result reDoEnterprise(@RequestParam Long contractId){
+        return contractService.reDoEnterprise(contractId);
+    }
+
+    @PostMapping("/reDoTalent")
+    @ApiOperation(value = "人才部-将完结状态的合同对应的人才重新移至跟进中")
+    @SaCheckRole(value = RoleType.TALENT.code)
+    public Result reDoTalent(@RequestParam Long matchId){
+        return contractService.reDoTalent(matchId);
+    }
 }

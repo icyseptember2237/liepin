@@ -43,12 +43,22 @@ public interface ContractService {
 
     Result auditMoney(AuditMoneyReqVO reqVO);
 
+    Result<GetRegisterMoneyAuditRespVO> getRegisterMoneyAudit(GetRegisterMoneyAuditReqVO reqVO);
+
     Result enterpriseApplyMoney(ApplyMoneyReqVO reqVO);
 
     Result talentApplyMoney(TalentApplyMoneyReqVO reqVO);
 
+    Result<GetEnterpriseApplyMoneyAuditRespVO> getEnterpriseApplyMoneyAudit(GetApplyMoneyAuditReqVO reqVO);
+
+    Result<GetTalentApplyMoneyAuditRespVO> getTalentApplyMoneyAudit(GetApplyMoneyAuditReqVO reqVO);
+
     Result auditEnterpriseApply(AuditApplyReqVO reqVO);
 
     Result auditTalentApply(AuditApplyReqVO reqVO);
+
+    Result reDoEnterprise(Long contractId);
+
+    Result reDoTalent(Long matchId);
 
 }

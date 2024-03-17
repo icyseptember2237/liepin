@@ -532,7 +532,7 @@ public class ContractServiceImpl implements ContractService {
         Long page = reqVO.getPage();
         Long pageSize = reqVO.getPageSize();
         String status = reqVO.getStatus();
-        AssertUtils.isFalse(ObjectUtils.isEmpty(status) && ObjectUtils.isEmpty(page) && ObjectUtils.isEmpty(pageSize),ExceptionsEnums.Common.PARAM_LACK);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(status) && ObjectUtils.isNotEmpty(page) && ObjectUtils.isNotEmpty(pageSize),ExceptionsEnums.Common.PARAM_LACK);
         GetSelfMatchesRespVO respVO = new GetSelfMatchesRespVO();
         List<GetSelfMatchesListVO> list = new ArrayList<>();
         Page<ContractMatch> matchPage = new Page<>(page,pageSize);
@@ -753,6 +753,48 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public Result<GetRegisterMoneyAuditRespVO> getRegisterMoneyAudit(GetRegisterMoneyAuditReqVO reqVO){
+        Long page = reqVO.getPage();
+        Long pageSize = reqVO.getPageSize();
+        String status = reqVO.getStatus();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(status)
+                && ObjectUtils.isNotEmpty(page)
+                && ObjectUtils.isNotEmpty(pageSize)
+                ,ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+        Page<RegisterMoneyHistory> historyPage = new Page<>(page,pageSize);
+        LambdaQueryWrapper<RegisterMoneyHistory> wrapper = new LambdaQueryWrapper<RegisterMoneyHistory>();
+        wrapper.eq(RegisterMoneyHistory::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue())
+                .eq(RegisterMoneyHistory::getStatus,status)
+                .orderByDesc(RegisterMoneyHistory::getCreateTime);
+        if (StpUtil.getRoleList().contains(RoleType.ENTERPRISE.code)){
+            wrapper.eq(RegisterMoneyHistory::getUserId,StpUtil.getLoginIdAsLong());
+        }
+        registerMoneyHistoryService.page(historyPage,wrapper);
+        GetRegisterMoneyAuditRespVO respVO = new GetRegisterMoneyAuditRespVO();
+        List<GetRegisterMoneyAuditListVO> list = new ArrayList<>();
+        historyPage.getRecords()
+                .forEach(register -> {
+                    GetRegisterMoneyAuditListVO vo = new GetRegisterMoneyAuditListVO();
+                    Result<GetContractInfoRespVO> result = getContractInfo(register.getContractId());
+                    if (result.getCode() == 200){
+                        vo.setContract(result.getData());
+                        BeanUtils.copyProperties(register,vo);
+                        vo.setUserName(userService.getById(register.getUserId()).getName());
+                        vo.setAuditName(userService.getById(register.getAuditId()).getName());
+                        vo.setRestFromTotal(new BigDecimal(register.getRestFromTotal()));
+                        vo.setAmount(new BigDecimal(register.getAmount()));
+                    } else {
+                        AssertUtils.throwException("获取"+ register.getContractId() +"号合同失败");
+                    }
+                    list.add(vo);
+                });
+        respVO.setList(list);
+        respVO.setTotal(historyPage.getTotal());
+        return Result.success(respVO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result enterpriseApplyMoney(ApplyMoneyReqVO reqVO){
         Long contractId = reqVO.getContractId();
         BigDecimal money = reqVO.getMoney();
@@ -803,7 +845,8 @@ public class ContractServiceImpl implements ContractService {
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(match)
                 && match.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
                 && match.getUserId().equals(StpUtil.getLoginIdAsLong())
-                && match.getContractId().equals(contractId),
+                && match.getContractId().equals(contractId)
+                && !match.getStatus().equals(ContractStatus.FINISHED.getStatus()),
             ExceptionsEnums.Common.FAIL);
 
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
@@ -834,6 +877,83 @@ public class ContractServiceImpl implements ContractService {
         talentContractMoneyApplyService.save(apply);
 
         return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<GetEnterpriseApplyMoneyAuditRespVO> getEnterpriseApplyMoneyAudit(GetApplyMoneyAuditReqVO reqVO){
+        Long page = reqVO.getPage();
+        Long pageSize = reqVO.getPageSize();
+        String status = reqVO.getStatus();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(page) && ObjectUtils.isNotEmpty(pageSize)
+                && ObjectUtils.isNotEmpty(status),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+        Page<EnterpriseContractMoneyApply> applyPage = new Page<>(page,pageSize);
+        LambdaQueryWrapper<EnterpriseContractMoneyApply> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(EnterpriseContractMoneyApply::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue())
+                .eq(EnterpriseContractMoneyApply::getStatus,status)
+                .orderByDesc(EnterpriseContractMoneyApply::getCreateTime);
+        if (StpUtil.getRoleList().contains(RoleType.ENTERPRISE.code)){
+            queryWrapper.eq(EnterpriseContractMoneyApply::getUserId,StpUtil.getLoginIdAsLong());
+        }
+        enterpriseContractMoneyApplyService.page(applyPage,queryWrapper);
+
+        GetEnterpriseApplyMoneyAuditRespVO respVO = new GetEnterpriseApplyMoneyAuditRespVO();
+        List<GetEnterpriseApplyMoneyAuditListVO> list = new ArrayList<>();
+        applyPage.getRecords()
+                .forEach(apply -> {
+                    Result<GetContractInfoRespVO> result = getContractInfo(apply.getContractId());
+                    AssertUtils.isFalse(result.getCode() == 200,"获取"+apply.getContractId()+"号合同信息失败");
+
+                    GetEnterpriseApplyMoneyAuditListVO vo = new GetEnterpriseApplyMoneyAuditListVO();
+                    BeanUtils.copyProperties(apply,vo);
+                    vo.setContract(result.getData());
+                    vo.setApplyNum(new BigDecimal(apply.getApplyNum()));
+                    vo.setAuditName(userService.getById(apply.getAuditId()).getName());
+                    vo.setUserName(userService.getById(apply.getUserId()).getName());
+                    list.add(vo);
+                });
+        respVO.setList(list);
+        respVO.setTotal(applyPage.getTotal());
+        return Result.success(respVO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<GetTalentApplyMoneyAuditRespVO> getTalentApplyMoneyAudit(GetApplyMoneyAuditReqVO reqVO){
+        Long page = reqVO.getPage();
+        Long pageSize = reqVO.getPageSize();
+        String status = reqVO.getStatus();
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(page) && ObjectUtils.isNotEmpty(pageSize)
+                && ObjectUtils.isNotEmpty(status),ExceptionsEnums.Common.PARAMTER_IS_ERROR);
+        Page<TalentContractMoneyApply> applyPage = new Page<>(page,pageSize);
+        LambdaQueryWrapper<TalentContractMoneyApply> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TalentContractMoneyApply::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue())
+                .eq(TalentContractMoneyApply::getStatus,status)
+                .orderByDesc(TalentContractMoneyApply::getCreateTime);
+        if (StpUtil.getRoleList().contains(RoleType.TALENT.code)){
+            queryWrapper.eq(TalentContractMoneyApply::getUserId,StpUtil.getLoginIdAsLong());
+        }
+        talentContractMoneyApplyService.page(applyPage,queryWrapper);
+
+        GetTalentApplyMoneyAuditRespVO respVO = new GetTalentApplyMoneyAuditRespVO();
+        List<GetTalentApplyMoneyAuditListVO> list = new ArrayList<>();
+        applyPage.getRecords()
+                .forEach(apply -> {
+                    Result<GetContractInfoRespVO> result = getContractInfo(apply.getContractId());
+                    AssertUtils.isFalse(result.getCode() == 200,"获取"+apply.getContractId()+"号合同信息失败");
+
+                    GetTalentApplyMoneyAuditListVO vo = new GetTalentApplyMoneyAuditListVO();
+                    BeanUtils.copyProperties(apply,vo);
+                    vo.setContract(result.getData());
+                    vo.setApplyNum(new BigDecimal(apply.getApplyNum()));
+                    vo.setAuditName(userService.getById(apply.getAuditId()).getName());
+                    vo.setUserName(userService.getById(apply.getUserId()).getName());
+                    list.add(vo);
+                });
+
+        respVO.setList(list);
+        respVO.setTotal(applyPage.getTotal());
+        return Result.success(respVO);
     }
 
     @Override
@@ -931,4 +1051,37 @@ public class ContractServiceImpl implements ContractService {
         return Result.success();
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result reDoEnterprise(Long contractId){
+        EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && contract.getStatus().equals(ContractStatus.FINISHED.getStatus()),
+                ExceptionsEnums.Common.FAIL);
+        AssertUtils.isFalse(contract.getUserId().equals(StpUtil.getLoginIdAsLong()),ExceptionsEnums.Common.NO_PERMISSION);
+
+        EnterprisePrivate privateInfo = enterprisePrivateService.getById(contract.getPrivateId());
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(privateInfo),ExceptionsEnums.Enterprise.NO_DATA);
+        privateInfo.setStatus(EnterprisePrivateStatus.FOLLOWUP.getStatus());
+        enterprisePrivateService.updateById(privateInfo);
+        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result reDoTalent(Long matchId){
+        ContractMatch match = contractMatchService.getById(matchId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(match)
+                && match.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
+                && match.getStatus().equals(ContractStatus.FINISHED.getStatus()),
+                ExceptionsEnums.Common.FAIL);
+        AssertUtils.isFalse(match.getUserId().equals(StpUtil.getLoginIdAsLong()),ExceptionsEnums.Common.NO_PERMISSION);
+
+        TalentPrivate privateInfo = talentPrivateService.getById(match.getTalentId());
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(privateInfo),ExceptionsEnums.Talent.NO_DATA);
+        privateInfo.setStatus(TalentPrivateStatus.FOLLOWUP.getStatus());
+        talentPrivateService.updateById(privateInfo);
+        return Result.success();
+    }
 }
