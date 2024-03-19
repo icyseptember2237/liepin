@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 public class GetEnterpriseApplyMoneyAuditListVO {
     @ApiModelProperty(notes = "合同信息")
     private GetContractInfoRespVO contract;
+    @ApiModelProperty(notes = "申请id")
+    private Long id;
     @ApiModelProperty(notes = "申请人id")
     private Long userId;
     @ApiModelProperty(notes = "申请人姓名")
