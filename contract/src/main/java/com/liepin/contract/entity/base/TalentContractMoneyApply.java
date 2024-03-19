@@ -11,6 +11,7 @@ public class TalentContractMoneyApply {
     private Long id;
     private Long matchId;
     private Long contractId;
+    private Long requireId;
     private Long userId;
     private Long applyNum;
     private String usage;

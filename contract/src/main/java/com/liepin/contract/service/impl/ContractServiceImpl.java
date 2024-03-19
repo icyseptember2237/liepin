@@ -869,6 +869,7 @@ public class ContractServiceImpl implements ContractService {
         AssertUtils.isFalse(match.getPaidPrice() + moneyLong <= match.getTalentPrice(),"申请金额大于人才价格");
         TalentContractMoneyApply apply = new TalentContractMoneyApply();
         apply.setContractId(contractId);
+        apply.setRequireId(match.getRequireId());
         apply.setMatchId(matchId);
         apply.setUserId(StpUtil.getLoginIdAsLong());
         apply.setApplyNum(moneyLong);

@@ -14,6 +14,8 @@ public class GetTalentApplyMoneyAuditListVO {
     private Long userId;
     @ApiModelProperty(notes = "申请人姓名")
     private String userName;
+    @ApiModelProperty(notes = "需求id")
+    private Long requireId;
     @ApiModelProperty(notes = "匹配id")
     private Long matchId;
     @ApiModelProperty(notes = "用途")
