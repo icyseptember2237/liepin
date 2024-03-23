@@ -75,11 +75,11 @@ public class LoginServiceImpl implements LoginService {
     }
 
     private synchronized String getLastWorkDay(){
-        Object res = redisTemplate.opsForValue().get("lastWorkDay");
+        Object res = redisTemplate.opsForValue().get("lastWorkDay.login");
         if (ObjectUtils.isNotEmpty(res))
             return String.valueOf(res);
         String day = TimeUtil.getLastWorkDayAsDay();
-        redisTemplate.opsForValue().set("lastWorkDay",day,1, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set("lastWorkDay.login",day,5, TimeUnit.HOURS);
         return day;
     }
 
