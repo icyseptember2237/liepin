@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 @Service
 @Slf4j
 public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements LogService {
@@ -100,7 +102,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper,WorkLog> implements Lo
         WorkLog workLog = new WorkLog();
 
         String lastWorkDay = TimeUtil.getLastWorkDayAsSec();
-        redisTemplate.opsForValue().set("lastWorkDay", lastWorkDay);
+        redisTemplate.opsForValue().set("lastWorkDay", lastWorkDay, Duration.ofHours(2));
         workLog.setUserId(StpUtil.getLoginIdAsLong());
         workLog.setCreateTime(lastWorkDay);
         workLog.setUpdateTime(TimeUtil.getNowWithMin());
