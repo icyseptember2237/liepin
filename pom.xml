@@ -8,7 +8,7 @@
 		<version>2.7.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.tjh</groupId>
+	<groupId>com.dzht</groupId>
 	<artifactId>liepin</artifactId>
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
