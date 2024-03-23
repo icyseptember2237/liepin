@@ -43,6 +43,8 @@ public interface ContractService {
 
     Result auditMoney(AuditMoneyReqVO reqVO);
 
+    Result sharePerformance(Long contractId);
+
     Result<GetRegisterMoneyAuditRespVO> getRegisterMoneyAudit(GetRegisterMoneyAuditReqVO reqVO);
 
     Result enterpriseApplyMoney(ApplyMoneyReqVO reqVO);

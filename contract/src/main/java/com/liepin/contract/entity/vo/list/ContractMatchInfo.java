@@ -40,4 +40,6 @@ public class ContractMatchInfo {
     private String threeCertificate;
     @ApiModelProperty(notes = "匹配时间")
     private String createTime;
+    @ApiModelProperty(notes = "是否分业绩")
+    private String performanceShared;
 }

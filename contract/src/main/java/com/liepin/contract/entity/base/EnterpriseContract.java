@@ -21,6 +21,7 @@ public class EnterpriseContract {
     private String contractNumber;
     private String contractLink;
     private String status;
+    private String performanceShared;
     private String createTime;
     private String dlt;
 }

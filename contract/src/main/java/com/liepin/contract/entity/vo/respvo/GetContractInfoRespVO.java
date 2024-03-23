@@ -43,6 +43,8 @@ public class GetContractInfoRespVO {
     private String contractLink;
     @ApiModelProperty(notes = "合同状态")
     private String status;
+    @ApiModelProperty(notes = "是否分业绩")
+    private String performanceShared;
     @ApiModelProperty(notes = "创建时间")
     private String createTime;
     @ApiModelProperty(notes = "是否删除")

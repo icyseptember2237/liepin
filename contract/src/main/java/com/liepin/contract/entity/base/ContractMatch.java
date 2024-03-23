@@ -14,6 +14,7 @@ public class ContractMatch {
     private Long paidPrice;
     private Long userId;
     private String status;
+    private String performanceShared;
     private String createTime;
     private String dlt;
 }

@@ -149,6 +149,14 @@ public class ContractController {
         return contractService.auditMoney(reqVO);
     }
 
+    @PostMapping("/sharePerformance")
+    @ApiOperation(value = "单位部，总经办-分业绩")
+    @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
+    @LockContract
+    public Result sharePerformance(@RequestParam Long contractId){
+        return contractService.sharePerformance(contractId);
+    }
+
     @PostMapping("/getRegisterMoneyAudit")
     @ApiOperation(value = "总经办、单位部-根据审核状态获取单位部认款信息(单位部调用只获取本人的)")
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.ENTERPRISE.code},mode = SaMode.OR)
@@ -177,7 +185,7 @@ public class ContractController {
     }
 
     @PostMapping("/getTalentApplyMoneyAudit")
-    @ApiOperation(value = "总经办、人才部-根据审核状态获取单位部申请资金")
+    @ApiOperation(value = "总经办、人才部-根据审核状态获取人才部申请资金")
     @SaCheckRole(value = {RoleType.MANAGER.code,RoleType.TALENT.code},mode = SaMode.OR)
     public Result<GetTalentApplyMoneyAuditRespVO> getTalentApplyMoneyAudit(@RequestBody GetApplyMoneyAuditReqVO reqVO){
         return contractService.getTalentApplyMoneyAudit(reqVO);

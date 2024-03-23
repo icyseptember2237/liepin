@@ -22,10 +22,7 @@ import com.liepin.contract.service.ContractService;
 import com.liepin.contract.service.base.ContractAuditHistoryService;
 import com.liepin.contract.service.base.ContractMatchService;
 import com.liepin.contract.service.base.EnterpriseContractService;
-import com.liepin.contract.service.base.impl.EnterpriseContractMoneyApplyServiceImpl;
-import com.liepin.contract.service.base.impl.EnterpriseContractRequireServiceImpl;
-import com.liepin.contract.service.base.impl.RegisterMoneyHistoryServiceImpl;
-import com.liepin.contract.service.base.impl.TalentContractMoneyApplyServiceImpl;
+import com.liepin.contract.service.base.impl.*;
 import com.liepin.enterprise.constant.EnterprisePrivateStatus;
 import com.liepin.enterprise.entity.base.EnterprisePrivate;
 import com.liepin.enterprise.service.base.EnterprisePrivateService;
@@ -65,6 +62,7 @@ public class ContractServiceImpl implements ContractService {
     private final RegisterMoneyHistoryServiceImpl registerMoneyHistoryService;
     private final EnterpriseContractMoneyApplyServiceImpl enterpriseContractMoneyApplyService;
     private final TalentContractMoneyApplyServiceImpl talentContractMoneyApplyService;
+    private final PerformanceServiceImpl performanceService;
     private final RequireCache requireCache;
 
     @Autowired
@@ -73,7 +71,8 @@ public class ContractServiceImpl implements ContractService {
                                ContractMapper contractMapper,ContractAuditHistoryService contractAuditHistoryService,TalentInfoService talentInfoService,
                                EnterprisePrivateService enterprisePrivateService,EnterpriseContractRequireServiceImpl enterpriseContractRequireService,
                                RegisterMoneyHistoryServiceImpl registerMoneyHistoryService,EnterpriseContractMoneyApplyServiceImpl enterpriseContractMoneyApplyService,
-                               TalentContractMoneyApplyServiceImpl talentContractMoneyApplyService){
+                               TalentContractMoneyApplyServiceImpl talentContractMoneyApplyService,PerformanceServiceImpl performanceService){
+        this.performanceService = performanceService;
         this.talentContractMoneyApplyService = talentContractMoneyApplyService;
         this.enterpriseContractMoneyApplyService = enterpriseContractMoneyApplyService;
         this.registerMoneyHistoryService = registerMoneyHistoryService;
@@ -748,6 +747,59 @@ public class ContractServiceImpl implements ContractService {
             registerMoneyHistoryService.updateById(register);
         }
         requireCache.RemoveContractCache(register.getContractId());
+        return Result.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result sharePerformance(Long contractId){
+        EnterpriseContract contract = enterpriseContractService.getById(contractId);
+        AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
+                && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue()),
+                ExceptionsEnums.Common.FAIL);
+        List<String> role = StpUtil.getRoleList();
+        AssertUtils.isFalse(role.contains(RoleType.MANAGER.code) || contract.getUserId().equals(StpUtil.getLoginIdAsLong()),
+                ExceptionsEnums.Common.NO_PERMISSION);
+        AssertUtils.isFalse(contract.getPerformanceShared().equals(ConstantsEnums.YESNOWAIT.YES.getValue()),
+                "不可重复分业绩");
+        AssertUtils.isFalse(contract.getStatus().equals(ContractStatus.FINISHED.getStatus()) || contract.getStatus().equals(ContractStatus.UNFINISHED.getStatus()),
+                "完结或未完结状态才可进行分业绩");
+        List<ContractMatch> matches = contractMatchService.list(new LambdaQueryWrapper<ContractMatch>()
+                .eq(ContractMatch::getContractId,contractId)
+                .eq(ContractMatch::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue()));
+        contract.setPerformanceShared(ConstantsEnums.YESNOWAIT.YES.getValue());
+        enterpriseContractService.updateById(contract);
+
+        Performance enterprisePerformance = new Performance();
+        enterprisePerformance.setUserId(contract.getUserId());
+        enterprisePerformance.setRole(RoleType.ENTERPRISE.code);
+        enterprisePerformance.setPerformanceAmount(contract.getProfit() / 2);
+        enterprisePerformance.setContractId(contractId);
+        enterprisePerformance.setEnterprisePrivateId(contract.getPrivateId());
+        enterprisePerformance.setCreateTime(TimeUtil.getNowWithSec());
+        performanceService.save(enterprisePerformance);
+
+        Long talentProfit = contract.getProfit() / 2;
+        Long total = matches
+                .stream()
+                .map(ContractMatch::getTalentPrice)
+                .mapToLong(Long::longValue)
+                .sum();
+        for (ContractMatch match : matches){
+            Long profit = talentProfit * (match.getTalentPrice() / total);
+            Performance talentPerformance = new Performance();
+            talentPerformance.setUserId(match.getUserId());
+            talentPerformance.setRole(RoleType.TALENT.code);
+            talentPerformance.setPerformanceAmount(profit);
+            talentPerformance.setContractId(contractId);
+            talentPerformance.setRequireId(match.getRequireId());
+            talentPerformance.setMatchId(match.getId());
+            talentPerformance.setTalentPrivateId(match.getTalentId());
+            talentPerformance.setCreateTime(TimeUtil.getNowWithSec());
+            performanceService.save(talentPerformance);
+            requireCache.Remove(match.getRequireId());
+        }
+        requireCache.RemoveContractCache(contractId);
         return Result.success();
     }
 
