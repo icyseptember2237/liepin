@@ -199,8 +199,12 @@ public class ContractServiceImpl implements ContractService {
                 new LambdaQueryWrapper<EnterpriseContractRequire>()
                         .eq(EnterpriseContractRequire::getContractId,id)
                         .eq(EnterpriseContractRequire::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue()));
-        requires.forEach(require -> require.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue()));
+        requires.forEach(require -> {
+            require.setDlt(ConstantsEnums.YESNOWAIT.YES.getValue());
+            requireCache.RemoveContractCache(require.getId());
+        });
         enterpriseContractRequireService.updateBatchById(requires);
+
 
         LambdaQueryWrapper<ContractMatch> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ContractMatch::getContractId,id)
@@ -324,6 +328,9 @@ public class ContractServiceImpl implements ContractService {
                     .map(EnterpriseContractRequire::getId)
                     .collect(Collectors.toList());
             contractMapper.updateRequireStatusBatch(ids,ContractStatus.READY.getStatus());
+            for (Long id : ids){
+                requireCache.Remove(id);
+            }
         } else{
             contract.setStatus(ContractStatus.MATCHING.getStatus());
             List<EnterpriseContractRequire> requires = enterpriseContractRequireService.list(new LambdaQueryWrapper<EnterpriseContractRequire>()
@@ -352,6 +359,9 @@ public class ContractServiceImpl implements ContractService {
                     .stream()
                     .mapToLong(ContractMatch::getTalentPrice)
                     .sum();
+            for (Long id : ids){
+                requireCache.Remove(id);
+            }
         }
         profit = contract.getTotalPrice() - totalTalentPrice - totalOtherPrice;
         AssertUtils.isFalse(profit > 0,"利润小于零");
@@ -549,6 +559,7 @@ public class ContractServiceImpl implements ContractService {
                         temp.setContractId(match.getContractId());
                         temp.setMatchId(match.getId());
                         temp.setRequireId(match.getRequireId());
+                        temp.setTalentId(match.getTalentId());
                         list.add(temp);
                     } else {
                         AssertUtils.throwException("获取"+ match.getContractId() +"号合同失败");
@@ -875,7 +886,7 @@ public class ContractServiceImpl implements ContractService {
         apply.setContractId(contractId);
         apply.setUserId(StpUtil.getLoginIdAsLong());
         apply.setApplyNum(moneyLong);
-        apply.setUsage(usage);
+        apply.setMoneyUsage(usage);
         apply.setCreateTime(TimeUtil.getNowWithSec());
         enterpriseContractMoneyApplyService.save(apply);
 
@@ -925,7 +936,7 @@ public class ContractServiceImpl implements ContractService {
         apply.setMatchId(matchId);
         apply.setUserId(StpUtil.getLoginIdAsLong());
         apply.setApplyNum(moneyLong);
-        apply.setUsage(usage);
+        apply.setMoneyUsage(usage);
         apply.setCreateTime(TimeUtil.getNowWithSec());
         talentContractMoneyApplyService.save(apply);
 
@@ -960,6 +971,7 @@ public class ContractServiceImpl implements ContractService {
                     GetEnterpriseApplyMoneyAuditListVO vo = new GetEnterpriseApplyMoneyAuditListVO();
                     BeanUtils.copyProperties(apply,vo);
                     vo.setContract(result.getData());
+                    vo.setUsage(apply.getMoneyUsage());
                     vo.setApplyNum(new BigDecimal(apply.getApplyNum()));
                     vo.setAuditName(userService.getById(apply.getAuditId()).getName());
                     vo.setUserName(userService.getById(apply.getUserId()).getName());
@@ -998,6 +1010,7 @@ public class ContractServiceImpl implements ContractService {
                     GetTalentApplyMoneyAuditListVO vo = new GetTalentApplyMoneyAuditListVO();
                     BeanUtils.copyProperties(apply,vo);
                     vo.setContract(result.getData());
+                    vo.setUsage(apply.getMoneyUsage());
                     vo.setApplyNum(new BigDecimal(apply.getApplyNum()));
                     vo.setAuditName(userService.getById(apply.getAuditId()).getName());
                     vo.setUserName(userService.getById(apply.getUserId()).getName());

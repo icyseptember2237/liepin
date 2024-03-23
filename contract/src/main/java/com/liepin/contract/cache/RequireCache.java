@@ -19,11 +19,11 @@ public class RequireCache {
     private RedisTemplate redisTemplate;
 
     public synchronized void Set(Long requireId, ContractRequireListVO require){
-        redisTemplate.opsForValue().setIfAbsent("contract:requireCache:requireId:" + requireId,require,120, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().setIfAbsent("contract:requireCache:requireId:" + requireId,require,2880, TimeUnit.MINUTES);
     }
 
     public synchronized void SetContract(Long contractId, GetContractInfoRespVO contract){
-        redisTemplate.opsForValue().setIfAbsent("contract:contractCache:contractId:" + contractId,contract,120, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().setIfAbsent("contract:contractCache:contractId:" + contractId,contract,2880, TimeUnit.MINUTES);
     }
 
     public synchronized ContractRequireListVO Get(Long requireId){

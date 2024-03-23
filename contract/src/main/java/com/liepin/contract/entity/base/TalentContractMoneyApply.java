@@ -14,7 +14,7 @@ public class TalentContractMoneyApply {
     private Long requireId;
     private Long userId;
     private Long applyNum;
-    private String usage;
+    private String moneyUsage;
     private Long auditId;
     private String auditTime;
     private String status;
