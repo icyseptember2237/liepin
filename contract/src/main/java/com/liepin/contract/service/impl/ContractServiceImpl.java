@@ -878,7 +878,7 @@ public class ContractServiceImpl implements ContractService {
                 .eq(EnterpriseContractMoneyApply::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue()));
         AssertUtils.isFalse(ObjectUtils.isEmpty(mostRecent),"等待上次申请审核完成");
 
-        Long moneyLong = money.longValue();
+        Long moneyLong = money.multiply(new BigDecimal(100)).longValue();
         AssertUtils.isFalse(contract.getAmountOnContract() >= moneyLong,"申请金额大于合同剩余金额");
 
         EnterpriseContractMoneyApply apply = new EnterpriseContractMoneyApply();
@@ -926,7 +926,7 @@ public class ContractServiceImpl implements ContractService {
                 .eq(TalentContractMoneyApply::getDlt,ConstantsEnums.YESNOWAIT.NO.getValue()));
         AssertUtils.isFalse(ObjectUtils.isEmpty(mostRecent),"等待上次申请审核完成");
 
-        Long moneyLong = money.longValue();
+        Long moneyLong = money.multiply(new BigDecimal(100)).longValue();
         AssertUtils.isFalse(contract.getAmountOnContract() >= moneyLong,"申请金额大于合同剩余金额");
         AssertUtils.isFalse(match.getPaidPrice() + moneyLong <= match.getTalentPrice(),"申请金额大于人才价格");
         TalentContractMoneyApply apply = new TalentContractMoneyApply();
