@@ -211,14 +211,14 @@ public class ContractController {
     @ApiOperation(value = "单位部-将完结状态的合同对应的单位重新移至跟进中")
     @SaCheckRole(value = RoleType.ENTERPRISE.code)
     @LockContract
-    public Result reDoEnterprise(@RequestParam Long contractId){
-        return contractService.reDoEnterprise(contractId);
+    public Result reDoEnterprise(@RequestBody RedoReqVO reqVO){
+        return contractService.reDoEnterprise(reqVO.getContractId());
     }
 
     @PostMapping("/reDoTalent")
     @ApiOperation(value = "人才部-将完结状态的合同对应的人才重新移至跟进中")
     @SaCheckRole(value = RoleType.TALENT.code)
-    public Result reDoTalent(@RequestParam Long matchId){
-        return contractService.reDoTalent(matchId);
+    public Result reDoTalent(@RequestBody RedoReqVO reqVO){
+        return contractService.reDoTalent(reqVO.getContractId());
     }
 }

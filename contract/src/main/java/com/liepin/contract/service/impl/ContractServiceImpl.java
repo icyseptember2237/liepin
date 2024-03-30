@@ -670,7 +670,7 @@ public class ContractServiceImpl implements ContractService {
                 ExceptionsEnums.Common.PARAMTER_IS_ERROR);
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract) && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
-            && contract.getStatus().equals(ContractStatus.MATCHING.getStatus()),
+            && (contract.getStatus().equals(ContractStatus.MATCHING.getStatus()) || contract.getStatus().equals(ContractStatus.UNFINISH.getStatus())),
                 ExceptionsEnums.Common.FAIL);
         Long moneyLong = money.multiply(new BigDecimal(100)).longValue();
         AssertUtils.isFalse(moneyLong >= 0,"认款金额不能为负");
@@ -678,7 +678,7 @@ public class ContractServiceImpl implements ContractService {
         RegisterMoneyHistory mostRecent = registerMoneyHistoryService.getOne(new LambdaQueryWrapper<RegisterMoneyHistory>()
                 .eq(RegisterMoneyHistory::getContractId,contractId)
                 .eq(RegisterMoneyHistory::getDlt, ConstantsEnums.YESNOWAIT.NO.getValue())
-                .in(RegisterMoneyHistory::getStatus,"YES","WAIT")
+                .in(RegisterMoneyHistory::getStatus,"PASS","WAIT")
                 .orderByDesc(RegisterMoneyHistory::getCreateTime));
 
         if (ObjectUtils.isNotEmpty(mostRecent)){
@@ -690,7 +690,7 @@ public class ContractServiceImpl implements ContractService {
             register.setContractId(contractId);
             register.setUserId(StpUtil.getLoginIdAsLong());
             register.setAmount(moneyLong);
-            register.setRestFromTotal(register.getRestFromTotal() - moneyLong);
+            register.setRestFromTotal(mostRecent.getRestFromTotal() - moneyLong);
             register.setCreateTime(TimeUtil.getNowWithSec());
             registerMoneyHistoryService.save(register);
         } else {
@@ -1069,7 +1069,7 @@ public class ContractServiceImpl implements ContractService {
         Long applyId = reqVO.getApplyId();
         String status = reqVO.getStatus();
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contractId) && ObjectUtils.isNotEmpty(applyId)
-                && ObjectUtils.isNotEmpty(status) && ObjectUtils.isNotEmpty(reqVO.getContractId())
+                && ObjectUtils.isNotEmpty(status)
                 && (status.equals("PASS") || status.equals("FAIL")),
                 ExceptionsEnums.Common.PARAMTER_IS_ERROR);
 
