@@ -17,9 +17,9 @@ public enum ContractStatus {
     // 不通过
     FAIL("FAIL"),
     // 未完结
-    UNFINISHED("UNFINISHED"),
+    UNFINISH("UNFINISH"),
     // 已完结
-    FINISHED("FINISHED");
+    FINISH("FINISH");
     private String status;
 
 }

@@ -26,7 +26,7 @@ public class GetEnterpriseApplyMoneyAuditListVO {
     @ApiModelProperty(notes = "审核人姓名")
     private String auditName;
     @ApiModelProperty(notes = "审核状态")
-    private Integer status;
+    private String status;
     @ApiModelProperty(notes = "审核时间")
     private String auditTime;
     @ApiModelProperty(notes = "申请时间")

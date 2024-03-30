@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.liepin.auth.constant.RoleType;
 import com.liepin.auth.service.base.UserService;
 import com.liepin.common.config.exception.AssertUtils;
-import com.liepin.common.config.exception.BusinessException;
 import com.liepin.common.config.exception.ExceptionsEnums;
 import com.liepin.common.constant.classes.Result;
 import com.liepin.common.constant.enums.ConstantsEnums;
@@ -34,12 +33,10 @@ import com.liepin.talent.service.base.TalentPrivateService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -728,7 +725,7 @@ public class ContractServiceImpl implements ContractService {
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
                         && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
                         && contract.getId().equals(reqVO.getContractId())
-                        && (contract.getStatus().equals(ContractStatus.MATCHING.getStatus()) || contract.getStatus().equals(ContractStatus.UNFINISHED.getStatus())),
+                        && (contract.getStatus().equals(ContractStatus.MATCHING.getStatus()) || contract.getStatus().equals(ContractStatus.UNFINISH.getStatus())),
                 ExceptionsEnums.Common.FAIL);
 
         if (status.equals("PASS")){
@@ -745,9 +742,9 @@ public class ContractServiceImpl implements ContractService {
             }
             contract.setRegisteredAmount(contract.getRegisteredAmount() + register.getAmount());
             if (contract.getTotalPrice().equals(contract.getRegisteredAmount())){
-                contract.setStatus(ContractStatus.FINISHED.getStatus());
+                contract.setStatus(ContractStatus.FINISH.getStatus());
             } else {
-                contract.setStatus(ContractStatus.UNFINISHED.getStatus());
+                contract.setStatus(ContractStatus.UNFINISH.getStatus());
             }
             enterpriseContractService.updateById(contract);
         } else {
@@ -773,7 +770,7 @@ public class ContractServiceImpl implements ContractService {
                 ExceptionsEnums.Common.NO_PERMISSION);
         AssertUtils.isFalse(contract.getPerformanceShared().equals(ConstantsEnums.YESNOWAIT.YES.getValue()),
                 "不可重复分业绩");
-        AssertUtils.isFalse(contract.getStatus().equals(ContractStatus.FINISHED.getStatus()) || contract.getStatus().equals(ContractStatus.UNFINISHED.getStatus()),
+        AssertUtils.isFalse(contract.getStatus().equals(ContractStatus.FINISH.getStatus()) || contract.getStatus().equals(ContractStatus.UNFINISH.getStatus()),
                 "完结或未完结状态才可进行分业绩");
         List<ContractMatch> matches = contractMatchService.list(new LambdaQueryWrapper<ContractMatch>()
                 .eq(ContractMatch::getContractId,contractId)
@@ -843,9 +840,11 @@ public class ContractServiceImpl implements ContractService {
                         vo.setContract(result.getData());
                         BeanUtils.copyProperties(register,vo);
                         vo.setUserName(userService.getById(register.getUserId()).getName());
-                        vo.setAuditName(userService.getById(register.getAuditId()).getName());
-                        vo.setRestFromTotal(new BigDecimal(register.getRestFromTotal()));
-                        vo.setAmount(new BigDecimal(register.getAmount()));
+                        if (ObjectUtils.isNotEmpty(register.getAuditId()) && register.getAuditId() > 0) {
+                            vo.setAuditName(userService.getById(register.getAuditId()).getName());
+                        }
+                        vo.setRestFromTotal(new BigDecimal(register.getRestFromTotal()).divide(new BigDecimal(100)));
+                        vo.setAmount(new BigDecimal(register.getAmount()).divide(new BigDecimal(100)));
                     } else {
                         AssertUtils.throwException("获取"+ register.getContractId() +"号合同失败");
                     }
@@ -909,7 +908,7 @@ public class ContractServiceImpl implements ContractService {
                 && match.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
                 && match.getUserId().equals(StpUtil.getLoginIdAsLong())
                 && match.getContractId().equals(contractId)
-                && !match.getStatus().equals(ContractStatus.FINISHED.getStatus()),
+                && !match.getStatus().equals(ContractStatus.FINISH.getStatus()),
             ExceptionsEnums.Common.FAIL);
 
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
@@ -972,8 +971,9 @@ public class ContractServiceImpl implements ContractService {
                     BeanUtils.copyProperties(apply,vo);
                     vo.setContract(result.getData());
                     vo.setUsage(apply.getMoneyUsage());
-                    vo.setApplyNum(new BigDecimal(apply.getApplyNum()));
-                    vo.setAuditName(userService.getById(apply.getAuditId()).getName());
+                    vo.setApplyNum(new BigDecimal(apply.getApplyNum()).divide(new BigDecimal(100)));
+                    if(ObjectUtils.isNotEmpty(apply.getAuditId()) && apply.getAuditId() > 0)
+                        vo.setAuditName(userService.getById(apply.getAuditId()).getName());
                     vo.setUserName(userService.getById(apply.getUserId()).getName());
                     list.add(vo);
                 });
@@ -1011,8 +1011,9 @@ public class ContractServiceImpl implements ContractService {
                     BeanUtils.copyProperties(apply,vo);
                     vo.setContract(result.getData());
                     vo.setUsage(apply.getMoneyUsage());
-                    vo.setApplyNum(new BigDecimal(apply.getApplyNum()));
-                    vo.setAuditName(userService.getById(apply.getAuditId()).getName());
+                    vo.setApplyNum(new BigDecimal(apply.getApplyNum()).divide(new BigDecimal(100)));
+                    if (ObjectUtils.isNotEmpty(apply.getAuditId()) && apply.getAuditId() > 0)
+                        vo.setAuditName(userService.getById(apply.getAuditId()).getName());
                     vo.setUserName(userService.getById(apply.getUserId()).getName());
                     list.add(vo);
                 });
@@ -1097,9 +1098,9 @@ public class ContractServiceImpl implements ContractService {
             AssertUtils.isFalse(match.getPaidPrice() + apply.getApplyNum() <= match.getTalentPrice(),"申请金额大于人才价格");
             match.setPaidPrice(match.getPaidPrice() + apply.getApplyNum());
             if (match.getPaidPrice().equals(match.getTalentPrice())) {
-                match.setStatus(ContractStatus.FINISHED.getStatus());
+                match.setStatus(ContractStatus.FINISH.getStatus());
             } else {
-                match.setStatus(ContractStatus.UNFINISHED.getStatus());
+                match.setStatus(ContractStatus.UNFINISH.getStatus());
             }
             contractMatchService.updateById(match);
 
@@ -1123,7 +1124,7 @@ public class ContractServiceImpl implements ContractService {
         EnterpriseContract contract = enterpriseContractService.getById(contractId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(contract)
                 && contract.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
-                && contract.getStatus().equals(ContractStatus.FINISHED.getStatus()),
+                && contract.getStatus().equals(ContractStatus.FINISH.getStatus()),
                 ExceptionsEnums.Common.FAIL);
         AssertUtils.isFalse(contract.getUserId().equals(StpUtil.getLoginIdAsLong()),ExceptionsEnums.Common.NO_PERMISSION);
 
@@ -1140,7 +1141,7 @@ public class ContractServiceImpl implements ContractService {
         ContractMatch match = contractMatchService.getById(matchId);
         AssertUtils.isFalse(ObjectUtils.isNotEmpty(match)
                 && match.getDlt().equals(ConstantsEnums.YESNOWAIT.NO.getValue())
-                && match.getStatus().equals(ContractStatus.FINISHED.getStatus()),
+                && match.getStatus().equals(ContractStatus.FINISH.getStatus()),
                 ExceptionsEnums.Common.FAIL);
         AssertUtils.isFalse(match.getUserId().equals(StpUtil.getLoginIdAsLong()),ExceptionsEnums.Common.NO_PERMISSION);
 

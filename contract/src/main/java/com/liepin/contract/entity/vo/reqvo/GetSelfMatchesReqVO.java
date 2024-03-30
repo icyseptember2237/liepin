@@ -7,6 +7,6 @@ import lombok.Data;
 public class GetSelfMatchesReqVO {
     private Long page;
     private Long pageSize;
-    @ApiModelProperty(notes = "审核状态 MATCHING UNFINISHED FINISHED")
+    @ApiModelProperty(notes = "审核状态 MATCHING UNFINISHED FINISH")
     private String status;
 }
